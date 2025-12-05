@@ -408,12 +408,11 @@ int main(int argc, char *argv[]) {
   unsigned long places, digits, bits, count, index;
   mpf_t         xxx, yyy, pi;
   char          param[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE], logfile[NAMESIZE];
-  bool          rawoutput, txtoutput, gmpoutput;
+  bool          rawoutput, txtoutput;
 
   digits = 0;
   rawoutput = true;
   txtoutput = true;
-  gmpoutput = false;
 
   for (count = 0 ; count < argc ; count++) {
     strcpy(param, argv[count]);
@@ -427,8 +426,6 @@ int main(int argc, char *argv[]) {
       rawoutput = false;
     } else if (strcmp(param, "notxt") == 0) {
       txtoutput = false;
-    } else if (strcmp(param, "gmp") == 0) {
-      gmpoutput = true;
     } else {
       getdigits(param, &places);
       if (places > 0) {
@@ -552,11 +549,7 @@ int main(int argc, char *argv[]) {
     if (txtoutput) {
       inter_time = clock();
       logthis(false, "Write: Text\r");
-      if (gmpoutput) {
-        writepi(pi, txtfile, digits);
-      } else {
-        writetxt(pi, txtfile, digits);
-      }
+      writetxt(pi, txtfile, digits);
       logthis(true, "Write: Text %6.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
     }
   }
