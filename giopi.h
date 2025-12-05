@@ -20,3 +20,6 @@
 #define CHUNKCOUNT 5
 #define CHUNKCHARS 10
 #define DIGITSLINE 50
+
+// TODO: tweak arbitrary realloc limit check size
+#define MINREALLOC 8191

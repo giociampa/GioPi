@@ -8,6 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include <gmp.h>
+
 #include "giopi.h"
 
 unsigned long terms, depth, top, counted, progress;
@@ -213,9 +214,9 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     }
 
     // tidy up
-    // mpz_realloc2(scaled, 0);
-    // mpz_realloc2(quotient, 0);
-    // mpz_realloc2(remainder, 0);
+    mpz_realloc2(scaled, 0);
+    mpz_realloc2(quotient, 0);
+    mpz_realloc2(remainder, 0);
   }
 
   logthis(false, "Write: Text (0%%)  \r");
@@ -377,10 +378,11 @@ static void split(unsigned long a, unsigned long b) {
     // t = (qmb * tam) + t2
     mpz_mul(T1, Q2, T1);
     mpz_add(T1, T1, T2);
-    // tidy up
-    mpz_realloc2(P2, 0);
-    mpz_realloc2(Q2, 0);
-    mpz_realloc2(T2, 0);
+
+    // tidy up (TODO: tweak arbitrary realloc limit check size)
+    if (P2->_mp_alloc > MINREALLOC) {  mpz_realloc2(P2, 0); }
+    if (Q2->_mp_alloc > MINREALLOC) {  mpz_realloc2(Q2, 0); }
+    if (T2->_mp_alloc > MINREALLOC) {  mpz_realloc2(T2, 0); }
   }
 
   counted++;
