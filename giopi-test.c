@@ -214,9 +214,10 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     }
 
     // tidy up
-    mpz_realloc2(scaled, 0);
-    mpz_realloc2(quotient, 0);
-    mpz_realloc2(remainder, 0);
+    // TODO: Tune limit check (memory saved vs speed)
+    if (scaled->_mp_alloc > 1) { mpz_realloc2(scaled, 0); }
+    if (quotient->_mp_alloc > 1) { mpz_realloc2(quotient, 0); }
+    if (remainder->_mp_alloc > 1) { mpz_realloc2(remainder, 0); }
   }
 
   logthis(false, "Write: Text (0%%)  \r");
@@ -379,10 +380,11 @@ static void split(unsigned long a, unsigned long b) {
     mpz_mul(T1, Q2, T1);
     mpz_add(T1, T1, T2);
 
-    // tidy up (TODO: tweak arbitrary realloc limit check size)
-    if (P2->_mp_alloc > MINREALLOC) {  mpz_realloc2(P2, 0); }
-    if (Q2->_mp_alloc > MINREALLOC) {  mpz_realloc2(Q2, 0); }
-    if (T2->_mp_alloc > MINREALLOC) {  mpz_realloc2(T2, 0); }
+    // tidy up
+    // TODO: Tune limit check (memory saved vs speed)
+    if (P2->_mp_alloc > 1) { mpz_realloc2(P2, 0); }
+    if (Q2->_mp_alloc > 1) { mpz_realloc2(T2, 0); }
+    if (T2->_mp_alloc > 1) { mpz_realloc2(Q2, 0); }
   }
 
   counted++;
@@ -487,21 +489,28 @@ int main(int argc, char *argv[]) {
   // prepare floating point values
   inter_time = clock();
   logthis(false, "Prep:\r");
-  mpf_init(xxx);
-  mpf_set_z(xxx, Q1);
-  mpf_init(yyy);
-  mpf_set_z(yyy, T1);
 
-  // rescale for for mult/div later - retain ratio
+  // clear out the binary split structures (1)
+  // TODO: Tune limit check (memory saved vs speed)
+  for (count = 1 ; count < depth ; count++) {
+    if (pstack[count]->_mp_alloc > 1) { mpz_realloc2(pstack[count], 0); }
+    if (qstack[count]->_mp_alloc > 1) { mpz_realloc2(qstack[count], 0); }
+    if (tstack[count]->_mp_alloc > 1) { mpz_realloc2(tstack[count], 0); }
+  }
+
+  // convert integers to floats
+  mpf_init(xxx); mpf_set_z(xxx, Q1);
+  mpf_init(yyy); mpf_set_z(yyy, T1);
+  // and rescale for mult/div later - retain ratio
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
 
-  // clear out the binary split structures
-  for (count = (depth - 1) ; count > 0 ; count--) {
-    mpz_realloc2(tstack[count], 0);
-    mpz_realloc2(qstack[count], 0);
-    mpz_realloc2(pstack[count], 0);
-  }
+  // clear out the binary split structures (2)
+  // TODO: Tune limit check (memory saved vs speed)
+  if (P1->_mp_alloc > 1) { mpz_realloc2(P1, 0); }
+  if (Q1->_mp_alloc > 1) { mpz_realloc2(Q1, 0); }
+  if (T1->_mp_alloc > 1) { mpz_realloc2(T1, 0); }
+
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
