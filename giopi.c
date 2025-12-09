@@ -383,8 +383,8 @@ static void split(unsigned long a, unsigned long b) {
     // tidy up
     // TODO: Tune limit check (memory saved vs speed)
     if (P2->_mp_alloc > 1) { mpz_realloc2(P2, 0); }
-    if (Q2->_mp_alloc > 1) { mpz_realloc2(T2, 0); }
-    if (T2->_mp_alloc > 1) { mpz_realloc2(Q2, 0); }
+    if (Q2->_mp_alloc > 1) { mpz_realloc2(Q2, 0); }
+    if (T2->_mp_alloc > 1) { mpz_realloc2(T2, 0); }
   }
 
   counted++;

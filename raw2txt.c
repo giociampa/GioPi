@@ -45,9 +45,11 @@ int main(int argc, char *argv[]) {
     outhand = fopen(outfile, "w");
     
     mpz_init(scaled);
-    input = mpz_inp_raw(scaled, inphand);
-    
-    buffer = malloc(digits + 2);
+    mpz_inp_raw(scaled, inphand);
+    mpz_mul_2exp(scaled, scaled, 1);
+
+    input =  mpz_sizeinbase(scaled, 10) + 3;
+    buffer = malloc(input + 2);
     gmp_sprintf(buffer, "%Zd\n", scaled);
     
     strncpy(chunk, buffer, 1);

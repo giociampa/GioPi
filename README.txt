@@ -4,6 +4,7 @@ Based around the GMP library (and some example code for it).
 
 giopi   - generate arbitrary length sequences of Pi digits.
 raw2txt - convert raw output to text (the m68k code fails on occasion so need a separate processor).
+compare - compare two (formatted) output files
 
 Usage: (Run from a suitable command line)
 
@@ -14,7 +15,9 @@ noraw  : (Optional) Skip generation of the raw format file
 notxt  : (Optional) Skip generation of the text format file
 noout  : (Optional) Combination of noraw and notxt - useful for timing runs
 
-raw2txt file digits
+raw2txt(.exe/.tos) file digits
 
 file   : Input (raw format) file
 digits : (Optional) Required number of output digits (will use digits in filename by default)
+
+compare(.exe/.tos) file1 file2
