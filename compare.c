@@ -79,9 +79,11 @@ int main(int argc, char *argv[]) {
   
   line++;
   printf("Good digits: %lu\n", good);
-  printf("Fail line #: %lu\n", line);
-  printf("Line file 1:  %s\n", line1);
-  printf("Line file 2:  %s\n", line2);
+  if ( !(end1 && end2) ) {
+    printf("Fail line #: %lu\n", line);
+    printf("Line file 1:  %s\n", line1);
+    printf("Line file 2:  %s\n", line2);
+  }
 
   fclose(file1);
   fclose(file2);
