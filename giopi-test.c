@@ -470,7 +470,7 @@ int main(int argc, char *argv[]) {
   sprintf(logfile, "%ld.log", digits);
 
   loghand = fopen(logfile, "w");
-  logthis(true, "Build:  %-10s (%s gcc v%s)\n", BASENAME, BUILDDATE, GCCVER);
+  logthis(true, "Build:  %-10s (%s %s %s)\n", BASENAME, BUILDDATE, GCCNAM, GCCVER);
   logthis(true, "Method: Chudnovsky (Binary Split)\n");
   logthis(true, "Digits: %10.0f\n", (double) digits);
   logthis(true, "Terms:  %10.0f\n\n", (double) terms);

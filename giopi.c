@@ -31,6 +31,17 @@ static void logthis(bool both, char *fmt, ...) {
   }
 }
 
+// TODO: Tune allocation check size (speed vs saving)
+#define ALLOCSIZE 1
+
+static void cleardown(mpz_t num) {
+  if (num->_mp_alloc > ALLOCSIZE) {
+    num->_mp_d = realloc(num->_mp_d, ALLOCSIZE * sizeof(mp_limb_t));
+    num->_mp_alloc = ALLOCSIZE;
+    num->_mp_size  = 0;
+  }
+}
+
 // 10005-specific square root
 static void sqrt10005(mpf_t r) {
   unsigned long prec0, bits, prec, bit;
@@ -214,10 +225,9 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     }
 
     // tidy up
-    // TODO: Tune limit check (memory saved vs speed)
-    if (scaled->_mp_alloc > 1) { mpz_realloc2(scaled, 0); }
-    if (quotient->_mp_alloc > 1) { mpz_realloc2(quotient, 0); }
-    if (remainder->_mp_alloc > 1) { mpz_realloc2(remainder, 0); }
+    cleardown(scaled);
+    cleardown(quotient);
+    cleardown(remainder);
   }
 
   logthis(false, "Write: Text (0%%)  \r");
@@ -381,10 +391,9 @@ static void split(unsigned long a, unsigned long b) {
     mpz_add(T1, T1, T2);
 
     // tidy up
-    // TODO: Tune limit check (memory saved vs speed)
-    if (P2->_mp_alloc > 1) { mpz_realloc2(P2, 0); }
-    if (Q2->_mp_alloc > 1) { mpz_realloc2(Q2, 0); }
-    if (T2->_mp_alloc > 1) { mpz_realloc2(T2, 0); }
+    cleardown(P2);
+    cleardown(Q2);
+    cleardown(T2);
   }
 
   counted++;
@@ -461,7 +470,7 @@ int main(int argc, char *argv[]) {
   sprintf(logfile, "%ld.log", digits);
 
   loghand = fopen(logfile, "w");
-  logthis(true, "Build:  %-10s (%s gcc v%s)\n", BASENAME, BUILDDATE, GCCVER);
+  logthis(true, "Build:  %-10s (%s %s %s)\n", BASENAME, BUILDDATE, GCCNAM, GCCVER);
   logthis(true, "Method: Chudnovsky (Binary Split)\n");
   logthis(true, "Digits: %10.0f\n", (double) digits);
   logthis(true, "Terms:  %10.0f\n\n", (double) terms);
@@ -490,12 +499,11 @@ int main(int argc, char *argv[]) {
   inter_time = clock();
   logthis(false, "Prep:\r");
 
-  // clear out the binary split structures (1)
-  // TODO: Tune limit check (memory saved vs speed)
+  // tidy up (1 - all but zero level stack items)
   for (count = 1 ; count < depth ; count++) {
-    if (pstack[count]->_mp_alloc > 1) { mpz_realloc2(pstack[count], 0); }
-    if (qstack[count]->_mp_alloc > 1) { mpz_realloc2(qstack[count], 0); }
-    if (tstack[count]->_mp_alloc > 1) { mpz_realloc2(tstack[count], 0); }
+    cleardown(pstack[count]);
+    cleardown(qstack[count]);
+    cleardown(tstack[count]);
   }
 
   // convert integers to floats
@@ -505,11 +513,10 @@ int main(int argc, char *argv[]) {
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
 
-  // clear out the binary split structures (2)
-  // TODO: Tune limit check (memory saved vs speed)
-  if (P1->_mp_alloc > 1) { mpz_realloc2(P1, 0); }
-  if (Q1->_mp_alloc > 1) { mpz_realloc2(Q1, 0); }
-  if (T1->_mp_alloc > 1) { mpz_realloc2(T1, 0); }
+  // tidy up (2 - zero level stack items)
+  cleardown(P1);
+  cleardown(Q1);
+  cleardown(T1);
 
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
