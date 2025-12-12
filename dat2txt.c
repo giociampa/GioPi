@@ -27,8 +27,8 @@ int main(int argc, char** argv)
 
 	inphand = fopen(inpfile, "r");
 	if (inphand == NULL) {
-		printf("Missing input file: %s\n", inpfile);
-		exit(1);
+		printf("ERROR: Missing input file: %s\n", inpfile);
+		return EXIT_FAILURE;
 	}
 	outhand = fopen(outfile, "w");
 	
@@ -64,5 +64,5 @@ int main(int argc, char** argv)
 	fclose(inphand);
 	fclose(outhand);
 	
-	return 0;
+	return EXIT_SUCCESS;
 }

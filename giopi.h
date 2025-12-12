@@ -20,3 +20,6 @@
 #define CHUNKCOUNT 5
 #define CHUNKCHARS 10
 #define DIGITSLINE 50
+
+#define CHAR_POINT 46
+#define CHAR_THREE 51

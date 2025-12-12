@@ -1,23 +1,30 @@
-GioPi - Pi calculation (for PC, Pi, ST, etc.)
+GioPi Pi calculation - Chudnovsky binary split algorithm (based on GMP library)
 
-Based around the GMP library (and some example code for it).
+giopi   Generate arbitrary length sequences of Pi digits.
+raw2txt Convert raw output to formatted text file
+dat2txt Convert plain text output (eg y-cruncher) to formatted text file
+compare Compare two formatted text files
 
-giopi   - generate arbitrary length sequences of Pi digits.
-raw2txt - convert raw output to text (the m68k code fails on occasion so need a separate processor).
-compare - compare two (formatted) output files
+Usage: Run all from a suitable command line.
 
-Usage: (Run from a suitable command line)
+giopi(.exe/.tos) digits noraw notxt noout
 
-giopi(.exe/.tos) digits noraw notxt noout noout
-
-digits : Number of digits required (if no valid number specified it will be prompted for)
-noraw  : (Optional) Skip generation of the raw format file
-notxt  : (Optional) Skip generation of the text format file
-noout  : (Optional) Combination of noraw and notxt - useful for timing runs
+digits (opt)  Number of digits required (prompted for if missing)
+noraw  (opt)  Skip generation of the raw format file
+notxt  (opt)  Skip generation of the text format file
+noout  (opt)  Combination of noraw and notxt (useful for timing runs)
 
 raw2txt(.exe/.tos) file digits
 
-file   : Input (raw format) file
-digits : (Optional) Required number of output digits (will use digits in filename by default)
+file          Input (raw format) file
+digits (opt)  Required number of output digits (defaults to digits in filename)
+              (prompted for if missing - output file is "<digits>.txt")
+
+raw2txt(.exe/.tos) inpfile outfile
+
+inpfile (opt) Input file (defaults to "pi.dat")
+outfile (opt) Output file (defaults to "pi.txt")
 
 compare(.exe/.tos) file1 file2
+
+file1/file2       Formatted text files
