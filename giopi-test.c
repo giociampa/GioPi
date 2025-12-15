@@ -34,11 +34,19 @@ static void logthis(bool both, char *fmt, ...) {
 // TODO: Tune allocation check size (speed vs saving)
 #define ALLOCSIZE 1
 
-static void cleardown(mpz_t num) {
+static void realloc_int(mpz_t num) {
   if (num->_mp_alloc > ALLOCSIZE) {
-    num->_mp_d = realloc(num->_mp_d, ALLOCSIZE * sizeof(mp_limb_t));
-    num->_mp_alloc = ALLOCSIZE;
+    num->_mp_d     = realloc(num->_mp_d, sizeof(mp_limb_t));
+    num->_mp_alloc = 0;
     num->_mp_size  = 0;
+  }
+}
+
+static void realloc_float(mpf_t num) {
+  if (abs(num->_mp_size) > ALLOCSIZE) {
+    num->_mp_d     = realloc(num->_mp_d, sizeof(mp_limb_t));
+    num->_mp_size  = 0;
+    num->_mp_exp   = 0;
   }
 }
 
@@ -225,9 +233,9 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     }
 
     // tidy up
-    cleardown(scaled);
-    cleardown(quotient);
-    cleardown(remainder);
+    realloc_int(scaled);
+    realloc_int(quotient);
+    realloc_int(remainder);
   }
 
   logthis(false, "Write: Text (0%%)  \r");
@@ -301,6 +309,7 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
   fclose(outhand);
 }
 
+// Txt output - internal GMP functions only
 static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   unsigned long written, percent;
   char          *buffer, *chunk;
@@ -343,6 +352,7 @@ static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
 
   fclose(outhand);
 }
+
 static void split(unsigned long a, unsigned long b) {
   unsigned long percent;
   unsigned long m = (a + b) / 2;
@@ -391,9 +401,9 @@ static void split(unsigned long a, unsigned long b) {
     mpz_add(T1, T1, T2);
 
     // tidy up
-    cleardown(P2);
-    cleardown(Q2);
-    cleardown(T2);
+    realloc_int(P2);
+    realloc_int(Q2);
+    realloc_int(T2);
   }
 
   counted++;
@@ -498,26 +508,24 @@ int main(int argc, char *argv[]) {
   // prepare floating point values
   inter_time = clock();
   logthis(false, "Prep:\r");
-
-  // tidy up (1 - all but zero level stack items)
+  // tidy up - all but zero level stack items
   for (count = 1 ; count < depth ; count++) {
-    cleardown(pstack[count]);
-    cleardown(qstack[count]);
-    cleardown(tstack[count]);
+    realloc_int(tstack[count]);
+    realloc_int(qstack[count]);
+    realloc_int(pstack[count]);
   }
-
   // convert integers to floats
-  mpf_init(xxx); mpf_set_z(xxx, Q1);
-  mpf_init(yyy); mpf_set_z(yyy, T1);
-  // and rescale for mult/div later - retain ratio
+  mpf_init(yyy);
+  mpf_set_z(yyy, T1);
+  mpf_init(xxx);
+  mpf_set_z(xxx, Q1);
+  // rescale for mult/div later - retain ratio
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
-
-  // tidy up (2 - zero level stack items)
-  cleardown(P1);
-  cleardown(Q1);
-  cleardown(T1);
-
+  // tidy up - zero level stack items
+  realloc_int(T1);
+  realloc_int(Q1);
+  realloc_int(P1);
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
@@ -546,12 +554,11 @@ int main(int argc, char *argv[]) {
 #else
   mpf_div(pi, xxx, yyy);  // Internal divide
 #endif
+  // clear out the fraction structures
+  realloc_float(xxx);
+  realloc_float(yyy);
   logthis(true, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   logthis(true, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-
-  // clear out the fraction structures
-  mpf_clear(xxx);
-  mpf_clear(yyy);
 
   // output pi
   if (rawoutput || txtoutput) {
@@ -565,7 +572,11 @@ int main(int argc, char *argv[]) {
     if (txtoutput) {
       inter_time = clock();
       logthis(false, "Write: Text\r");
+#ifdef GNUOUT
+      writepi(pi, txtfile, digits);
+#else
       writetxt(pi, txtfile, digits);
+#endif
       logthis(true, "Write: Text %6.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
     }
   }
