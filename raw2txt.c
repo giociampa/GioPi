@@ -16,8 +16,8 @@ void getdigits(char *input, unsigned long *result) {
 }
 
 int main(int argc, char *argv[]) {
-  unsigned long digits, input, written, offset, index;
-  char          inpfile[NAMESIZE], outfile[NAMESIZE], *buffer, chunk[CHUNKCHARS + 1];
+  unsigned long places, digits, input, written, offset, index;
+  char          inpfile[NAMESIZE], outfile[NAMESIZE], *rawpos, *buffer, chunk[CHUNKCHARS + 1];
   FILE          *inphand, *outhand;
   mpz_t         scaled;
 
@@ -27,6 +27,12 @@ int main(int argc, char *argv[]) {
   }
 
   digits = 0;
+  strcpy(inpfile, argv[1]);
+  strcpy(outfile, argv[1]);
+  rawpos = strstr(outfile, ".raw");
+  if (rawpos != NULL) { rawpos[0] = 0; }
+  strcat(outfile, ".txt");
+  
   if (argc > 2) {
     getdigits(argv[2], &digits);
   }
@@ -41,9 +47,6 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
   }
-
-  strcpy(inpfile, argv[1]);
-  sprintf(outfile, "%lu.txt", digits);
 
   inphand = fopen(inpfile, "r");
   if (inphand == NULL) {

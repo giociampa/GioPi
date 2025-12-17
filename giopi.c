@@ -31,25 +31,6 @@ static void logthis(bool both, char *fmt, ...) {
   }
 }
 
-// TODO: Tune allocation check size (speed vs saving)
-#define ALLOCSIZE 1
-
-static void realloc_int(mpz_t num) {
-  if (num->_mp_alloc > ALLOCSIZE) {
-    num->_mp_d     = realloc(num->_mp_d, sizeof(mp_limb_t));
-    num->_mp_alloc = 0;
-    num->_mp_size  = 0;
-  }
-}
-
-static void realloc_float(mpf_t num) {
-  if (abs(num->_mp_size) > ALLOCSIZE) {
-    num->_mp_d     = realloc(num->_mp_d, sizeof(mp_limb_t));
-    num->_mp_size  = 0;
-    num->_mp_exp   = 0;
-  }
-}
-
 // 10005-specific square root
 static void sqrt10005(mpf_t r) {
   unsigned long prec0, bits, prec, bit;
@@ -233,9 +214,9 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     }
 
     // tidy up
-    realloc_int(scaled);
-    realloc_int(quotient);
-    realloc_int(remainder);
+    mpz_realloc2(scaled, 0);
+    mpz_realloc2(quotient, 0);
+    mpz_realloc2(remainder, 0);
   }
 
   logthis(false, "Write: Text (0%%)  \r");
@@ -401,9 +382,9 @@ static void split(unsigned long a, unsigned long b) {
     mpz_add(T1, T1, T2);
 
     // tidy up
-    realloc_int(P2);
-    realloc_int(Q2);
-    realloc_int(T2);
+    mpz_realloc2(P2, 0);
+    mpz_realloc2(Q2, 0);
+    mpz_realloc2(T2, 0);
   }
 
   counted++;
@@ -510,9 +491,9 @@ int main(int argc, char *argv[]) {
   logthis(false, "Prep:\r");
   // tidy up - all but zero level stack items
   for (count = 1 ; count < depth ; count++) {
-    realloc_int(tstack[count]);
-    realloc_int(qstack[count]);
-    realloc_int(pstack[count]);
+    mpz_clear(pstack[count]);
+    mpz_clear(qstack[count]);
+    mpz_clear(tstack[count]);
   }
   // convert integers to floats
   mpf_init(yyy);
@@ -523,9 +504,9 @@ int main(int argc, char *argv[]) {
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
   // tidy up - zero level stack items
-  realloc_int(T1);
-  realloc_int(Q1);
-  realloc_int(P1);
+  mpz_clear(P1);
+  mpz_clear(Q1);
+  mpz_clear(T1);
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
@@ -555,14 +536,14 @@ int main(int argc, char *argv[]) {
   mpf_div(pi, xxx, yyy);  // Internal divide
 #endif
   // clear out the fraction structures
-  realloc_float(xxx);
-  realloc_float(yyy);
+  mpf_clear(xxx);
+  mpf_clear(yyy);
   logthis(true, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   logthis(true, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // output pi
   if (rawoutput || txtoutput) {
-    logthis(false, "\n");
+    logthis(true, "\n");
     if (rawoutput) {
       inter_time = clock();
       logthis(false, "Write: Raw\r");

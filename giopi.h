@@ -8,7 +8,7 @@
 #define DIGITS_PER_ITER   14.1816474627254776555
 #define DOUBLE_PREC       53
 #define LEEWAY            32
-#define NAMESIZE          32
+#define NAMESIZE          256
 
 #define P1 (pstack[top])
 #define Q1 (qstack[top])
