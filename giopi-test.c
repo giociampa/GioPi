@@ -461,6 +461,7 @@ int main(int argc, char *argv[]) {
   sprintf(logfile, "%ld.log", digits);
 
   loghand = fopen(logfile, "w");
+  logthis(true, "[%s][%s][%ld.%ld.%ld]\n", __BASE_FILE__ , __TIMESTAMP__ , __GNUC__ , __GNUC_MINOR__ , __GNUC_PATCHLEVEL__);
   logthis(true, "Method: Chudnovsky (Binary Split)\n");
   logthis(true, "Digits: %10.0f\n", (double) digits);
   logthis(true, "Terms:  %10.0f\n\n", (double) terms);

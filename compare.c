@@ -2,8 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define DIGITLINE 50
-#define WHOLELINE 56
+#include "giopi.h"
 
 bool readline(FILE *file, char *line, long *where) {
   long item, this;
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
     } else {
       line++;
     }
-    good = (line * DIGITLINE);
+    good = (line * DIGITSLINE);
     
     if (strcmp(line1, line2) != 0) {
       item = 2;
