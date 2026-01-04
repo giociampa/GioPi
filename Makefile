@@ -12,9 +12,9 @@ M68000GCC := m68k-atari-mintelf-gcc
 
 native: giopi giopi-test compare dat2txt raw2txt
 
-m68000: giopi-st.tos giopi-test-st.tos compare-st.tos dat2txt-st.tos raw2txt-st.tos
+m68000: giopi-st.ttp giopi-test-st.ttp compare-st.ttp dat2txt-st.ttp raw2txt-st.ttp
 
-m68040: giopi.tos giopi-test.tos compare.tos dat2txt.tos raw2txt.tos
+m68040: giopi.ttp giopi-test.ttp compare.ttp dat2txt.ttp raw2txt.ttp
 
 all: native m68000 m68040
 
@@ -33,34 +33,34 @@ dat2txt: dat2txt.c giopi.h
 raw2txt: raw2txt.c giopi.h
 	${NATIVEGCC} raw2txt.c ${CFLAGSALL} ${CFLAGSX86} ${BUILDDATE} ${TITLEBASE} -o $@
 
-giopi-st.tos: giopi.c giopi.h
+giopi-st.ttp: giopi.c giopi.h
 	${M68000GCC} giopi.c ${CFLAGSALL} ${CFLAGS000} ${BUILDDATE} ${TITLEBASE} -o $@
 
-giopi-test-st.tos: giopi-test.c giopi.h
+giopi-test-st.ttp: giopi-test.c giopi.h
 	${M68000GCC} giopi-test.c ${CFLAGSALL} ${CFLAGS000} ${BUILDDATE} ${TITLETEST} -o $@
 
-compare-st.tos: compare.c giopi.h
+compare-st.ttp: compare.c giopi.h
 	${M68000GCC} compare.c ${CFLAGSALL} ${CFLAGS000} ${BUILDDATE} ${TITLEBASE} -o $@
 
-dat2txt-st.tos: dat2txt.c giopi.h
+dat2txt-st.ttp: dat2txt.c giopi.h
 	${M68000GCC} dat2txt.c ${CFLAGSALL} ${CFLAGS000} ${BUILDDATE} ${TITLEBASE} -o $@
 
-raw2txt-st.tos: raw2txt.c giopi.h
+raw2txt-st.ttp: raw2txt.c giopi.h
 	${M68000GCC} raw2txt.c ${CFLAGSALL} ${CFLAGS000} ${BUILDDATE} ${TITLEBASE} -o $@
 
-giopi.tos: giopi.c giopi.h
+giopi.ttp: giopi.c giopi.h
 	${M68000GCC} giopi.c ${CFLAGSALL} ${CFLAGS040} ${BUILDDATE} ${TITLEBASE} -o $@
 
-giopi-test.tos: giopi-test.c giopi.h
+giopi-test.ttp: giopi-test.c giopi.h
 	${M68000GCC} giopi-test.c ${CFLAGSALL} ${CFLAGS040} ${BUILDDATE} ${TITLETEST} -o $@
 
-compare.tos: compare.c giopi.h
+compare.ttp: compare.c giopi.h
 	${M68000GCC} compare.c ${CFLAGSALL} ${CFLAGS040} ${BUILDDATE} ${TITLEBASE} -o $@
 
-dat2txt.tos: dat2txt.c giopi.h
+dat2txt.ttp: dat2txt.c giopi.h
 	${M68000GCC} dat2txt.c ${CFLAGSALL} ${CFLAGS040} ${BUILDDATE} ${TITLEBASE} -o $@
 
-raw2txt.tos: raw2txt.c giopi.h
+raw2txt.ttp: raw2txt.c giopi.h
 	${M68000GCC} raw2txt.c ${CFLAGSALL} ${CFLAGS040} ${BUILDDATE} ${TITLEBASE} -o $@
 
 clean: clean-native clean-m68000 clean-m68040
@@ -69,7 +69,7 @@ clean-native:
 	rm -f giopi giopi-test compare dat2txt raw2txt
 
 clean-m68000:
-	rm -f giopi-st.tos giopi-test-st.tos compare-st.tos dat2txt-st.tos raw2txt-st.tos
+	rm -f giopi-st.ttp giopi-test-st.ttp compare-st.ttp dat2txt-st.ttp raw2txt-st.ttp
 
 clean-m68040:
-	rm -f giopi.tos giopi-test.tos compare.tos dat2txt.tos raw2txt.tos
+	rm -f giopi.ttp giopi-test.ttp compare.ttp dat2txt.ttp raw2txt.ttp
