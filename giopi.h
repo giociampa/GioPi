@@ -24,3 +24,11 @@
 
 #define CHAR_POINT 46
 #define CHAR_THREE 51
+
+#ifndef BASENAME
+#define BASENAME __BASE_FILE__
+#endif
+
+#ifndef BUILDDATE
+#define BUILDDATE __TIMESTAMP__
+#endif

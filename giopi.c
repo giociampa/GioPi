@@ -387,6 +387,7 @@ static void split(unsigned long a, unsigned long b) {
     mpz_realloc2(T2, 0);
   }
 
+  // progress marker
   counted++;
   percent = (1000 * counted) / (2 * terms);
   if (percent > progress) {
@@ -445,9 +446,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (!(rawoutput || txtoutput)) {
-  }
-
   start_time = clock();
   terms = (digits / DIGITS_PER_ITER) + 1;
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
@@ -461,6 +459,7 @@ int main(int argc, char *argv[]) {
   sprintf(logfile, "%ld.log", digits);
 
   loghand = fopen(logfile, "w");
+  logthis(true, "Build:  %-10s (%s gcc %lu.%lu.%lu)\n", BASENAME, BUILDDATE, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
   logthis(true, "Method: Chudnovsky (Binary Split)\n");
   logthis(true, "Digits: %10.0f\n", (double) digits);
   logthis(true, "Terms:  %10.0f\n\n", (double) terms);
