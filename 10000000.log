@@ -1,0 +1,15 @@
+Build:  giopi-test (20260105-1820 gcc 15.2.1)
+Method: Chudnovsky (Binary Split)
+Digits:   10000000
+Terms:      705137
+
+Init:         0.00 seconds
+Split:      225.88 seconds
+Prep:         0.00 seconds
+Root:         0.36 seconds
+Mult:         0.25 seconds
+Divide:       0.56 seconds
+Total:      227.06 seconds
+
+Write: Raw    0.39 seconds
+Write: Text   3.18 seconds

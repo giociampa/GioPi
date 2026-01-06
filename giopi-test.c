@@ -12,7 +12,7 @@
 #include "giopi.h"
 
 unsigned long terms, depth, top, counted, progress;
-mpz_t         *pstack, *qstack, *tstack;
+mpz_t         tempP1, tempQ1, tempT1, tempP2, tempQ2, tempT2;
 FILE          *loghand;
 
 static void logthis(bool both, char *fmt, ...) {
@@ -334,6 +334,48 @@ static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   fclose(outhand);
 }
 
+// temporary file handlers
+void read_tmp_file(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
+  char tempfile[NAMESIZE];
+  FILE *temphand;
+
+  sprintf(tempfile, "tmp_p_%02lu.tmp", level);
+  temphand = fopen(tempfile, "r");
+  mpz_inp_raw(p, temphand);
+  fclose(temphand);
+
+  sprintf(tempfile, "tmp_q_%02lu.tmp", level);
+  temphand = fopen(tempfile, "r");
+  mpz_inp_raw(q, temphand);
+  fclose(temphand);
+
+  sprintf(tempfile, "tmp_t_%02lu.tmp", level);
+  temphand = fopen(tempfile, "r");
+  mpz_inp_raw(t, temphand);
+  fclose(temphand);
+}
+
+void write_tmp_file(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
+  char tempfile[NAMESIZE];
+  FILE *temphand;
+
+  sprintf(tempfile, "tmp_p_%02lu.tmp", level);
+  temphand = fopen(tempfile, "w");
+  mpz_out_raw(temphand, p);
+  fclose(temphand);
+
+  sprintf(tempfile, "tmp_q_%02lu.tmp", level);
+  temphand = fopen(tempfile, "w");
+  mpz_out_raw(temphand, q);
+  fclose(temphand);
+
+  sprintf(tempfile, "tmp_t_%02lu.tmp", level);
+  temphand = fopen(tempfile, "w");
+  mpz_out_raw(temphand, t);
+  fclose(temphand);
+}
+
+// binary split handler
 static void split(unsigned long a, unsigned long b) {
   unsigned long percent;
   unsigned long m = (a + b) / 2;
@@ -341,51 +383,67 @@ static void split(unsigned long a, unsigned long b) {
   if ((b-a) == 1) {
     if (a == 0) {
       // p = 1
-      mpz_set_ui(P1, 1);
+      mpz_set_ui(tempP1, 1);
       // q = 1
-      mpz_set_ui(Q1, 1);
+      mpz_set_ui(tempQ1, 1);
       // t = B
-      mpz_set_ui(T1, B);
+      mpz_set_ui(tempT1, B);
     } else {
       // p = (6*a-5) * (2*a-1) * (6*a-1)
-      mpz_set_ui(P1, 6*a-5);
-      mpz_mul_ui(P1, P1, 2*a-1);
-      mpz_mul_ui(P1, P1, 6*a-1);
+      mpz_set_ui(tempP1, 6*a-5);
+      mpz_mul_ui(tempP1, tempP1, 2*a-1);
+      mpz_mul_ui(tempP1, tempP1, 6*a-1);
       // q = a * a * a * (C^3 / 24)
-      mpz_set_ui(Q1, a);
-      mpz_mul_ui(Q1, Q1, a);
-      mpz_mul_ui(Q1, Q1, a);
-      mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
-      mpz_mul_ui(Q1, Q1, D24); // (C * 24)
+      mpz_set_ui(tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, C24); // (C / 24)^2
+      mpz_mul_ui(tempQ1, tempQ1, D24); // (C * 24)
       // t = p * (B + (A * a))
-      mpz_set_ui(T1, A);
-      mpz_mul_ui(T1, T1, a);
-      mpz_add_ui(T1, T1, B);
-      mpz_mul(T1, T1, P1);
+      mpz_set_ui(tempT1, A);
+      mpz_mul_ui(tempT1, tempT1, a);
+      mpz_add_ui(tempT1, tempT1, B);
+      mpz_mul(tempT1, tempT1, tempP1);
       if (a % 2) {
-        mpz_neg(T1, T1);
+        mpz_neg(tempT1, tempT1);
       }
     }
   } else {
-    split(a, m); // split - get P1, Q1, T1
+    split(a, m); // split - get tempP1, tempQ1, tempT1
     top++;
-    split(m, b); // split - get P2, Q2, T2
+    split(m, b); // split - get tempP2, tempQ2, tempT2
     top--;
+    // read values from temp files
+    read_tmp_file(top, tempP1, tempQ1, tempT1);
+    // gmp_printf("%-2lu P << %Zd\n", top, tempP1);
+    // gmp_printf("%-2lu Q << %Zd\n", top, tempQ1);
+    // gmp_printf("%-2lu T << %Zd\n", top, tempT1);
+    read_tmp_file(top+1, tempP2, tempQ2, tempT2);
+    // gmp_printf("%-2lu P << %Zd\n", top+1, tempP2);
+    // gmp_printf("%-2lu Q << %Zd\n", top+1, tempQ2);
+    // gmp_printf("%-2lu T << %Zd\n", top+1, tempT2);
+    // printf("\n");
     // t2 = (pam * tmb)
-    mpz_mul(T2, P1, T2);
+    mpz_mul(tempT2, tempP1, tempT2);
     // p = pam * pmb
-    mpz_mul(P1, P1, P2);
+    mpz_mul(tempP1, tempP1, tempP2);
     // q = qam * qmb
-    mpz_mul(Q1, Q1, Q2);
+    mpz_mul(tempQ1, tempQ1, tempQ2);
     // t = (qmb * tam) + t2
-    mpz_mul(T1, Q2, T1);
-    mpz_add(T1, T1, T2);
+    mpz_mul(tempT1, tempQ2, tempT1);
+    mpz_add(tempT1, tempT1, tempT2);
 
     // tidy up
-    mpz_realloc2(P2, 0);
-    mpz_realloc2(Q2, 0);
-    mpz_realloc2(T2, 0);
+    mpz_realloc2(tempP2, 0);
+    mpz_realloc2(tempQ2, 0);
+    mpz_realloc2(tempT2, 0);
   }
+  // write values to temp files
+  // gmp_printf("%-2lu P >> %Zd\n", top, tempP1);
+  // gmp_printf("%-2lu Q >> %Zd\n", top, tempQ1);
+  // gmp_printf("%-2lu T >> %Zd\n", top, tempT1);
+  // printf("\n");
+  write_tmp_file(top, tempP1, tempQ1, tempT1);
 
   // progress marker
   counted++;
@@ -465,14 +523,12 @@ int main(int argc, char *argv[]) {
   logthis(true, "Terms:  %10.0f\n\n", (double) terms);
 
   // initialise the binary split structures
-  pstack = malloc(depth * sizeof(mpz_t));
-  qstack = malloc(depth * sizeof(mpz_t));
-  tstack = malloc(depth * sizeof(mpz_t));
-  for (count = 0; count < depth; count++) {
-    mpz_init(pstack[count]);
-    mpz_init(qstack[count]);
-    mpz_init(tstack[count]);
-  }
+  mpz_init(tempP1);
+  mpz_init(tempQ1);
+  mpz_init(tempT1);
+  mpz_init(tempP2);
+  mpz_init(tempQ2);
+  mpz_init(tempT2);
   logthis(true, "Init:   %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // off we jolly well go
@@ -488,23 +544,21 @@ int main(int argc, char *argv[]) {
   inter_time = clock();
   logthis(false, "Prep:\r");
   // tidy up - all but zero level stack items
-  for (count = 1 ; count < depth ; count++) {
-    mpz_clear(pstack[count]);
-    mpz_clear(qstack[count]);
-    mpz_clear(tstack[count]);
-  }
+  mpz_clear(tempP2);
+  mpz_clear(tempQ2);
+  mpz_clear(tempT2);
   // convert integers to floats
   mpf_init(yyy);
-  mpf_set_z(yyy, T1);
+  mpf_set_z(yyy, tempT1);
   mpf_init(xxx);
-  mpf_set_z(xxx, Q1);
+  mpf_set_z(xxx, tempQ1);
   // rescale for mult/div later - retain ratio
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
   // tidy up - zero level stack items
-  mpz_clear(P1);
-  mpz_clear(Q1);
-  mpz_clear(T1);
+  mpz_clear(tempP1);
+  mpz_clear(tempQ1);
+  mpz_clear(tempT1);
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
