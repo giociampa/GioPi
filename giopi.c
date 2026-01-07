@@ -11,7 +11,7 @@
 
 #include "giopi.h"
 
-unsigned long terms, depth, top, counted, progress;
+unsigned long terms, depth, splitdepth, counted, progress;
 mpz_t         *pstack, *qstack, *tstack;
 FILE          *loghand;
 
@@ -334,58 +334,64 @@ static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   fclose(outhand);
 }
 
+// binary split handling
+static void splitone(unsigned long a, unsigned long b) {
+  // p = (6*a-5) * (2*a-1) * (6*a-1)
+  mpz_set_ui(P1, 6*a-5);
+  mpz_mul_ui(P1, P1, 2*a-1);
+  mpz_mul_ui(P1, P1, 6*a-1);
+  // q = a * a * a * (C^3 / 24)
+  mpz_set_ui(Q1, a);
+  mpz_mul_ui(Q1, Q1, a);
+  mpz_mul_ui(Q1, Q1, a);
+  mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
+  mpz_mul_ui(Q1, Q1, D24); // (C * 24)
+  // t = p * (B + (A * a))
+  mpz_set_ui(T1, A);
+  mpz_mul_ui(T1, T1, a);
+  mpz_add_ui(T1, T1, B);
+  mpz_mul(T1, T1, P1);
+  if (a % 2) {
+    mpz_neg(T1, T1);
+  }
+}
 static void split(unsigned long a, unsigned long b) {
   unsigned long percent;
   unsigned long m = (a + b) / 2;
-
-  if ((b-a) == 1) {
-    if (a == 0) {
-      // p = 1
-      mpz_set_ui(P1, 1);
-      // q = 1
-      mpz_set_ui(Q1, 1);
-      // t = B
-      mpz_set_ui(T1, B);
-    } else {
-      // p = (6*a-5) * (2*a-1) * (6*a-1)
-      mpz_set_ui(P1, 6*a-5);
-      mpz_mul_ui(P1, P1, 2*a-1);
-      mpz_mul_ui(P1, P1, 6*a-1);
-      // q = a * a * a * (C^3 / 24)
-      mpz_set_ui(Q1, a);
-      mpz_mul_ui(Q1, Q1, a);
-      mpz_mul_ui(Q1, Q1, a);
-      mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
-      mpz_mul_ui(Q1, Q1, D24); // (C * 24)
-      // t = p * (B + (A * a))
-      mpz_set_ui(T1, A);
-      mpz_mul_ui(T1, T1, a);
-      mpz_add_ui(T1, T1, B);
-      mpz_mul(T1, T1, P1);
-      if (a % 2) {
-        mpz_neg(T1, T1);
-      }
-    }
+  
+  // split - get P1, Q1, T1
+  if ((m-a) > 1) {
+    split(a, m);
+  } else if (a > 0) {
+    splitone(a, m);
   } else {
-    split(a, m); // split - get P1, Q1, T1
-    top++;
-    split(m, b); // split - get P2, Q2, T2
-    top--;
-    // t2 = (pam * tmb)
-    mpz_mul(T2, P1, T2);
-    // p = pam * pmb
-    mpz_mul(P1, P1, P2);
-    // q = qam * qmb
-    mpz_mul(Q1, Q1, Q2);
-    // t = (qmb * tam) + t2
-    mpz_mul(T1, Q2, T1);
-    mpz_add(T1, T1, T2);
-
-    // tidy up
-    mpz_realloc2(P2, 0);
-    mpz_realloc2(Q2, 0);
-    mpz_realloc2(T2, 0);
+    mpz_set_ui(P1, 1);
+    mpz_set_ui(Q1, 1);
+    mpz_set_ui(T1, B);
   }
+  // split - get P2, Q2, T2
+  splitdepth++;
+  if ((b-m) > 1) {
+    split(m, b);
+  } else {
+    splitone(m, b);
+  }
+  splitdepth--;
+
+  // t2 = (pam * tmb)
+  mpz_mul(T2, P1, T2);
+  // p = pam * pmb
+  mpz_mul(P1, P1, P2);
+  // q = qam * qmb
+  mpz_mul(Q1, Q1, Q2);
+  // t = (qmb * tam) + t2
+  mpz_mul(T1, Q2, T1);
+  mpz_add(T1, T1, T2);
+
+  // tidy up
+  mpz_realloc2(P2, 0);
+  mpz_realloc2(Q2, 0);
+  mpz_realloc2(T2, 0);
 
   // progress marker
   counted++;
@@ -478,7 +484,7 @@ int main(int argc, char *argv[]) {
   // off we jolly well go
   inter_time = clock();
   logthis(false, "Split:\r");
-  top = 0;
+  splitdepth = 0;
   counted = 0;
   progress = 0;
   split(0, terms);
@@ -487,7 +493,7 @@ int main(int argc, char *argv[]) {
   // prepare floating point values
   inter_time = clock();
   logthis(false, "Prep:\r");
-  // tidy up - all but zero level stack items
+  // tidy up - non-zero level stack items
   for (count = 1 ; count < depth ; count++) {
     mpz_clear(pstack[count]);
     mpz_clear(qstack[count]);

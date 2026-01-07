@@ -374,74 +374,60 @@ void write_tmpfiles(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
 }
 
 // binary split handling
-static void splitone(unsigned long a, unsigned long b, mpz_t p, mpz_t q, mpz_t t) {
-  if (a == 0) {
-    mpz_set_ui(p, 1);
-    mpz_set_ui(q, 1);
-    mpz_set_ui(tempT1, B);
-  } else {
-    // p = (6*a-5) * (2*a-1) * (6*a-1)
-    mpz_set_ui(p, 6*a-5);
-    mpz_mul_ui(p, p, 2*a-1);
-    mpz_mul_ui(p, p, 6*a-1);
-    // q = a * a * a * (C^3 / 24)
-    mpz_set_ui(q, a);
-    mpz_mul_ui(q, q, a);
-    mpz_mul_ui(q, q, a);
-    mpz_mul_ui(q, q, C24); // (C / 24)^2
-    mpz_mul_ui(q, q, D24); // (C * 24)
-    // t = p * (B + (A * a))
-    mpz_set_ui(t, A);
-    mpz_mul_ui(t, t, a);
-    mpz_add_ui(t, t, B);
-    mpz_mul(t, t, p);
-    if (a % 2) {
-      mpz_neg(t, t);
-    }
-  }
-}
 static void split(unsigned long a, unsigned long b) {
   unsigned long percent;
   unsigned long m = (a + b) / 2;
-  bool          splitam = ((m - a) > 1);
-  bool          splitmb = ((b - m) > 1);
-  
-  // upper split
-  splitdepth++;
-  if (splitmb) {
-    split(m, b);
-  } else {
-    splitone(m, b, tempP2, tempQ2, tempT2);
-  }
-  // lower split
-  splitdepth--;
-  if (splitam) {
-    split(a, m);
-  } else {
-    splitone(a, m, tempP1, tempQ1, tempT1);
-  }
-  // read values from temp files (if used)
-  if (splitam) {
-    read_tmpfiles(splitdepth, tempP1, tempQ1, tempT1);
-  }
-  if (splitmb) {
-    read_tmpfiles(splitdepth+1, tempP2, tempQ2, tempT2);
-  }
-  // t2 = (pam * tmb)
-  mpz_mul(tempT2, tempP1, tempT2);
-  // p = pam * pmb
-  mpz_mul(tempP1, tempP1, tempP2);
-  // q = qam * qmb
-  mpz_mul(tempQ1, tempQ1, tempQ2);
-  // t = (qmb * tam) + t2
-  mpz_mul(tempT1, tempQ2, tempT1);
-  mpz_add(tempT1, tempT1, tempT2);
 
-  // tidy up
-  mpz_realloc2(tempP2, 0);
-  mpz_realloc2(tempQ2, 0);
-  mpz_realloc2(tempT2, 0);
-  
+  if ((b-a) == 1) {
+    if (a == 0) {
+      mpz_set_ui(tempP1, 1);
+      mpz_set_ui(tempQ1, 1);
+      mpz_set_ui(tempT1, B);
+    } else {
+      // p = (6*a-5) * (2*a-1) * (6*a-1)
+      mpz_set_ui(tempP1, 6*a-5);
+      mpz_mul_ui(tempP1, tempP1, 2*a-1);
+      mpz_mul_ui(tempP1, tempP1, 6*a-1);
+      // q = a * a * a * (C^3 / 24)
+      mpz_set_ui(tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, a);
+      mpz_mul_ui(tempQ1, tempQ1, C24); // (C / 24)^2
+      mpz_mul_ui(tempQ1, tempQ1, D24); // (C * 24)
+      // t = p * (B + (A * a))
+      mpz_set_ui(tempT1, A);
+      mpz_mul_ui(tempT1, tempT1, a);
+      mpz_add_ui(tempT1, tempT1, B);
+      mpz_mul(tempT1, tempT1, tempP1);
+      if (a % 2) {
+        mpz_neg(tempT1, tempT1);
+      }
+    }
+  } else {
+    // split - get tempP2, tempQ2, tempT2
+    splitdepth++;
+    split(m, b);
+    // split - get tempP1, tempQ1, tempT1
+    splitdepth--;
+    split(a, m);
+    // read values from temp files
+    read_tmpfiles(splitdepth, tempP1, tempQ1, tempT1);
+    read_tmpfiles(splitdepth+1, tempP2, tempQ2, tempT2);
+    // t2 = (pam * tmb)
+    mpz_mul(tempT2, tempP1, tempT2);
+    // p = pam * pmb
+    mpz_mul(tempP1, tempP1, tempP2);
+    // q = qam * qmb
+    mpz_mul(tempQ1, tempQ1, tempQ2);
+    // t = (qmb * tam) + t2
+    mpz_mul(tempT1, tempQ2, tempT1);
+    mpz_add(tempT1, tempT1, tempT2);
+
+    // tidy up
+    mpz_realloc2(tempP2, 0);
+    mpz_realloc2(tempQ2, 0);
+    mpz_realloc2(tempT2, 0);
+  }
   // write values to temp files (bar the very last one as unneeded)
   if ((a != 0) || (b != terms)) {
     write_tmpfiles(splitdepth, tempP1, tempQ1, tempT1);
