@@ -9,13 +9,14 @@
 #define DOUBLE_PREC       53
 #define LEEWAY            32
 #define NAMESIZE          256
+#define TEMPFILEFORMAT    "tmp_%02lu_%s.tmp"
 
-#define P1 (pstack[top])
-#define Q1 (qstack[top])
-#define T1 (tstack[top])
-#define P2 (pstack[top+1])
-#define Q2 (qstack[top+1])
-#define T2 (tstack[top+1])
+#define P1 (pstack[splitdepth])
+#define Q1 (qstack[splitdepth])
+#define T1 (tstack[splitdepth])
+#define P2 (pstack[splitdepth+1])
+#define Q2 (qstack[splitdepth+1])
+#define T2 (tstack[splitdepth+1])
 
 #define CHUNKCOUNT 5
 #define CHUNKCHARS 10
