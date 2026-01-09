@@ -31,126 +31,6 @@ static void logthis(bool both, char *fmt, ...) {
   }
 }
 
-// 10005-specific square root
-static void sqrt10005(mpf_t r) {
-  unsigned long prec0, bits, prec, bit;
-  unsigned long t1prec, t2prec;
-  mpf_t         t1, t2;
-
-  prec0 = mpf_get_prec(r);
-
-  if (prec0 <= DOUBLE_PREC) {
-    mpf_set_d(r, sqrt(10005));
-  } else {
-    mpf_init(t1);
-    mpf_init(t2);
-
-    t1prec = mpf_get_prec(t1);
-    t2prec = mpf_get_prec(t2);
-
-    bits = 0;
-    for (prec = prec0 ; prec > DOUBLE_PREC ;) {
-      bit = prec & 1;
-      prec = (prec + bit) >> 1;
-      bits = (bits << 1) + bit;
-    }
-
-    mpf_set_prec_raw(t1, DOUBLE_PREC);
-    mpf_set_d(t1, 1 / sqrt(10005));
-
-    while (prec < prec0) {
-      prec <<= 1;
-      if (prec < prec0) {
-        // t1 = t1 + t1*(1 - x*t1*t1)/2;
-        mpf_set_prec_raw(t2, prec);
-        mpf_mul(t2, t1, t1);             // half x half -> full
-        mpf_mul_ui(t2, t2, 10005);
-        mpf_ui_sub(t2, 1, t2);
-        mpf_set_prec_raw(t2, prec >> 1);
-        mpf_div_2exp(t2, t2, 1);
-        mpf_mul(t2, t2, t1);             // half x half -> half
-        mpf_set_prec_raw(t1, prec);
-        mpf_add(t1, t1, t2);
-      } else {
-        // t2=x * t1, t1 = t2 + t1*(x - t2*t2)/2;
-        mpf_set_prec_raw(t2, prec0 >> 1);
-        mpf_mul_ui(t2, t1, 10005);
-        mpf_mul(r, t2, t2);              // half x half -> full
-        mpf_ui_sub(r, 10005, r);
-        mpf_mul(t1, t1, r);              // half x half -> half
-        mpf_div_2exp(t1, t1, 1);
-        mpf_add(r, t1, t2);
-        break;
-      }
-      prec -= (bits & 1);
-      bits >>= 1;
-    }
-
-    mpf_set_prec_raw(t1, t1prec);
-    mpf_set_prec_raw(t2, t2prec);
-  }
-}
-
-#ifdef DIVIDE
-// divide - r cannot be the same as y
-static void divide(mpf_t r, mpf_t y, mpf_t x) {
-  unsigned long prec0, bits, prec, bit;
-  unsigned long t1prec, t2prec;
-  mpf_t         t1, t2;
-
-  prec0 = mpf_get_prec(r);
-
-  if (prec0 <= DOUBLE_PREC) {
-    mpf_set_d(r, mpf_get_d(y) / mpf_get_d(x));
-  } else {
-    mpf_init(t1);
-    mpf_init(t2);
-
-    t1prec = mpf_get_prec(t1);
-    t2prec = mpf_get_prec(t2);
-
-    bits = 0;
-    for (prec = prec0 ; prec > DOUBLE_PREC ;) {
-      bit = prec & 1;
-      prec = (prec + bit) >> 1;
-      bits = (bits << 1) + bit;
-    }
-
-    mpf_set_prec_raw(t1, DOUBLE_PREC);
-    mpf_set_d(t1, 1/mpf_get_d(x));
-
-    while (prec < prec0) {
-      prec <<= 1;
-      if (prec < prec0) {
-        // t1 = t1 + t1*(1 - x*t1);
-        mpf_set_prec_raw(t2, prec);
-        mpf_mul(t2, x, t1);          // full x half -> full
-        mpf_ui_sub(t2, 1, t2);
-        mpf_set_prec_raw(t2, prec/2);
-        mpf_mul(t2, t2, t1);         // half x half -> half
-        mpf_set_prec_raw(t1, prec);
-        mpf_add(t1, t1, t2);
-      } else {
-        prec = prec0;
-        // t2=y * t1, t1 = t2 + t1*(y - x*t2);
-        mpf_set_prec_raw(t2, prec/2);
-        mpf_mul(t2, t1, y);          // half x half -> half
-        mpf_mul(r, x, t2);           // full x half -> full
-        mpf_sub(r, y, r);
-        mpf_mul(t1, t1, r);          // half x half -> half
-        mpf_add(r, t1, t2);
-        break;
-      }
-      prec -= (bits & 1);
-      bits >>= 1;
-    }
-
-    mpf_set_prec_raw(t1, t1prec);
-    mpf_set_prec_raw(t2, t2prec);
-  }
-}
-#endif
-
 // Raw output - generate something than can be processed, regardless of system type
 static void writeraw(mpf_t pi, char *rawfile, unsigned long digits) {
   mpf_t factor;
@@ -291,7 +171,7 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
 }
 
 // Txt output - internal GMP functions only
-static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
+static void writegmp(mpf_t pi, char *outfile, unsigned long digits) {
   unsigned long written, percent;
   char          *buffer, *chunk;
   FILE          *outhand;
@@ -334,64 +214,177 @@ static void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   fclose(outhand);
 }
 
-// binary split handling
-static void splitone(unsigned long a, unsigned long b) {
-  // p = (6*a-5) * (2*a-1) * (6*a-1)
-  mpz_set_ui(P1, 6*a-5);
-  mpz_mul_ui(P1, P1, 2*a-1);
-  mpz_mul_ui(P1, P1, 6*a-1);
-  // q = a * a * a * (C^3 / 24)
-  mpz_set_ui(Q1, a);
-  mpz_mul_ui(Q1, Q1, a);
-  mpz_mul_ui(Q1, Q1, a);
-  mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
-  mpz_mul_ui(Q1, Q1, D24); // (C * 24)
-  // t = p * (B + (A * a))
-  mpz_set_ui(T1, A);
-  mpz_mul_ui(T1, T1, a);
-  mpz_add_ui(T1, T1, B);
-  mpz_mul(T1, T1, P1);
-  if (a % 2) {
-    mpz_neg(T1, T1);
+// 10005-specific square root
+static void sqrt10005(mpf_t r) {
+  unsigned long prec0, bits, prec, bit;
+  unsigned long t1prec, t2prec;
+  mpf_t         t1, t2;
+
+  prec0 = mpf_get_prec(r);
+
+  if (prec0 <= DOUBLE_PREC) {
+    mpf_set_d(r, sqrt(10005));
+  } else {
+    mpf_init(t1);
+    mpf_init(t2);
+
+    t1prec = mpf_get_prec(t1);
+    t2prec = mpf_get_prec(t2);
+
+    bits = 0;
+    for (prec = prec0 ; prec > DOUBLE_PREC ;) {
+      bit = prec & 1;
+      prec = (prec + bit) >> 1;
+      bits = (bits << 1) + bit;
+    }
+
+    mpf_set_prec_raw(t1, DOUBLE_PREC);
+    mpf_set_d(t1, 1 / sqrt(10005));
+
+    while (prec < prec0) {
+      prec <<= 1;
+      if (prec < prec0) {
+        // t1 = t1 + t1*(1 - x*t1*t1)/2;
+        mpf_set_prec_raw(t2, prec);
+        mpf_mul(t2, t1, t1);             // half x half -> full
+        mpf_mul_ui(t2, t2, 10005);
+        mpf_ui_sub(t2, 1, t2);
+        mpf_set_prec_raw(t2, prec >> 1);
+        mpf_div_2exp(t2, t2, 1);
+        mpf_mul(t2, t2, t1);             // half x half -> half
+        mpf_set_prec_raw(t1, prec);
+        mpf_add(t1, t1, t2);
+      } else {
+        // t2=x * t1, t1 = t2 + t1*(x - t2*t2)/2;
+        mpf_set_prec_raw(t2, prec0 >> 1);
+        mpf_mul_ui(t2, t1, 10005);
+        mpf_mul(r, t2, t2);              // half x half -> full
+        mpf_ui_sub(r, 10005, r);
+        mpf_mul(t1, t1, r);              // half x half -> half
+        mpf_div_2exp(t1, t1, 1);
+        mpf_add(r, t1, t2);
+        break;
+      }
+      prec -= (bits & 1);
+      bits >>= 1;
+    }
+
+    mpf_set_prec_raw(t1, t1prec);
+    mpf_set_prec_raw(t2, t2prec);
   }
 }
+
+// divide - r cannot be the same as y
+static void divide(mpf_t r, mpf_t y, mpf_t x) {
+  unsigned long prec0, bits, prec, bit;
+  unsigned long t1prec, t2prec;
+  mpf_t         t1, t2;
+
+  prec0 = mpf_get_prec(r);
+
+  if (prec0 <= DOUBLE_PREC) {
+    mpf_set_d(r, mpf_get_d(y) / mpf_get_d(x));
+  } else {
+    mpf_init(t1);
+    mpf_init(t2);
+
+    t1prec = mpf_get_prec(t1);
+    t2prec = mpf_get_prec(t2);
+
+    bits = 0;
+    for (prec = prec0 ; prec > DOUBLE_PREC ;) {
+      bit = prec & 1;
+      prec = (prec + bit) >> 1;
+      bits = (bits << 1) + bit;
+    }
+
+    mpf_set_prec_raw(t1, DOUBLE_PREC);
+    mpf_set_d(t1, 1/mpf_get_d(x));
+
+    while (prec < prec0) {
+      prec <<= 1;
+      if (prec < prec0) {
+        // t1 = t1 + t1*(1 - x*t1);
+        mpf_set_prec_raw(t2, prec);
+        mpf_mul(t2, x, t1);          // full x half -> full
+        mpf_ui_sub(t2, 1, t2);
+        mpf_set_prec_raw(t2, prec/2);
+        mpf_mul(t2, t2, t1);         // half x half -> half
+        mpf_set_prec_raw(t1, prec);
+        mpf_add(t1, t1, t2);
+      } else {
+        prec = prec0;
+        // t2=y * t1, t1 = t2 + t1*(y - x*t2);
+        mpf_set_prec_raw(t2, prec/2);
+        mpf_mul(t2, t1, y);          // half x half -> half
+        mpf_mul(r, x, t2);           // full x half -> full
+        mpf_sub(r, y, r);
+        mpf_mul(t1, t1, r);          // half x half -> half
+        mpf_add(r, t1, t2);
+        break;
+      }
+      prec -= (bits & 1);
+      bits >>= 1;
+    }
+
+    mpf_set_prec_raw(t1, t1prec);
+    mpf_set_prec_raw(t2, t2prec);
+  }
+}
+
+// binary split handling
 static void split(unsigned long a, unsigned long b) {
   unsigned long percent;
   unsigned long m = (a + b) / 2;
   
-  // split - get P1, Q1, T1
-  if ((m-a) > 1) {
+  if ((b - a) == 1) {
+    if (a == 0) {
+      mpz_set_ui(P1, 1);
+      mpz_set_ui(Q1, 1);
+      mpz_set_ui(T1, B);
+    } else {
+      // p = (6*a-5) * (2*a-1) * (6*a-1)
+      mpz_set_ui(P1, 6*a-5);
+      mpz_mul_ui(P1, P1, 2*a-1);
+      mpz_mul_ui(P1, P1, 6*a-1);
+      // q = a * a * a * (C^3 / 24)
+      mpz_set_ui(Q1, a);
+      mpz_mul_ui(Q1, Q1, a);
+      mpz_mul_ui(Q1, Q1, a);
+      mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
+      mpz_mul_ui(Q1, Q1, D24); // (C * 24)
+      // t = p * (B + (A * a))
+      mpz_set_ui(T1, A);
+      mpz_mul_ui(T1, T1, a);
+      mpz_add_ui(T1, T1, B);
+      mpz_mul(T1, T1, P1);
+      if (a % 2) {
+        mpz_neg(T1, T1);
+      }
+    }
+  } else {
+    // lower split - get P1, Q1, T1
     split(a, m);
-  } else if (a > 0) {
-    splitone(a, m);
-  } else {
-    mpz_set_ui(P1, 1);
-    mpz_set_ui(Q1, 1);
-    mpz_set_ui(T1, B);
-  }
-  // split - get P2, Q2, T2
-  splitdepth++;
-  if ((b-m) > 1) {
+    // upper split - get P2, Q2, T2
+    splitdepth++;
     split(m, b);
-  } else {
-    splitone(m, b);
+    splitdepth--;
+
+    // t2 = (pam * tmb)
+    mpz_mul(T2, P1, T2);
+    // p = pam * pmb
+    mpz_mul(P1, P1, P2);
+    // q = qam * qmb
+    mpz_mul(Q1, Q1, Q2);
+    // t = (qmb * tam) + t2
+    mpz_mul(T1, Q2, T1);
+    mpz_add(T1, T1, T2);
+
+    // tidy up
+    mpz_realloc2(P2, 0);
+    mpz_realloc2(Q2, 0);
+    mpz_realloc2(T2, 0);
   }
-  splitdepth--;
-
-  // t2 = (pam * tmb)
-  mpz_mul(T2, P1, T2);
-  // p = pam * pmb
-  mpz_mul(P1, P1, P2);
-  // q = qam * qmb
-  mpz_mul(Q1, Q1, Q2);
-  // t = (qmb * tam) + t2
-  mpz_mul(T1, Q2, T1);
-  mpz_add(T1, T1, T2);
-
-  // tidy up
-  mpz_realloc2(P2, 0);
-  mpz_realloc2(Q2, 0);
-  mpz_realloc2(T2, 0);
 
   // progress marker
   counted++;
@@ -494,23 +487,22 @@ int main(int argc, char *argv[]) {
   inter_time = clock();
   logthis(false, "Prep:\r");
   // tidy up - non-zero level stack items
+  mpz_clear(P1);
   for (count = 1 ; count < depth ; count++) {
     mpz_clear(pstack[count]);
     mpz_clear(qstack[count]);
     mpz_clear(tstack[count]);
   }
   // convert integers to floats
-  mpf_init(yyy);
-  mpf_set_z(yyy, T1);
   mpf_init(xxx);
   mpf_set_z(xxx, Q1);
+  mpz_clear(Q1);
+  mpf_init(yyy);
+  mpf_set_z(yyy, T1);
+  mpz_clear(T1);
   // rescale for mult/div later - retain ratio
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
-  // tidy up - zero level stack items
-  mpz_clear(P1);
-  mpz_clear(Q1);
-  mpz_clear(T1);
   logthis(true, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
@@ -534,7 +526,7 @@ int main(int argc, char *argv[]) {
   // sqrt(10005) * 426880 * q / t
   inter_time = clock();
   logthis(false, "Divide:\r");
-#ifdef DIVIDE
+#ifdef GIO_DIVIDE
   divide(pi, xxx, yyy);  // Internal divide
 #else
   mpf_div(pi, xxx, yyy);  // Internal divide
@@ -557,8 +549,8 @@ int main(int argc, char *argv[]) {
     if (txtoutput) {
       inter_time = clock();
       logthis(false, "Write: Text\r");
-#ifdef GNUOUT
-      writepi(pi, txtfile, digits);
+#ifdef GMP_OUTPUT
+      writegmp(pi, txtfile, digits);
 #else
       writetxt(pi, txtfile, digits);
 #endif
