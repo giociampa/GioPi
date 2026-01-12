@@ -55,7 +55,7 @@ static void writeraw(mpf_t pi, char *rawfile, unsigned long digits) {
 static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
   unsigned long powlimb, powfull, numpart, index, power, count, linesize, offset, written, percent;
   mpf_t         factor;
-  mpz_t         *partial, scaled, quotient, remainder;
+  mpz_t         *partial, scaled;
   char          buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
   bool          showme;
   FILE          *outhand;
@@ -76,11 +76,9 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
   mpf_mul(factor, factor, pi);
   mpz_set_f(partial[0], factor);
 
-  logthis(false, "Write: Text (Calc)\r");
+  logthis(false, "Write: Calc (0.0%%)  \r");
+  progress = 0;
   mpz_init(scaled);
-  mpz_init(quotient);
-  mpz_init(remainder);
-
   for (power = 0; power < powfull; power++) {
     mpz_ui_pow_ui(scaled, 10, powlimb * (1 << (powfull - power - 1)));
 
@@ -88,24 +86,29 @@ static void writetxt(mpf_t pi, char *txtfile, unsigned long digits) {
     count = 1 << power;
     while (count > 0) {
       count--;
-      mpz_tdiv_qr(quotient, remainder, partial[count], scaled);
-      mpz_set(partial[--index], remainder);
-      mpz_set(partial[--index], quotient);
+      index--;
+      mpz_tdiv_qr(partial[index - 1], partial[index], partial[count], scaled);
+      mpz_realloc2(partial[index], mpz_sizeinbase(partial[index],2));
+      index--;
+      mpz_realloc2(partial[index], mpz_sizeinbase(partial[index],2));
     }
 
     // tidy up
     mpz_realloc2(scaled, 0);
-    mpz_realloc2(quotient, 0);
-    mpz_realloc2(remainder, 0);
+
+    percent = (1000 * power) / powfull;
+    if (percent > progress) {
+      progress = percent;
+      logthis(false, "Write: Calc (%0.1f%%)\r", (double) percent / 10.0);
+    }
   }
 
-  logthis(false, "Write: Text (0%%)  \r");
-  outhand = fopen(txtfile, "w");
-
+  logthis(false, "Write: Text (0.0%%)  \r");
   written = 0;
   progress = 0;
   showme = false;
   linesize = DIGITSLINE + 1; // first line needs '3' alao
+  outhand = fopen(txtfile, "w");
 
   for (index = 0; ((index < numpart) && (written < digits)); index++) {
     if (!showme) {

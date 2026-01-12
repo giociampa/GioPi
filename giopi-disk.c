@@ -13,7 +13,8 @@
 
 unsigned long terms, depth, splitdepth, counted, progress;
 mpz_t         PP1, QQ1, TT1, PP2, QQ2, TT2;
-FILE          *loghand;
+FILE          *loghand, *rawhand;
+char          rawfile[NAMESIZE];
 
 static void logthis(bool both, char *fmt, ...) {
   va_list args;
@@ -32,46 +33,42 @@ static void logthis(bool both, char *fmt, ...) {
 }
 
 // Temporary file handling
-FILE * tmpfile_hand(unsigned long level, char *value, char *action) {
-  char tmpfile[NAMESIZE];
-  sprintf(tmpfile, "tmp_%02lu_%s.tmp", level, value);
-  return fopen(tmpfile, action);
+FILE * rawfile_hand(unsigned long level, char *value, char *action) {
+  sprintf(rawfile, "t%06lu%s.tmp", level, value);
+  return fopen(rawfile, action);
 }
 
-void tmpfile_remove(unsigned long level, char *value) {
-  char tmpfile[NAMESIZE];
-  sprintf(tmpfile, "tmp_%02lu_%s.tmp", level, value);
-  remove(tmpfile);
+void read_splitfiles(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
+  rawhand = rawfile_hand(level, "p", "r");
+  mpz_inp_raw(p, rawhand);
+  fclose(rawhand);
+
+  rawhand = rawfile_hand(level, "q", "r");
+  mpz_inp_raw(q, rawhand);
+  fclose(rawhand);
+
+  rawhand = rawfile_hand(level, "t", "r");
+  mpz_inp_raw(t, rawhand);
+  fclose(rawhand);
 }
 
-void read_tmpfiles(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
-  FILE *tmphand;
-  tmphand = tmpfile_hand(level, "p", "r");
-  mpz_inp_raw(p, tmphand);
-  fclose(tmphand);
+void write_splitfiles(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
+  rawhand = rawfile_hand(level, "p", "w");
+  mpz_out_raw(rawhand, p);
+  fclose(rawhand);
 
-  tmphand = tmpfile_hand(level, "q", "r");
-  mpz_inp_raw(q, tmphand);
-  fclose(tmphand);
+  rawhand = rawfile_hand(level, "q", "w");
+  mpz_out_raw(rawhand, q);
+  fclose(rawhand);
 
-  tmphand = tmpfile_hand(level, "t", "r");
-  mpz_inp_raw(t, tmphand);
-  fclose(tmphand);
+  rawhand = rawfile_hand(level, "t", "w");
+  mpz_out_raw(rawhand, t);
+  fclose(rawhand);
 }
 
-void write_tmpfiles(unsigned long level, mpz_t p, mpz_t q, mpz_t t) {
-  FILE *tmphand;
-  tmphand = tmpfile_hand(level, "p", "w");
-  mpz_out_raw(tmphand, p);
-  fclose(tmphand);
-
-  tmphand = tmpfile_hand(level, "q", "w");
-  mpz_out_raw(tmphand, q);
-  fclose(tmphand);
-
-  tmphand = tmpfile_hand(level, "t", "w");
-  mpz_out_raw(tmphand, t);
-  fclose(tmphand);
+void rawfile_remove(unsigned long level, char *value) {
+  sprintf(rawfile, "t%06lu%s.tmp", level, value);
+  remove(rawfile);
 }
 
 // Raw output - generate something than can be processed, regardless of system type
@@ -413,8 +410,8 @@ static void split(unsigned long a, unsigned long b) {
     split(m, b);
     splitdepth--;
 
-    read_tmpfiles(splitdepth, PP1, QQ1, TT1);
-    read_tmpfiles(splitdepth+1, PP2, QQ2, TT2);
+    read_splitfiles(splitdepth, PP1, QQ1, TT1);
+    read_splitfiles(splitdepth+1, PP2, QQ2, TT2);
 
     // t2 = (pam * tmb)
     mpz_mul(TT2, PP1, TT2);
@@ -432,7 +429,8 @@ static void split(unsigned long a, unsigned long b) {
     mpz_realloc2(TT2, 0);
   }
 
-  write_tmpfiles(splitdepth, PP1, QQ1, TT1);
+  // write temporary file for the next pass
+  write_splitfiles(splitdepth, PP1, QQ1, TT1);
 
   // progress marker
   counted++;
@@ -538,9 +536,9 @@ int main(int argc, char *argv[]) {
   mpz_clear(QQ2);
   mpz_clear(TT2);
   for (count = 0 ; count < depth ; count++) {
-    tmpfile_remove(count, "p");
-    tmpfile_remove(count, "q");
-    tmpfile_remove(count, "t");
+    rawfile_remove(count, "p");
+    rawfile_remove(count, "q");
+    rawfile_remove(count, "t");
   }
   // convert integers to floats (tidy zero level stack items)
   mpf_init(xxx);
