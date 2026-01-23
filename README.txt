@@ -1,29 +1,29 @@
 GioPi Pi calculation - Chudnovsky binary split algorithm
 
-giopi   Generate arbitrary length sequences of Pi digits.
+pi      Generate arbitrary length sequences of Pi digits
+        (Writes formatted text file: -raw variant writes raw file)
+        (*.ttp run on Atari m68040, *-s.ttp run on Atari m68000)
 raw2txt Convert raw output to formatted text file
 dat2txt Convert plain text output (eg y-cruncher) to formatted text file
 compare Compare two formatted text files
 
 Usage: Run all from a suitable command line.
 
-giopi(.exe/.tos) digits noraw notxt noout
+pi      [digits] [noout]
 
-digits (opt)  Desired digits (prompted if missing)
-noraw  (opt)  Skip generation of the raw format file
-notxt  (opt)  Skip generation of the text format file
-noout  (opt)  Combination of noraw and notxt (useful for timing runs)
+digits  (opt) Desired digits (prompted if missing)
+noout   (opt) Skip output file w
 
-raw2txt(.exe/.tos) file digits
+raw2txt file digits
 
 file          Input file (Output is input file with "raw" changed to "txt")
-digits (opt)  Desired digits (default: digits in filename, prompted if needed)
+digits (opt)  Desired digits (default is digits in filename, prompts if needed)
 
-dat2txt(.exe/.tos) inpfile outfile
+dat2txt inpfile outfile
 
 inpfile (opt) Input file (defaults to "pi.dat")
 outfile (opt) Output file (defaults to "pi.txt")
 
-compare(.exe/.tos) file1 file2
+compare file1 file2
 
 file1/file2       Formatted text files

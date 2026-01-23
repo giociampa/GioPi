@@ -1,8 +1,11 @@
 BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
-TITLEBASE = -DBASENAME=\"giopi\"
-TITLETEST = -DBASENAME=\"giopi-test\"
+TITLEBASE = -DBASENAME=\"pi\"
+TITLETEST = -DBASENAME=\"pi-test\"
 
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c output.c
+CMPFILES = compare.c
+RAWFILES = raw2txt.c
+
 COMFLAGS = -O6 -lm -lgmp
 FLAGS000 = -m68000 -ffast-math
 FLAGS040 = -m68040 -mhard-float
@@ -12,90 +15,112 @@ LOCALGCC = gcc
 ATARIGCC = m68k-atari-mintelf-gcc
 CROSSGCC = x86_64-w64-mingw32-gcc
 
-native: giopi
+# --------------------------------------------------------------------------------------------------
 
-native-raw: giopi-r
+local: pi pi-raw pi-tst compare raw2txt
 
-native-all: native native-raw
+m68000: pi-s.ttp pi-raw-s.ttp pi-tst-s.ttp compare-s.ttp raw2txt-s.ttp 
 
-testing: giopi giopi-t
+m68040: pi.ttp pi-raw.ttp pi-tst.ttp compare.ttp raw2txt.ttp
 
-giopi: ${SRCFILES}
+cross: pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe
+
+all: local m68000 m68040 cross
+
+# --------------------------------------------------------------------------------------------------
+
+pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -o $@
 
-giopi-r: ${SRCFILES}
+pi-raw: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
-giopi-t: ${SRCFILES}
+pi-tst: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
 
-m68000: giopi-s.ttp
-
-m68000-raw: giopi-rs.ttp
-
-m68000-all: m68000 m68000-raw
-
-giopi-s.ttp: ${SRCFILES}
+pi-s.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLEBASE} ${BUILDDATE} -o $@
 
-giopi-rs.ttp: ${SRCFILES}
+pi-raw-s.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
-m68040: giopi.ttp
+pi-tst-s.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
 
-m68040-raw: giopi-r.ttp
-
-m68040-all: m68040 m68040-raw
-
-giopi.ttp: ${SRCFILES}
+pi.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLEBASE} ${BUILDDATE} -o $@
 
-giopi-r.ttp: ${SRCFILES}
+pi-raw.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
-cross: giopi.exe
+pi-tst.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
 
-cross-r: giopi-r.exe
-
-cross-all: cross cross-r
-
-giopi.exe: ${SRCFILES}
+pi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -o $@
 
-giopi-r.exe: ${SRCFILES}
+pi-raw.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
-all: native-all m68000-all m68040-all cross-all
+pi-tst.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
 
-all-txt: native m68000 m68040 cross
+# --------------------------------------------------------------------------------------------------
 
-all-txt: native-raw m68000-raw m68040-raw cross-r
+compare: ${CMPFILES}
+	${LOCALGCC} ${CMPFILES} ${COMFLAGS} ${FLAGSX86} -o $@
 
-clean: clean-native clean-m68000 clean-m68040 clean-cross
+compare-s.ttp: ${CMPFILES}
+	${ATARIGCC} ${CMPFILES} ${COMFLAGS} ${FLAGS000} -o $@
 
-clean-all: clean-native clean-m68000 clean-m68040 clean-cross clean-objects
+compare.ttp: ${CMPFILES}
+	${ATARIGCC} ${CMPFILES} ${COMFLAGS} ${FLAGS040} -o $@
 
-clean-native:
-	rm -f giopi giopi-r giopi-t
+compare.exe: ${CMPFILES}
+	${CROSSGCC} ${CMPFILES} ${COMFLAGS} ${FLAGSX86} -o $@
 
-clean-m68000:
-	rm -f giopi-s.ttp giopi-rs.ttp
+# --------------------------------------------------------------------------------------------------
 
-clean-m68040:
-	rm -f giopi.ttp giopi-r.ttp
+raw2txt: ${RAWFILES}
+	${LOCALGCC} ${RAWFILES} ${COMFLAGS} ${FLAGSX86} -o $@
+
+raw2txt-s.ttp: ${RAWFILES}
+	${ATARIGCC} ${RAWFILES} ${COMFLAGS} ${FLAGS000} -o $@
+
+raw2txt.ttp: ${RAWFILES}
+	${ATARIGCC} ${RAWFILES} ${COMFLAGS} ${FLAGS040} -o $@
+
+raw2txt.exe: ${RAWFILES}
+	${CROSSGCC} ${RAWFILES} ${COMFLAGS} ${FLAGSX86} -o $@
+
+# --------------------------------------------------------------------------------------------------
+
+clean: clean-local clean-atari clean-cross clean-results
+
+clean-local:
+	rm -f pi pi-raw pi-tst compare raw2txt
+
+clean-atari: clean-m68000 clean-m68040
 
 clean-cross:
-	rm -f giopi.exe giopi-r.exe
+	rm -f pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe
 
-clean-objects:
-	rm -f *.o
-	rm -f 1*.log 1*.raw 1*.txt
-	rm -f 2*.log 2*.raw 2*.txt
-	rm -f 3*.log 3*.raw 3*.txt
-	rm -f 4*.log 4*.raw 4*.txt
-	rm -f 0*.log 5*.raw 5*.txt
-	rm -f 0*.log 6*.raw 6*.txt
-	rm -f 0*.log 7*.raw 7*.txt
-	rm -f 8*.log 8*.raw 8*.txt
-	rm -f 9*.log 9*.raw 9*.txt
-	rm -f 0*.log 0*.raw 0*.txt
+clean-m68000:
+	rm -f pi-s.ttp pi-raw-s.ttp pi-tst-s.ttp compare.ttp raw2txt.ttp
+
+clean-m68040:
+	rm -f pi.ttp pi-raw.ttp pi-tst.ttp compare.ttp raw2txt.ttp
+
+clean-results:
+	@rm -f *.o ||:
+	@rm -f 1*.log 1*.raw 1*.txt ||:
+	@rm -f 2*.log 2*.raw 2*.txt ||:
+	@rm -f 3*.log 3*.raw 3*.txt ||:
+	@rm -f 4*.log 4*.raw 4*.txt ||:
+	@rm -f 0*.log 5*.raw 5*.txt ||:
+	@rm -f 0*.log 6*.raw 6*.txt ||:
+	@rm -f 0*.log 7*.raw 7*.txt ||:
+	@rm -f 8*.log 8*.raw 8*.txt ||:
+	@rm -f 9*.log 9*.raw 9*.txt ||:
+	@rm -f 0*.log 0*.raw 0*.txt ||:
+	@echo Results cleaned ||:

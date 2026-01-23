@@ -89,13 +89,7 @@ int main(int argc, char *argv[]) {
 
   logthis(logfile, "Build:  %s (%s gcc %lu.%lu.%lu)\n", BASENAME, BUILDDATE, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
   logthis(logfile, "Digits: %ld\n", digits);
-  logthis(logfile, "Terms:  %ld\n", terms);
-  logthis(logfile, "Depth:  %ld\n", depth);
-  if (showoutput) {
-    logthis(logfile, "Output: %s\n\n", outfile);
-  } else {
-    logthis(logfile, "Output: None\n\n");
-  }
+  logthis(logfile, "Terms:  %ld\n\n", terms);
 
   // initialise the binary split structures
   split_init(depth);
@@ -140,17 +134,16 @@ int main(int argc, char *argv[]) {
   mpf_clear(xxx);
   mpf_clear(yyy);
   logthis(logfile, "Divide: %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-  if (showoutput) {
-    logthis(logfile, "Total:  %9.2f seconds\n\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-  } else {
-    logthis(logfile, "Total:  %9.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-  }
-
+  
   // output pi
   if (showoutput) {
+    logthis(logfile, "Total:  %9.2f seconds\n\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Output: %s\n", outfile);
     logthis(NULL, "Write:\r");
     writepi(pi, outfile, digits);
     logthis(logfile, "Write:  %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  } else {
+    logthis(logfile, "Total:  %9.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
 
   return EXIT_SUCCESS;

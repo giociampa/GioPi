@@ -52,87 +52,80 @@ void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy) {
 #ifdef TESTING
 #include <stdbool.h>
 
-void splitzero(unsigned long splitdepth) {
-  mpz_set_ui(P1, 1);
-  mpz_set_ui(Q1, 1);
-  mpz_set_ui(T1, B);
-}
 void splitsingle(unsigned long a, unsigned long splitdepth) {
-  // p = (6*a-5) * (2*a-1) * (6*a-1)
-  mpz_set_ui(P1, 6*a-5);
-  mpz_mul_ui(P1, P1, 2*a-1);
-  mpz_mul_ui(P1, P1, 6*a-1);
-  // q = a * a * a * (C^3 / 24)
-  mpz_set_ui(Q1, a);
-  mpz_mul_ui(Q1, Q1, a);
-  mpz_mul_ui(Q1, Q1, a);
-  mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
-  mpz_mul_ui(Q1, Q1, D24); // (C * 24)
-  // t = p * (B + (A * a))
-  mpz_set_ui(T1, A);
-  mpz_mul_ui(T1, T1, a);
-  mpz_add_ui(T1, T1, B);
-  mpz_mul(T1, T1, P1);
-  if (a % 2) {
-    mpz_neg(T1, T1);
+  if (a == 0) {
+    mpz_set_ui(P1, 1);
+    mpz_set_ui(Q1, 1);
+    mpz_set_ui(T1, B);
+  } else {
+    // p = (6*a-5) * (2*a-1) * (6*a-1)
+    mpz_set_ui(P1, 6*a-5);
+    mpz_mul_ui(P1, P1, 2*a-1);
+    mpz_mul_ui(P1, P1, 6*a-1);
+    // q = a * a * a * (C^3 / 24)
+    mpz_set_ui(Q1, a);
+    mpz_mul_ui(Q1, Q1, a);
+    mpz_mul_ui(Q1, Q1, a);
+    mpz_mul_ui(Q1, Q1, C24); // (C / 24)^2
+    mpz_mul_ui(Q1, Q1, D24); // (C * 24)
+    // t = p * (B + (A * a))
+    mpz_set_ui(T1, A);
+    mpz_mul_ui(T1, T1, a);
+    mpz_add_ui(T1, T1, B);
+    mpz_mul(T1, T1, P1);
+    if (a % 2) {
+      mpz_neg(T1, T1);
+    }
   }
 }
+
+void splitcombine(unsigned long splitdepth) {
+  // t2 = (pam * tmb)
+  mpz_mul(T2, P1, T2);
+  // p = pam * pmb
+  mpz_mul(P1, P1, P2);
+  // q = qam * qmb
+  mpz_mul(Q1, Q1, Q2);
+  // t = (qmb * tam) + t2
+  mpz_mul(T1, Q2, T1);
+  mpz_add(T1, T1, T2);
+}
+
 void split(unsigned long a, unsigned long b, unsigned long terms, unsigned long splitdepth) {
   unsigned long m = (a + b) / 2;
-  bool test = false;
 
-   switch (b - a) {
-     case 1:
-        logthis(NULL, "\r1  : %2lu : %8lu %8lu\n", splitdepth, a, b);
-       if (a == 0) {
-         splitzero(splitdepth);
-       } else {
-         splitsingle(a, splitdepth);
-       }
-       break;
-     case 2:
-        test = true;
-        if (a == 0) {
-          logthis(NULL, "\r3a : %2lu : %8lu %8lu\n", splitdepth, a, m);
-          splitzero(splitdepth);
-         } else {
-          logthis(NULL, "\r3b : %2lu : %8lu %8lu\n", splitdepth, a, m);
-           splitsingle(a, splitdepth);
-         }
-     default:
-        // lower split - get P1, Q1, T1
-        if (test) {
-          logthis(NULL, "\r3c : %2lu : %8lu %8lu\n", splitdepth, a, m);
-          split(a, m, terms, splitdepth);
-        } else {
-          logthis(NULL, "\r3d : %2lu : %8lu %8lu\n", splitdepth, a, m);
-        }
-        // upper split - get P2, Q2, T2
-        logthis(NULL, "\r3e : %2lu : %8lu %8lu\n", splitdepth, m, b);
-        split(m, b, terms, splitdepth+1);
+  switch (b - a) {
+    case 1:
+      splitsingle(a, splitdepth);
+      break;
+    case 2:
+      // lower split - get P1, Q1, T1
+      splitsingle(a, splitdepth);
+      // upper split - get P2, Q2, T2
+      splitsingle(m, splitdepth + 1);
+      // combine split parts
+      splitcombine(splitdepth);
+      break;
+    default:
+      // lower split - get P1, Q1, T1
+      split(a, m, terms, splitdepth);
+      // upper split - get P2, Q2, T2
+      split(m, b, terms, splitdepth + 1);
+      // combine split parts
+      splitcombine(splitdepth);
+  }
 
-        // t2 = (pam * tmb)
-        mpz_mul(T2, P1, T2);
-        // p = pam * pmb
-        mpz_mul(P1, P1, P2);
-        // q = qam * qmb
-        mpz_mul(Q1, Q1, Q2);
-        // t = (qmb * tam) + t2
-        mpz_mul(T1, Q2, T1);
-        mpz_add(T1, T1, T2);
-
-        // tidy up
-        mpz_realloc2(P2, 0);
-        mpz_realloc2(Q2, 0);
-        mpz_realloc2(T2, 0);
-   }
+  // tidy up
+  mpz_realloc2(P2, 0);
+  mpz_realloc2(Q2, 0);
+  mpz_realloc2(T2, 0);
 
   // splitprogress marker
   splitcount += 1;
   splitpercent = (splitcount * 1000) / (2 * terms);
   if (splitpercent > splitprogress) {
     splitprogress = splitpercent;
-    //logthis(NULL, "Split:  %5.1f%%\r", (double) splitpercent / 10.0);
+    logthis(NULL, "Split:  %5.1f%%\r", (double) splitpercent / 10.0);
   }
 }
 #else
