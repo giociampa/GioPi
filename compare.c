@@ -51,24 +51,29 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   
+  good = 0;
   line = 0;
   done = false;
   
   while (!done) {
     end1 = readline(file1, line1, &pos1);
     end2 = readline(file2, line2, &pos2);
-    
+
     if (end1 || end2) {
       done = true;
     } else {
       line++;
     }
-    good = (line * DIGITSLINE);
-    
-    if (strcmp(line1, line2) != 0) {
+
+    if (strcmp(line1, line2) == 0) {
+      good = (line * DIGITSLINE);
+    } else {
+      done = true;
       item = 2;
-      while ((item < pos1) && (item < pos2) && (line1[item] == line2[item])) {
-        if (line1[item] != ' ') {
+      while ((item < pos1) && (item < pos2) && (!done)) {
+        if (line1[item] != line2[item]) {
+          done = true;
+        } else if (line1[item] != ' ') {
           good++;
         }
         item++;
@@ -76,7 +81,7 @@ int main(int argc, char *argv[]) {
     }
   }
   
-  line++;
+//  line++;
   printf("Good digits: %lu\n", good);
   if ( !(end1 && end2) ) {
     printf("Fail line #: %lu\n", line);
