@@ -125,7 +125,7 @@ void split(unsigned long a, unsigned long b, unsigned long terms, unsigned long 
   splitpercent = (splitcount * 1000) / (2 * terms);
   if (splitpercent > splitprogress) {
     splitprogress = splitpercent;
-    logthis(NULL, "Split:  %5.1f%%\r", (double) splitpercent / 10.0);
+    logthis(NULL, "Split:  %4.1f%%\r", (double) splitpercent / 10.0);
   }
 }
 #else
@@ -184,7 +184,7 @@ void split(unsigned long a, unsigned long b, unsigned long terms, unsigned long 
   splitpercent = (splitcount * 1000) / (2 * terms);
   if (splitpercent > splitprogress) {
     splitprogress = splitpercent;
-    logthis(NULL, "Split:  %5.1f%%\r", (double) splitpercent / 10.0);
+    logthis(NULL, "Split:  %4.1f%%\r", (double) splitpercent / 10.0);
   }
 }
 #endif

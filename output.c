@@ -19,7 +19,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   mpf_t factor;
   mpz_t scaled;
 
-  logthis(NULL, "Write:  Raw (Init)\r");
+  logthis(NULL, "Output: Init\r");
   mpf_init(factor);
   mpz_init(scaled);
   mpf_init_set_ui(factor, 10);
@@ -27,7 +27,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   mpf_mul(factor, factor, pi);
   mpz_set_f(scaled, factor);
 
-  logthis(NULL, "Write:  Raw (File)\r", outfile);
+  logthis(NULL, "Output: Write\r");
   outhand = fopen(outfile, "w");
   mpz_out_raw(outhand, scaled);
 
@@ -35,12 +35,12 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   unsigned long written, percent, progress;
   char *buffer, *chunk;
 
-  logthis(NULL, "Write:  Text (Init)\r");
+  logthis(NULL, "Output: Init\r");
   buffer = malloc(digits + 11);
   gmp_sprintf(buffer, "%.*Ff", digits + 10, pi);
   buffer[digits + 2] = 0;
 
-  logthis(NULL, "Write:  Text (%5.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Write (%4.1f%%)\r", 0.0);
   chunk = malloc(CHUNKCHARS + 1);
   memset(chunk, 0, CHUNKCHARS + 1);
   strncpy(chunk, buffer, 1);
@@ -68,7 +68,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
     percent = (1000 * written) / digits;
     if (percent > progress) {
       progress = percent;
-      logthis(NULL, "Write:  Text (%5.1f%%)\r", (double) percent / 10.0);
+      logthis(NULL, "Output: Write (%4.1f%%)\r", (double) percent / 10.0);
     }
   }
 
@@ -79,7 +79,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   char  buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
   bool  showme;
 
-  logthis(NULL, "Write:  Text (Init)\r");
+  logthis(NULL, "Output: Init\r", (double) percent / 10.0);
   powlimb = mp_bits_per_limb * log10(2.0);
   powfull = log10((double) digits / (double) powlimb) / log10(2.0) + 1;
   numpart = 1 << powfull;
@@ -88,14 +88,14 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
     mpz_init(partial[index]);
   }
 
-  logthis(NULL, "Write:  Text (Conv)\r");
+  logthis(NULL, "Output: Convert\r");
   mpf_init(factor);
   mpf_init_set_ui(factor, 10);
   mpf_pow_ui(factor, factor, digits);
   mpf_mul(factor, factor, pi);
   mpz_set_f(partial[0], factor);
 
-  logthis(NULL, "Write:  Calc (%5.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Calc (%4.1f%%)\r", 0.0);
   progress = 0;
   mpz_init(scaled);
   for (power = 0; power < powfull; power++) {
@@ -118,11 +118,11 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
     percent = (1000 * power) / powfull;
     if (percent > progress) {
       progress = percent;
-      logthis(NULL, "Write:  Calc (%5.1f%%)\r", (double) percent / 10.0);
+      logthis(NULL, "Output: Calc (%4.1f%%)\r", (double) percent / 10.0);
     }
   }
 
-  logthis(NULL, "Write:  Text (%5.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Write (%4.1f%%)\r", 0.0);
   written = 0;
   progress = 0;
   showme = false;
@@ -162,7 +162,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
           percent = (1000 * written) / digits;
           if (percent > progress) {
             progress = percent;
-            logthis(NULL, "Write:  Text (%5.1f%%)\r", (double) percent / 10.0);
+            logthis(NULL, "Output: Write (%4.1f%%)\r", (double) percent / 10.0);
           }
         }
         fflush(outhand);

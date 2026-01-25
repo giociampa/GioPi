@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
 
   mpz_init(scaled);
   mpz_inp_raw(scaled, inphand);
-  mpz_mul_2exp(scaled, scaled, 1);
 
   input =  mpz_sizeinbase(scaled, 10) + 3;
   buffer = malloc(input + 2);

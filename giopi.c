@@ -35,7 +35,7 @@ void writepi(mpf_t pi, char *rawfile, unsigned long digits);
 void writepi(mpf_t pi, char *rawfile, unsigned long digits);
  
 int main(int argc, char *argv[]) {
-  unsigned long digits, count, index, terms, depth, bits;
+  unsigned long digits, places, count, index, terms, depth, bits;
   char          logfile[MAXCHARS], outfile[MAXCHARS], param[MAXCHARS];
   clock_t       start_time, inter_time;
   bool          showoutput;
@@ -55,7 +55,10 @@ int main(int argc, char *argv[]) {
     if (strcmp(param, "noout") == 0) {
       showoutput = false;
     } else {
-      getdigits(param, &digits);
+      getdigits(param, &places);
+      if (places > 0) {
+        digits = places;
+      }
     }
   }
 
@@ -75,7 +78,6 @@ int main(int argc, char *argv[]) {
 #else
   sprintf(outfile, "%lu.txt", digits);
 #endif
-  loginit(outfile);
 
   start_time = clock();
   terms = (digits / DIGITS_PER_ITER) + 1;
@@ -87,19 +89,19 @@ int main(int argc, char *argv[]) {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
-  logthis(logfile, "Build:  %s (%s gcc %lu.%lu.%lu)\n", BASENAME, BUILDDATE, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-  logthis(logfile, "Digits: %ld\n", digits);
-  logthis(logfile, "Terms:  %ld\n\n", terms);
+  logthis(logfile, "Build:  %-10s (%s gcc %lu.%lu.%lu)\n", BASENAME, BUILDDATE, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+  logthis(logfile, "Digits: %10lu\n", digits);
+  logthis(logfile, "Terms:  %10lu\n\n", terms);
 
   // initialise the binary split structures
   split_init(depth);
-  logthis(logfile, "Init:   %9.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Init:   %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // off we jolly well go
   inter_time = clock();
   logthis(NULL, "Split:\r");
   split(0, terms, terms, 0);
-  logthis(logfile, "Split:  %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Split:  %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   
   // prepare floating point values
   inter_time = clock();
@@ -110,21 +112,21 @@ int main(int argc, char *argv[]) {
   // rescale for mult/div later - retain ratio
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
-  logthis(logfile, "Prep:   %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005)
   inter_time = clock();
   logthis(NULL, "Root:\r");
   mpf_init(pi);
   root10005(pi);
-  logthis(logfile, "Root:   %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Root:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005) * 426880 * q
   inter_time = clock();
   logthis(NULL, "Mult:\r");
   mpf_mul_ui(pi, pi, 426880);
   mpf_mul(xxx, pi, xxx);
-  logthis(logfile, "Mult:   %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Mult:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   // sqrt(10005) * 426880 * q / t
   inter_time = clock();
@@ -133,17 +135,17 @@ int main(int argc, char *argv[]) {
   // clear out the fraction structures
   mpf_clear(xxx);
   mpf_clear(yyy);
-  logthis(logfile, "Divide: %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   
   // output pi
   if (showoutput) {
-    logthis(logfile, "Total:  %9.2f seconds\n\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-    logthis(logfile, "Output: %s\n", outfile);
+    logthis(logfile, "Total:  %10.2f seconds\n\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Output: %18s\n", outfile);
     logthis(NULL, "Write:\r");
     writepi(pi, outfile, digits);
-    logthis(logfile, "Write:  %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Write:  %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   } else {
-    logthis(logfile, "Total:  %9.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
 
   return EXIT_SUCCESS;
