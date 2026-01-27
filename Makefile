@@ -74,17 +74,35 @@ raw2txt.ttp: ${RAWFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-#TODO: cross
-all: local m68000 m68040
+cross: pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe
+
+pi.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -o $@
+
+pi-raw.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
+
+pi-tst.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
+
+compare.exe: ${CMPFILES}
+	${CROSSGCC} ${CMPFILES} ${COMFLAGS} ${FLAGSX86} -o $@
+
+raw2txt.exe: ${RAWFILES}
+	${CROSSGCC} ${RAWFILES} ${COMFLAGS} ${FLAGSX86} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
-#TODO: cross
+all: local m68000 m68040 cross
+
+# --------------------------------------------------------------------------------------------------
+
 clean:
-	@echo 'rm -f pi pi-raw pi-tst compare raw2txt' ||:
+	@echo 'rm -f pi* pi-raw* pi-tst* compare* raw2txt*' ||:
 	@rm -f pi pi-raw pi-tst compare raw2txt ||:
-	@rm -f pi-st.ttp pi-raw-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp ||:
+	@rm -f pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe ||:
 	@rm -f pi.ttp pi-raw.ttp pi-tst.ttp compare.ttp raw2txt.ttp ||:
+	@rm -f pi-st.ttp pi-raw-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp ||:
 	@echo 'rm -f *.log *.raw *.txt' ||:
 	@rm -f 0*.log 0*.raw 0*.txt ||:
 	@rm -f 1*.log 1*.raw 1*.txt ||:
