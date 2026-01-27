@@ -19,9 +19,9 @@ void loginit(char *filename);
 void logthis(char *filename, char *fmt, ...);
 
 // split.c
-void split_init(unsigned long depth);
+void split_init(unsigned long depth, unsigned long terms);
 void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy);
-void split(unsigned long a, unsigned long b, unsigned long terms, unsigned long splitdepth);
+void split(unsigned long a, unsigned long b, unsigned long splitdepth);
 
 // root10005.c
 void root10005(mpf_t r);
@@ -89,18 +89,18 @@ int main(int argc, char *argv[]) {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
-  logthis(logfile, "Build:  %-10s (%s gcc %lu.%lu.%lu)\n", BASENAME, BUILDDATE, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-  logthis(logfile, "Digits: %10lu\n", digits);
-  logthis(logfile, "Terms:  %10lu\n\n", terms);
+  logthis(logfile, "Build:  %s (%s)\n", BASENAME, BUILDDATE);
+  logthis(logfile, "Digits: %-10lu\n", digits);
+  logthis(logfile, "Terms:  %-10lu\n\n", terms);
 
   // initialise the binary split structures
-  split_init(depth);
+  split_init(depth, terms);
   logthis(logfile, "Init:   %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // off we jolly well go
   inter_time = clock();
   logthis(NULL, "Split:\r");
-  split(0, terms, terms, 0);
+  split(0, terms, 0);
   logthis(logfile, "Split:  %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   
   // prepare floating point values

@@ -40,7 +40,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   gmp_sprintf(buffer, "%.*Ff", digits + 10, pi);
   buffer[digits + 2] = 0;
 
-  logthis(NULL, "Output: Write (%4.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Write (%2ld%%)\r", 0);
   chunk = malloc(CHUNKCHARS + 1);
   memset(chunk, 0, CHUNKCHARS + 1);
   strncpy(chunk, buffer, 1);
@@ -65,10 +65,10 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
     }
     fflush(outhand);
 
-    percent = (1000 * written) / digits;
+    percent = (100 * written) / digits;
     if (percent > progress) {
       progress = percent;
-      logthis(NULL, "Output: Write (%4.1f%%)\r", (double) percent / 10.0);
+      logthis(NULL, "Output: Write (%2ld%%)\r", percent);
     }
   }
 
@@ -79,7 +79,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   char  buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
   bool  showme;
 
-  logthis(NULL, "Output: Init\r", (double) percent / 10.0);
+  logthis(NULL, "Output: Init\r");
   powlimb = mp_bits_per_limb * log10(2.0);
   powfull = log10((double) digits / (double) powlimb) / log10(2.0) + 1;
   numpart = 1 << powfull;
@@ -95,7 +95,7 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   mpf_mul(factor, factor, pi);
   mpz_set_f(partial[0], factor);
 
-  logthis(NULL, "Output: Calc (%4.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Calc (%2ld%%)\r", 0);
   progress = 0;
   mpz_init(scaled);
   for (power = 0; power < powfull; power++) {
@@ -115,14 +115,14 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
     // tidy up
     mpz_realloc2(scaled, 0);
 
-    percent = (1000 * power) / powfull;
+    percent = (100 * power) / powfull;
     if (percent > progress) {
       progress = percent;
-      logthis(NULL, "Output: Calc (%4.1f%%)\r", (double) percent / 10.0);
+      logthis(NULL, "Output: Calc (%2ld%%)\r", percent);
     }
   }
 
-  logthis(NULL, "Output: Write (%4.1f%%)\r", 0.0);
+  logthis(NULL, "Output: Write (%2ld%%)\r", 0);
   written = 0;
   progress = 0;
   showme = false;
@@ -159,10 +159,10 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
           written += CHUNKCHARS;
           offset += CHUNKCHARS;
 
-          percent = (1000 * written) / digits;
+          percent = (100 * written) / digits;
           if (percent > progress) {
             progress = percent;
-            logthis(NULL, "Output: Write (%4.1f%%)\r", (double) percent / 10.0);
+            logthis(NULL, "Output: Write (%2ld%%)\r", percent);
           }
         }
         fflush(outhand);
