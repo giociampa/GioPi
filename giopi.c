@@ -30,13 +30,12 @@ void root10005(mpf_t r);
 void divide(mpf_t r, mpf_t y, mpf_t x);
 
 // output.c
-void writepi(mpf_t pi, char *rawfile, unsigned long digits);
-void writepi(mpf_t pi, char *rawfile, unsigned long digits);
-void writepi(mpf_t pi, char *rawfile, unsigned long digits);
+void writeraw(mpf_t pi, char *outfile, unsigned long digits);
+void writetxt(mpf_t pi, char *outfile, unsigned long digits);
  
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits;
-  char          logfile[MAXCHARS], outfile[MAXCHARS], param[MAXCHARS];
+  char          logfile[MAXCHARS], rawfile[MAXCHARS], outfile[MAXCHARS], param[MAXCHARS];
   clock_t       start_time, inter_time;
   bool          showoutput;
   mpf_t         xxx, yyy, pi;
@@ -71,11 +70,13 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  sprintf(logfile, "%lu.log", digits);
-  loginit(logfile);
-#ifdef RAWOUT
-  sprintf(outfile, "%lu.raw", digits);
+#if defined(TESTING)
+  sprintf(logfile, "%lu-tst.log", digits);
+  sprintf(rawfile, "%lu-tst.raw", digits);
+  sprintf(outfile, "%lu-tst.txt", digits);
 #else
+  sprintf(logfile, "%lu.log", digits);
+  sprintf(rawfile, "%lu.raw", digits);
   sprintf(outfile, "%lu.txt", digits);
 #endif
 
@@ -89,6 +90,7 @@ int main(int argc, char *argv[]) {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
+  loginit(logfile);
   logthis(logfile, "Build:  %s (%s)\n", BASENAME, BUILDDATE);
   logthis(logfile, "Digits: %-10lu\n", digits);
   logthis(logfile, "Terms:  %-10lu\n\n", terms);
@@ -136,16 +138,20 @@ int main(int argc, char *argv[]) {
   mpf_clear(xxx);
   mpf_clear(yyy);
   logthis(logfile, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-  
+  logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+
   // output pi
   if (showoutput) {
-    logthis(logfile, "Total:  %10.2f seconds\n\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-    logthis(logfile, "Output: %18s\n", outfile);
-    logthis(NULL, "Write:\r");
-    writepi(pi, outfile, digits);
-    logthis(logfile, "Write:  %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "\n");
+    inter_time = clock();
+    logthis(NULL, "Write Raw:\r");
+    writeraw(pi, rawfile, digits);
+    logthis(logfile, "Write Raw: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+    inter_time = clock();
+    logthis(NULL, "Write Txt:\r");
+    writetxt(pi, outfile, digits);
+    logthis(logfile, "Write Txt: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   } else {
-    logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
 
   return EXIT_SUCCESS;

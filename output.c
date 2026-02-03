@@ -12,10 +12,8 @@
 
 void logthis(char *filename, char *fmt, ...);
 
-void writepi(mpf_t pi, char *outfile, unsigned long digits) {
+void writeraw(mpf_t pi, char *outfile, unsigned long digits) {
   FILE  *outhand;
-
-#if defined(RAWOUT)
   mpf_t factor;
   mpz_t scaled;
 
@@ -30,10 +28,14 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   logthis(NULL, "Output: Write\r");
   outhand = fopen(outfile, "w");
   mpz_out_raw(outhand, scaled);
+  fclose(outhand);
+}
 
-#elif defined(GMPOUT)
+void writetxt(mpf_t pi, char *outfile, unsigned long digits) {
+  FILE          *outhand;
+#if defined(TESTING)
   unsigned long written, percent, progress;
-  char *buffer, *chunk;
+  char          *buffer, *chunk;
 
   logthis(NULL, "Output: Init\r");
   buffer = malloc(digits + 11);
@@ -71,13 +73,52 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
       logthis(NULL, "Output: Write (%2ld%%)\r", percent);
     }
   }
+#elif defined(GMPOUT)
+  unsigned long written, percent, progress;
+  char          *buffer, *chunk;
 
+  logthis(NULL, "Output: Init\r");
+  buffer = malloc(digits + 11);
+  gmp_sprintf(buffer, "%.*Ff", digits + 10, pi);
+  buffer[digits + 2] = 0;
+
+  logthis(NULL, "Output: Write (%2ld%%)\r", 0);
+  chunk = malloc(CHUNKCHARS + 1);
+  memset(chunk, 0, CHUNKCHARS + 1);
+  strncpy(chunk, buffer, 1);
+
+  outhand = fopen(outfile, "w");
+  fprintf(outhand, "%s.", chunk);
+  fflush(outhand);
+
+  for (written = 0 ; written < digits ; written += CHUNKCHARS) {
+    if ((written > 0) && ((written % DIGITSLINE) == 0)) {
+      fprintf(outhand, "  ");
+      fflush(outhand);
+    }
+
+    memset(chunk, 0, CHUNKCHARS + 1);
+    strncpy(chunk, buffer + written + 2, CHUNKCHARS);
+
+    if ((written % DIGITSLINE) < (DIGITSLINE - CHUNKCHARS)) {
+      fprintf(outhand, "%s ", chunk);
+    } else {
+      fprintf(outhand, "%s\n", chunk);
+    }
+    fflush(outhand);
+
+    percent = (100 * written) / digits;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Output: Write (%2ld%%)\r", percent);
+    }
+  }
 #else
   unsigned long powlimb, powfull, numpart, index, power, count, linesize, offset, written, percent, progress;
-  mpf_t factor;
-  mpz_t *partial, scaled;
-  char  buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
-  bool  showme;
+  mpf_t         factor;
+  mpz_t         *partial, scaled;
+  char          buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
+  bool          showme;
 
   logthis(NULL, "Output: Init\r");
   powlimb = mp_bits_per_limb * log10(2.0);
@@ -189,6 +230,5 @@ void writepi(mpf_t pi, char *outfile, unsigned long digits) {
   }
   fprintf(outhand, "\n");
 #endif
-
   fclose(outhand);
 }

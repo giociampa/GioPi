@@ -17,13 +17,10 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi pi-raw pi-tst compare raw2txt
+local: pi pi-tst compare raw2txt
 
 pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -o $@
-
-pi-raw: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
 pi-tst: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
@@ -36,13 +33,10 @@ raw2txt: ${RAWFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi-st.ttp pi-raw-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp
+m68000: pi-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp
 
 pi-st.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLEBASE} ${BUILDDATE} -o $@
-
-pi-raw-st.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
 pi-tst-st.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS000} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
@@ -55,13 +49,10 @@ raw2txt-st.ttp: ${RAWFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi.ttp pi-raw.ttp pi-tst.ttp compare.ttp raw2txt.ttp
+m68040: pi.ttp pi-tst.ttp compare.ttp raw2txt.ttp
 
 pi.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLEBASE} ${BUILDDATE} -o $@
-
-pi-raw.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
 pi-tst.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${COMFLAGS} ${FLAGS040} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
@@ -74,13 +65,10 @@ raw2txt.ttp: ${RAWFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe
+cross: pi.exe pi-tst.exe compare.exe raw2txt.exe
 
 pi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -o $@
-
-pi-raw.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLEBASE} ${BUILDDATE} -DRAWOUT -o $@
 
 pi-tst.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${COMFLAGS} ${FLAGSX86} ${TITLETEST} ${BUILDDATE} -DTESTING -o $@
@@ -98,11 +86,11 @@ all: local m68000 m68040 cross
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	@echo 'rm -f pi* pi-raw* pi-tst* compare* raw2txt*' ||:
-	@rm -f pi pi-raw pi-tst compare raw2txt ||:
-	@rm -f pi.exe pi-raw.exe pi-tst.exe compare.exe raw2txt.exe ||:
-	@rm -f pi.ttp pi-raw.ttp pi-tst.ttp compare.ttp raw2txt.ttp ||:
-	@rm -f pi-st.ttp pi-raw-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp ||:
+	@echo 'rm -f pi* pi-tst* compare* raw2txt*' ||:
+	@rm -f pi pi-tst compare raw2txt ||:
+	@rm -f pi.exe pi-tst.exe compare.exe raw2txt.exe ||:
+	@rm -f pi.ttp pi-tst.ttp compare.ttp raw2txt.ttp ||:
+	@rm -f pi-st.ttp pi-tst-st.ttp compare-st.ttp raw2txt-st.ttp ||:
 	@echo 'rm -f *.log *.raw *.txt' ||:
 	@rm -f 0*.log 0*.raw 0*.txt ||:
 	@rm -f 1*.log 1*.raw 1*.txt ||:
