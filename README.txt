@@ -12,7 +12,7 @@ Usage: Run all from a suitable command line.
 pi      [digits] [noout]
 
 digits  (opt) Desired digits (prompted if missing)
-noout   (opt) Skip output file w
+noout   (opt) Skip output file
 
 raw2txt file digits
 

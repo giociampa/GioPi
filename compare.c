@@ -4,9 +4,9 @@
 
 #include "giopi.h"
 
-bool readline(FILE *file, char *line, long *where) {
-  long item, this;
-  bool done;
+bool readline(FILE *file, char *line, unsigned long *where) {
+  unsigned long item, this;
+  bool          done;
   
   item = 0;
   line[item] = 0;
@@ -29,10 +29,10 @@ bool readline(FILE *file, char *line, long *where) {
 }
 
 int main(int argc, char *argv[]) {
-  FILE *file1, *file2;
-  char line1[WHOLELINE+1], line2[WHOLELINE+1];
-  long line, good, item, match, fails, pos1, pos2;
-  bool done, end1, end2;
+  FILE          *file1, *file2;
+  char          line1[WHOLELINE+1], line2[WHOLELINE+1];
+  unsigned long line, good, item, match, fails, pos1, pos2;
+  bool          done, end1, end2;
   
   if (argc < 3) {
     printf("ERROR: Too few filenames\n");
@@ -61,32 +61,33 @@ int main(int argc, char *argv[]) {
 
     if (end1 || end2) {
       done = true;
-    } else {
-      line++;
+      break;
     }
-
+    
+    line++;
     if (strcmp(line1, line2) == 0) {
       good = (line * DIGITSLINE);
     } else {
       done = true;
       item = 2;
-      while ((item < pos1) && (item < pos2) && (!done)) {
-        if (line1[item] != line2[item]) {
-          done = true;
-        } else if (line1[item] != ' ') {
-          good++;
+      while ((item < pos1) && (item < pos2)) {
+        if (line1[item] == line2[item]) {
+          if ((line1[item] >= '0') && (line1[item] <= '9')) {
+            good++;
+          }
+        } else {
+          break;
         }
         item++;
       }
     }
   }
   
-//  line++;
   printf("Good digits: %lu\n", good);
   if ( !(end1 && end2) ) {
     printf("Fail line #: %lu\n", line);
-    printf("Line file 1:  %s\n", line1);
-    printf("Line file 2:  %s\n", line2);
+    printf("File line 1:  %s\n", line1);
+    printf("File line 2:  %s\n", line2);
   }
 
   fclose(file1);

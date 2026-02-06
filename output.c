@@ -12,6 +12,8 @@
 
 void logthis(char *filename, char *fmt, ...);
 
+// helper funcion
+
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
   mpf_t factor;
   mpf_init(factor);
@@ -21,66 +23,9 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
   mpz_set_f(result, factor);
 }
 
-void outputraw(mpf_t pi, char *outfile, unsigned long digits) {
-  FILE  *outhand;
-  mpz_t scaled;
+// txt output variants
 
-  logthis(NULL, "Write Raw: Init\r");
-  mpz_init(scaled);
-  mpf2mpz(scaled, pi, digits);
-
-  logthis(NULL, "Write Raw: Write\r");
-  outhand = fopen(outfile, "w");
-  mpz_out_raw(outhand, scaled);
-  fclose(outhand);
-}
-
-void outputgmp(mpf_t pi, char *outfile, unsigned long digits) {
-  FILE          *outhand;
-  unsigned long written, percent, progress;
-  char          *buffer, *chunk;
-
-  logthis(NULL, "Write Txt: Init\r");
-  buffer = malloc(digits + 11);
-  gmp_sprintf(buffer, "%.*Ff", digits + 10, pi);
-  buffer[digits + 2] = 0;
-
-  logthis(NULL, "Write Txt: Write (%2ld%%)\r", 0);
-  chunk = malloc(CHUNKCHARS + 1);
-  memset(chunk, 0, CHUNKCHARS + 1);
-  strncpy(chunk, buffer, 1);
-
-  outhand = fopen(outfile, "w");
-  fprintf(outhand, "%s.", chunk);
-  fflush(outhand);
-
-  for (written = 0 ; written < digits ; written += CHUNKCHARS) {
-    if ((written > 0) && ((written % DIGITSLINE) == 0)) {
-      fprintf(outhand, "  ");
-      fflush(outhand);
-    }
-
-    memset(chunk, 0, CHUNKCHARS + 1);
-    strncpy(chunk, buffer + written + 2, CHUNKCHARS);
-
-    if ((written % DIGITSLINE) < (DIGITSLINE - CHUNKCHARS)) {
-      fprintf(outhand, "%s ", chunk);
-    } else {
-      fprintf(outhand, "%s\n", chunk);
-    }
-    fflush(outhand);
-
-    percent = (100 * written) / digits;
-    if (percent > progress) {
-      progress = percent;
-      logthis(NULL, "Write Txt: Write (%2ld%%)\r", percent);
-    }
-  }
-
-  fclose(outhand);
-}
-
-void outputgio(mpf_t pi, char *outfile, unsigned long digits) {
+void outputtxt(mpz_t result, char *outfile, unsigned long digits) {
   FILE          *outhand;
   unsigned long powlimb, powfull, numpart, index, power, count, linesize, offset, written, percent, progress;
   mpz_t         *partial, scaled;
@@ -96,10 +41,9 @@ void outputgio(mpf_t pi, char *outfile, unsigned long digits) {
   for (index = 0; index < numpart; index++) {
     mpz_init(partial[index]);
   }
+  mpz_set(partial[0], result);
+  mpz_clear(result);
   mpz_init(scaled);
-
-  logthis(NULL, "Write Txt: Convert\r");
-  mpf2mpz(partial[0], pi, digits);
 
   logthis(NULL, "Write Txt: Calc (%2ld%%)\r", 0);
   progress = 0;
@@ -119,7 +63,6 @@ void outputgio(mpf_t pi, char *outfile, unsigned long digits) {
 
     // tidy up
     mpz_realloc2(scaled, 0);
-
     percent = (100 * power) / powfull;
     if (percent > progress) {
       progress = percent;
@@ -197,28 +140,86 @@ void outputgio(mpf_t pi, char *outfile, unsigned long digits) {
   fclose(outhand);
 }
 
-void outputtestraw(mpf_t pi, char *outfile, unsigned long digits) {
-  outputraw(pi, outfile, digits);
+void outputtst(mpz_t result, char *outfile, unsigned long digits) {
+  outputtxt(result, outfile, digits);
 }
 
-void writeraw(mpf_t pi, char *rawfile, unsigned long digits) {
+void outputgmp(mpz_t result, char *outfile, unsigned long digits) {
+  FILE          *outhand;
+  unsigned long written, percent, progress;
+  char          *buffer, *chunk;
+
+  logthis(NULL, "Write Txt: Init\r");
+  buffer = malloc(digits + 3);
+  gmp_sprintf(buffer, "%Zd", result);
+  buffer[digits + 2] = 0;
+  
+  chunk = malloc(CHUNKCHARS + 1);
+  memset(chunk, 0, CHUNKCHARS + 1);
+  mpz_clear(result);
+  progress = 0;
+
+  logthis(NULL, "Write Txt: Write (%2ld%%)\r", 0);
+  // first digit and decimal point
+  strncpy(chunk, buffer, 1);
+  outhand = fopen(outfile, "w");
+  fprintf(outhand, "%s.", chunk);
+  fflush(outhand);
+
+  // everything after the decimal point
+  for (written = 0 ; written < digits ; written += CHUNKCHARS) {
+    if ((written > 0) && ((written % DIGITSLINE) == 0)) {
+      fprintf(outhand, "  ");
+      fflush(outhand);
+    }
+
+    memset(chunk, 0, CHUNKCHARS + 1);
+    strncpy(chunk, buffer + written + 1, CHUNKCHARS);
+
+    if ((written % DIGITSLINE) < (DIGITSLINE - CHUNKCHARS)) {
+      fprintf(outhand, "%s ", chunk);
+    } else {
+      fprintf(outhand, "%s\n", chunk);
+    }
+    fflush(outhand);
+
+    percent = (100 * written) / digits;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write Txt: Write (%2ld%%)\r", percent);
+    }
+  }
+
+  fclose(outhand);
+}
+
+// raw output variants
+
+void outputraw(mpz_t result, char *rawfile) {
+  FILE  *rawhand;
+  rawhand = fopen(rawfile, "wb");
+  mpz_out_raw(rawhand, result);
+  fclose(rawhand);
+}
+
+// top level function calls
+
+void writeraw(mpz_t result, char *rawfile) {
 #if defined(TESTING)
-  outputtestraw(pi, rawfile, digits);
+  outputraw(result, rawfile);
+#elif defined(GMPOUT)
+  outputraw(result, rawfile);
 #else
-  outputraw(pi, rawfile, digits);
+  outputraw(result, rawfile);
 #endif
 }
 
-void outputtesttxt(mpf_t pi, char *outfile, unsigned long digits) {
-  outputgmp(pi, outfile, digits);
-} 
-
-void writetxt(mpf_t pi, char *outfile, unsigned long digits) {
+void writetxt(mpz_t result, char *outfile, unsigned long digits) {
 #if defined(TESTING)
-  outputtesttxt(pi, outfile, digits);
+  outputtst(result, outfile, digits);
 #elif defined(GMPOUT)
-  outputgmp(pi, outfile, digits);
+  outputgmp(result, outfile, digits);
 #else
-  outputgio(pi, outfile, digits);
+  outputtxt(result, outfile, digits);
 #endif
 }

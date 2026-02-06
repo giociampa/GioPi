@@ -1,19 +1,9 @@
 #include <stdlib.h>
 #include <gmp.h>
 
-#define A   545140134
-#define B   13591409
-#define C   640320
-#define C24 711822400
-#define D24 15367680
+#include "giopi.h"
 
-#define P1 (pstack[splitdepth])
-#define Q1 (qstack[splitdepth])
-#define T1 (tstack[splitdepth])
-#define P2 (pstack[splitdepth+1])
-#define Q2 (qstack[splitdepth+1])
-#define T2 (tstack[splitdepth+1])
-
+// logging.c
 void logthis(char *filename, char *fmt, ...);
 
 unsigned long splitcount, splitprogress, splitpercent, splitlimit;

@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv)
 {
-	char	inpfile[256], outfile[256];
+	char	inpfile[NAMESIZE], outfile[NAMESIZE];
 	FILE	*inphand, *outhand;
 	bool	show, done;
 	int	count, this;
@@ -45,8 +45,8 @@ int main(int argc, char** argv)
 		} else {
 			if ((show == false) && (this == CHAR_THREE)) {
 				show = true;
-				putc('3', outhand);
-				putc('.', outhand);
+				putc(CHAR_THREE, outhand);
+				putc(CHAR_POINT, outhand);
 			} else if ((show == true) && (isdigit(this) != 0)) {
 				putc(this, outhand);
 				count++;
