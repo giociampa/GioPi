@@ -92,10 +92,11 @@ int main(int argc, char *argv[]) {
   // prepare floating point values
   inter_time = clock();
   logthis(NULL, "Prep:\r");
+  mpf_init(pi);
   mpf_init(xxx);
   mpf_init(yyy);
   split_tidy(depth, xxx, yyy);
-  // rescale for mult/div later - retain ratio
+  // rescale to allow division into a double
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
   logthis(logfile, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
@@ -103,18 +104,17 @@ int main(int argc, char *argv[]) {
   // sqrt(10005)
   inter_time = clock();
   logthis(NULL, "Root:\r");
-  mpf_init(pi);
   root10005(pi);
   logthis(logfile, "Root:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  // sqrt(10005) * 426880 * q
+  // [ sqrt(10005) ] * 426880 * q
   inter_time = clock();
   logthis(NULL, "Mult:\r");
   mpf_mul_ui(pi, pi, 426880);
   mpf_mul(xxx, pi, xxx);
   logthis(logfile, "Mult:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  // sqrt(10005) * 426880 * q / t
+  // [ sqrt(10005) * 426880 * q ] / t
   inter_time = clock();
   logthis(NULL, "Divide:\r");
   divide(pi, xxx, yyy);
@@ -124,7 +124,6 @@ int main(int argc, char *argv[]) {
   // output pi
   if (showoutput) {
     logthis(logfile, "\n");
-
     // convert result to integer
     inter_time = clock();
     logthis(NULL, "Convert:\r");
@@ -134,7 +133,6 @@ int main(int argc, char *argv[]) {
     mpf_clear(yyy);
     mpf_clear(pi);
     logthis(logfile, "Convert: %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-
     // generate the output
 #if defined(RAWOUT)
     inter_time = clock();
