@@ -17,7 +17,7 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi pitst compare raw2txt copydlls
+local: pi pitst compare raw2txt dat2txt copydlls
 
 pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
@@ -40,7 +40,7 @@ atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp
+m68000: pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
 
 pi000.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
@@ -59,7 +59,7 @@ dat2txt0.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp
+m68040: pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
@@ -78,7 +78,7 @@ dat2txt4.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: pi.exe pitst.exe compare.exe raw2txt.exe copydlls
+cross: pi.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
 
 pi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
@@ -108,11 +108,11 @@ all: local m68000 m68040 cross
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	@echo 'rm -f pi* pitst* compare* raw2txt* *.dll' ||:
-	@rm -f pi pitst compare raw2txt ||:
-	@rm -f pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp ||:
-	@rm -f pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp ||:
-	@rm -f pi.exe pitst.exe compare.exe raw2txt.exe ||:
+	@echo 'rm -f pi* pitst* compare* raw2txt* dat2txt* *.dll' ||:
+	@rm -f pi pitst compare raw2txt dat2txt ||:
+	@rm -f pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp ||:
+	@rm -f pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp ||:
+	@rm -f pi.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe ||:
 	@rm -f *.dll ||:
 
 veryclean: clean
