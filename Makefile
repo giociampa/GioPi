@@ -3,6 +3,7 @@ BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c output.c
 RAWFILES = raw2txt.c getdigits.c logging.c output.c
 CMPFILES = compare.c
+DATFILES = dat2txt.c
 
 FLAGSALL = -O3 -lm -lgmp
 FLAGSLOC = ${FLAGSALL} -ffast-math
@@ -16,7 +17,7 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi pitst compare raw2txt
+local: pi pitst compare raw2txt copydlls
 
 pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
@@ -29,6 +30,9 @@ compare: ${CMPFILES}
 
 raw2txt: ${RAWFILES}
 	${LOCALGCC} ${RAWFILES} ${FLAGSLOC} -o $@
+
+dat2txt: ${DATFILES}
+	${LOCALGCC} ${DATFILES} ${FLAGSLOC} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -50,6 +54,9 @@ compare0.ttp: ${CMPFILES}
 raw2txt0.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
 
+dat2txt0.ttp: ${DATFILES}
+	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
+
 # --------------------------------------------------------------------------------------------------
 
 m68040: pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp
@@ -65,6 +72,9 @@ compare4.ttp: ${CMPFILES}
 
 raw2txt4.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
+
+dat2txt4.ttp: ${DATFILES}
+	${ATARIGCC} ${DATFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -82,9 +92,14 @@ compare.exe: ${CMPFILES}
 raw2txt.exe: ${RAWFILES}
 	${CROSSGCC} ${RAWFILES} ${FLAGSEXE} -o $@
 
+dat2txt.exe: ${DATFILES}
+	${CROSSGCC} ${DATFILES} ${FLAGSEXE} -o $@
+
+# --------------------------------------------------------------------------------------------------
+
 copydlls:
-	@echo Copy DLLs
-	@find /usr/ -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------
 
@@ -93,12 +108,12 @@ all: local m68000 m68040 cross
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	@echo 'rm -f pi* pitst* compare* raw2txt* libgmp*' ||:
+	@echo 'rm -f pi* pitst* compare* raw2txt* *.dll' ||:
 	@rm -f pi pitst compare raw2txt ||:
 	@rm -f pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp ||:
 	@rm -f pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp ||:
 	@rm -f pi.exe pitst.exe compare.exe raw2txt.exe ||:
-	@rm -f libgmp*.dll ||:
+	@rm -f *.dll ||:
 
 veryclean: clean
 	@echo 'rm -f *.log *.raw *.txt' ||:
