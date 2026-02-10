@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  inphand = fopen(inpfile, "r");
+  inphand = fopen(inpfile, "rb");
   if (inphand == NULL) {
     printf("ERROR: Missing input file: %s\n", inpfile);
     return EXIT_FAILURE;

@@ -76,7 +76,7 @@ void outputtxt(mpz_t result, char *outfile, unsigned long digits) {
   showme = false;
   linesize = DIGITSLINE + 1; // first line needs '3' alao
 
-  outhand = fopen(outfile, "w");
+  outhand = fopen(outfile, "wb");
   for (index = 0; ((index < numpart) && (written < digits)); index++) {
     if (!showme) {
       if (mpz_cmp_ui(partial[index], 0) != 0) {
@@ -140,10 +140,6 @@ void outputtxt(mpz_t result, char *outfile, unsigned long digits) {
   fclose(outhand);
 }
 
-void outputtst(mpz_t result, char *outfile, unsigned long digits) {
-  outputtxt(result, outfile, digits);
-}
-
 void outputgmp(mpz_t result, char *outfile, unsigned long digits) {
   FILE          *outhand;
   unsigned long written, percent, progress;
@@ -162,7 +158,7 @@ void outputgmp(mpz_t result, char *outfile, unsigned long digits) {
   logthis(NULL, "Write Txt: Write (%2ld%%)\r", 0);
   // first digit and decimal point
   strncpy(chunk, buffer, 1);
-  outhand = fopen(outfile, "w");
+  outhand = fopen(outfile, "wb");
   fprintf(outhand, "%s.", chunk);
   fflush(outhand);
 
@@ -216,7 +212,7 @@ void writeraw(mpz_t result, char *rawfile) {
 
 void writetxt(mpz_t result, char *outfile, unsigned long digits) {
 #if defined(TESTING)
-  outputtst(result, outfile, digits);
+  outputgmp(result, outfile, digits);
 #elif defined(GMPOUT)
   outputgmp(result, outfile, digits);
 #else

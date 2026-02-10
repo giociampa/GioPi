@@ -76,8 +76,8 @@ int main(int argc, char *argv[]) {
 
   loginit(logfile);
   logthis(logfile, "Build:  GioPi (%s)\n", BUILDDATE);
-  logthis(logfile, "Digits: %-10lu\n", digits);
-  logthis(logfile, "Terms:  %-10lu\n\n", terms);
+  logthis(logfile, "Digits: %lu\n", digits);
+  logthis(logfile, "Terms:  %lu\n\n", terms);
 
   // initialise the binary split structures
   split_init(depth, terms);
