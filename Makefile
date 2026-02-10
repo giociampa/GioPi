@@ -83,7 +83,8 @@ raw2txt.exe: ${RAWFILES}
 	${CROSSGCC} ${RAWFILES} ${FLAGSEXE} -o $@
 
 copydlls:
-	find /usr/x86_64-w64-mingw32/ -iname "libgmp*.dll" -exec cp "{}" . \;
+	@echo Copy DLLs
+	@find /usr/ -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------
 
