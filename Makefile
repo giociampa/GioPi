@@ -17,10 +17,13 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi pitst compare raw2txt dat2txt copydlls
+local: pi piraw pitst compare raw2txt dat2txt copydlls
 
 pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+
+piraw: ${SRCFILES}
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -DTESTING -o $@
@@ -40,9 +43,12 @@ atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
+m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
 
 pi000.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+
+piraw0.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst0.ttp: ${SRCFILES}
@@ -59,9 +65,12 @@ dat2txt0.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
+m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
+
+piraw4.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst4.ttp: ${SRCFILES}
@@ -78,10 +87,13 @@ dat2txt4.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: pi.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
+cross: pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
 
 pi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+
+piraw.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -DTESTING -o $@
@@ -98,6 +110,8 @@ dat2txt.exe: ${DATFILES}
 # --------------------------------------------------------------------------------------------------
 
 copydlls:
+	@echo 'Copying DLL files' ||:
+	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 
@@ -108,11 +122,11 @@ all: local m68000 m68040 cross
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	@echo 'rm -f pi* pitst* compare* raw2txt* dat2txt* *.dll' ||:
+	@echo 'rm -f pi* piraw* pitst* compare* raw2txt* dat2txt* *.dll' ||:
 	@rm -f pi pitst compare raw2txt dat2txt ||:
-	@rm -f pi000.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp ||:
-	@rm -f pi040.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp ||:
-	@rm -f pi.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe ||:
+	@rm -f pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp ||:
+	@rm -f pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp ||:
+	@rm -f pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe ||:
 	@rm -f *.dll ||:
 
 veryclean: clean
