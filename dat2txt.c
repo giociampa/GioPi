@@ -25,12 +25,12 @@ int main(int argc, char** argv)
 	
 	printf("Converting: %s to %s\n", inpfile, outfile);
 
-	inphand = fopen(inpfile, "r");
+	inphand = fopen(inpfile, "rb");
 	if (inphand == NULL) {
 		printf("ERROR: Missing input file: %s\n", inpfile);
 		return EXIT_FAILURE;
 	}
-	outhand = fopen(outfile, "w");
+	outhand = fopen(outfile, "wb");
 	
 	show = false;
 	done = false;

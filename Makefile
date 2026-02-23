@@ -123,7 +123,7 @@ all: local m68000 m68040 cross
 
 clean:
 	@echo 'rm -f pi* piraw* pitst* compare* raw2txt* dat2txt* *.dll' ||:
-	@rm -f pi pitst compare raw2txt dat2txt ||:
+	@rm -f pi piraw pitst compare raw2txt dat2txt ||:
 	@rm -f pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp ||:
 	@rm -f pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp ||:
 	@rm -f pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe ||:
