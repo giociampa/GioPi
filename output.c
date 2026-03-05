@@ -5,10 +5,7 @@
 #include <string.h>
 #include <gmp.h>
 
-#define CHUNKCOUNT 5
-#define CHUNKCHARS 10
-#define DIGITSLINE 50
-#define WHOLELINE (DIGITSLINE + 6)
+#include "giopi.h"
 
 void logthis(char *filename, char *fmt, ...);
 
@@ -85,11 +82,11 @@ void outputtxt(mpz_t result, char *outfile, unsigned long digits) {
 #endif
 
   logthis(NULL, "Write Txt: Init\r");
-  powlimb = mp_bits_per_limb * log10(2.0);
+  powlimb = (unsigned long) (mp_bits_per_limb * log10(2.0));
   powfull = log10((double) digits / (double) powlimb) / log10(2.0) + 1;
   numpart = 1 << powfull;
 
-  partial = malloc(numpart * sizeof(mpz_t) + 1);
+  partial = malloc((numpart + 1) * sizeof(mpz_t));
   for (index = 0; index < numpart; index++) {
     mpz_init(partial[index]);
   }

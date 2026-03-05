@@ -5,14 +5,15 @@ RAWFILES = raw2txt.c getdigits.c logging.c output.c
 CMPFILES = compare.c
 DATFILES = dat2txt.c
 
-FLAGSALL = -O3 -lm -lgmp
-FLAGSLOC = ${FLAGSALL} -ffast-math
-FLAGS000 = ${FLAGSALL} -m68000 -ffast-math
-FLAGS040 = ${FLAGSALL} -m68040 -mhard-float
-FLAGSEXE = ${FLAGSALL} -ffast-math
+FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp
+FLAGSLOC = -ffast-math ${FLAGSALL}
+FLAGS000 = -m68000 -ffast-math ${FLAGSALL}
+FLAGS040 = -m68040 -mhard-float ${FLAGSALL}
+FLAGSEXE = -ffast-math ${FLAGSALL}
 
 LOCALGCC = gcc
 ATARIGCC = m68k-atari-mintelf-gcc
+ATARIELF = m68k-atari-elf-gcc
 CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
@@ -46,44 +47,44 @@ atari: m68000 m68040
 m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
 
 pi000.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DATARI -o $@
 
 piraw0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -DATARI -o $@
 
 pitst0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -DATARITST -DATARI -o $@
 
 compare0.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS000} -DATARI -o $@
 
 raw2txt0.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS000} -DATARI -o $@
 
 dat2txt0.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
+	${ATARIGCC} ${DATFILES} ${FLAGS000} -DATARI -o $@
 
 # --------------------------------------------------------------------------------------------------
 
 m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DATARI -o $@
 
 piraw4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -DATARI -o $@
 
 pitst4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -DATARITST -DATARI -o $@
 
 compare4.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS040} -DATARI -o $@
 
 raw2txt4.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS040} -DATARI -o $@
 
 dat2txt4.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS040} -o $@
+	${ATARIGCC} ${DATFILES} ${FLAGS040} -DATARI -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -112,8 +113,8 @@ dat2txt.exe: ${DATFILES}
 copydlls:
 	@echo 'Copying DLL files' ||:
 	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
-	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------
 
@@ -122,25 +123,19 @@ all: local m68000 m68040 cross
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	@echo 'rm -f pi* piraw* pitst* compare* raw2txt* dat2txt* *.dll' ||:
-	@rm -f pi piraw pitst compare raw2txt dat2txt ||:
-	@rm -f pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp ||:
-	@rm -f pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp ||:
-	@rm -f pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe ||:
-	@rm -f *.dll ||:
+	rm -f pi piraw pitst compare raw2txt dat2txt *.ttp *.exe *.dll
 
 veryclean: clean
-	@echo 'rm -f *.log *.raw *.txt' ||:
-	@rm -f 0*.log 0*.raw 0*.txt ||:
-	@rm -f 1*.log 1*.raw 1*.txt ||:
-	@rm -f 2*.log 2*.raw 2*.txt ||:
-	@rm -f 3*.log 3*.raw 3*.txt ||:
-	@rm -f 4*.log 4*.raw 4*.txt ||:
-	@rm -f 5*.log 5*.raw 5*.txt ||:
-	@rm -f 6*.log 6*.raw 6*.txt ||:
-	@rm -f 7*.log 7*.raw 7*.txt ||:
-	@rm -f 8*.log 8*.raw 8*.txt ||:
-	@rm -f 9*.log 9*.raw 9*.txt ||:
+	rm -f 0*.log 0*.raw 0*.txt
+	rm -f 1*.log 1*.raw 1*.txt
+	rm -f 2*.log 2*.raw 2*.txt
+	rm -f 3*.log 3*.raw 3*.txt
+	rm -f 4*.log 4*.raw 4*.txt
+	rm -f 5*.log 5*.raw 5*.txt
+	rm -f 6*.log 6*.raw 6*.txt
+	rm -f 7*.log 7*.raw 7*.txt
+	rm -f 8*.log 8*.raw 8*.txt
+	rm -f 9*.log 9*.raw 9*.txt
 
 # --------------------------------------------------------------------------------------------------
 
