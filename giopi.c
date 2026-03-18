@@ -79,19 +79,16 @@ int main(int argc, char *argv[]) {
   logthis(logfile, "Digits: %lu\n", digits);
   logthis(logfile, "Terms:  %lu\n\n", terms);
 
+  logthis(NULL, "Split:\r");
   // initialise the binary split structures
   split_init(depth, terms);
-  logthis(logfile, "Init:   %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-
   // off we jolly well go
-  inter_time = clock();
-  logthis(NULL, "Split:\r");
   split(0, terms, 0);
-  logthis(logfile, "Split:  %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Split:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   
+  logthis(NULL, "Root:\r");
   // prepare floating point values
   inter_time = clock();
-  logthis(NULL, "Prep:\r");
   mpf_init(pi);
   mpf_init(xxx);
   mpf_init(yyy);
@@ -99,24 +96,20 @@ int main(int argc, char *argv[]) {
   // rescale to allow division into a double
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
-  logthis(logfile, "Prep:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-
   // sqrt(10005)
-  inter_time = clock();
-  logthis(NULL, "Root:\r");
   root10005(pi);
   logthis(logfile, "Root:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
+  logthis(NULL, "Mult:\r");
   // [ sqrt(10005) ] * 426880 * q
   inter_time = clock();
-  logthis(NULL, "Mult:\r");
   mpf_mul_ui(pi, pi, 426880);
   mpf_mul(xxx, pi, xxx);
   logthis(logfile, "Mult:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
+  logthis(NULL, "Divide:\r");
   // [ sqrt(10005) * 426880 * q ] / t
   inter_time = clock();
-  logthis(NULL, "Divide:\r");
   divide(pi, xxx, yyy);
   logthis(logfile, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);

@@ -82,6 +82,10 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+
+  if ((good % DIGITSLINE) == 0) {
+    line++;
+  }
   
   printf("Good digits: %lu\n", good);
   if ( !(end1 && end2) ) {

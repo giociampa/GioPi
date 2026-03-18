@@ -95,6 +95,6 @@ void split(unsigned long a, unsigned long b, unsigned long splitdepth) {
   splitpercent = (splitcount * 100) / splitlimit;
   if (splitpercent > splitprogress) {
     splitprogress = splitpercent;
-    logthis(NULL, "Split: (%2ld%%)\r", splitpercent);
+    logthis(NULL, "Split: (%ld%%)\r", splitpercent);
   }
 }

@@ -13,7 +13,6 @@ FLAGSEXE = -ffast-math ${FLAGSALL}
 
 LOCALGCC = gcc
 ATARIGCC = m68k-atari-mintelf-gcc
-ATARIELF = m68k-atari-elf-gcc
 CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
@@ -44,47 +43,53 @@ atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
+m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp raw2tst0.ttp dat2txt0.ttp
 
 pi000.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
 piraw0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -DATARITST -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -o $@
 
 compare0.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS000} -DATARI -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
 
 raw2txt0.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -DATARI -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
+
+raw2tst0.ttp: ${RAWFILES}
+	${ATARIGCC} ${RAWFILES} ${FLAGS000} -DTESTING -o $@
 
 dat2txt0.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS000} -DATARI -o $@
+	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
+m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp raw2tst4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
 piraw4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
 
 pitst4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -DATARITST -DATARI -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -o $@
 
 compare4.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS040} -DATARI -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
 
 raw2txt4.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -DATARI -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
+
+raw2tst4.ttp: ${RAWFILES}
+	${ATARIGCC} ${RAWFILES} ${FLAGS040} -DTESTING -o $@
 
 dat2txt4.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS040} -DATARI -o $@
+	${ATARIGCC} ${DATFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
