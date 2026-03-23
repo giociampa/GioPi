@@ -79,7 +79,7 @@ void writetxt(mpz_t result, char *outfile, unsigned long digits) {
   char          buffer[2 * DIGITSLINE], chunk[2 * DIGITSLINE];
   bool          showme;
 
-  // logthis(NULL, "Write Txt: Init\r");
+  logthis(NULL, "Write Txt: Init\r");
   powlimb = (unsigned long) (mp_bits_per_limb * log10(2.0));
   powfull = log10((double) digits / (double) powlimb) / log10(2.0) + 1;
   numpart = 1 << powfull;
@@ -90,39 +90,29 @@ void writetxt(mpz_t result, char *outfile, unsigned long digits) {
   }
   mpz_init(powerten);
 
-  // logthis(NULL, "Write Txt: Calc (%ld%%)\r", 0);
+  logthis(NULL, "Write Txt: Calc (%ld%%)\r", 0);
   mpz_ui_pow_ui(powerten, 10, powlimb * (1 << (powfull - 1)));
-  logthis(NULL, "power = 0\n");
   mpz_tdiv_q(partial[0], result, powerten);
-  logthis(NULL, "mpz_tdiv_q(partial[0], result, powerten);\n");
   mpz_mul(partial[1], partial[0], powerten);
-  logthis(NULL, "mpz_mul(partial[1], partial[0], powerten);\n");
   mpz_sub(partial[1], result, partial[1]);
-  logthis(NULL, "mpz_sub(partial[1], result, partial[1]);\n");
   mpz_realloc2(powerten, 0);
   mpz_realloc2(result, 0);
 
   numcalc = 1;
   progress = (100 * numcalc) / numpart;
-  // logthis(NULL, "Write Txt: Calc (%ld%%)\r", progress);
+  logthis(NULL, "Write Txt: Calc (%ld%%)\r", progress);
 
   for (power = 1; power < powfull; power++) {
-    logthis(NULL, "power = %ld\n", power);
     mpz_ui_pow_ui(powerten, 10, powlimb * (1 << (powfull - power - 1)));
     index = 2 << power;
     count = 1 << power;
     while (count > 0) {
       count--;
       index--;
-      logthis(NULL, "count = %ld index = %ld\n", count, index);
       mpz_tdiv_q(result, partial[count], powerten);
-      logthis(NULL, "mpz_tdiv_q(result, partial[count], powerten);\n");
       mpz_mul(partial[index], result, powerten);
-      logthis(NULL, "mpz_mul(partial[index], result, powerten);\n");
       mpz_sub(partial[index], partial[count], partial[index]);
-      logthis(NULL, "mpz_sub(partial[index], partial[count], partial[index]);\n");
       mpz_set(partial[index - 1], result);
-      logthis(NULL, "mpz_set(partial[index - 1], result);\n");
       mpz_realloc2(partial[index], mpz_sizeinbase(partial[index], 2));
       index--;
       mpz_realloc2(partial[index], mpz_sizeinbase(partial[index], 2));
@@ -132,13 +122,13 @@ void writetxt(mpz_t result, char *outfile, unsigned long digits) {
       percent = (100 * numcalc) / numpart;
       if (percent > progress) {
         progress = percent;
-        // logthis(NULL, "Write Txt: Calc (%ld%%)\r", percent);
+        logthis(NULL, "Write Txt: Calc (%ld%%)\r", percent);
       }
     }
     mpz_realloc2(powerten, 0);
   }
 
-  // logthis(NULL, "Write Txt: Write (%ld%%)\r", 0);
+  logthis(NULL, "Write Txt: Write (%ld%%)\r", 0);
   written = 0;
   progress = 0;
   showme = false;
@@ -178,7 +168,7 @@ void writetxt(mpz_t result, char *outfile, unsigned long digits) {
           percent = (100 * written) / digits;
           if (percent > progress) {
             progress = percent;
-            // logthis(NULL, "Write Txt: Write (%ld%%)\r", percent);
+            logthis(NULL, "Write Txt: Write (%ld%%)\r", percent);
           }
         }
         fflush(outhand);
