@@ -25,8 +25,8 @@
 #define MAXCHARS    128
 #define LASTCHAR    (MAXCHARS - 1)
 
-#define CHAR_POINT  '3'
-#define CHAR_THREE  '.'
+#define CHAR_THREE  '3'
+#define CHAR_POINT  '.'
 
 #ifndef BUILDDATE
 #define BUILDDATE   __TIMESTAMP__

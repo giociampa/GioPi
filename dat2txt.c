@@ -42,24 +42,24 @@ int main(int argc, char** argv)
 			printf("Digits: %d\n", count);
 			putc('\n', outhand);
 			done = true;
-		} else {
-			if ((show == false) && (this == CHAR_THREE)) {
-				show = true;
-				putc(CHAR_THREE, outhand);
-				putc(CHAR_POINT, outhand);
-			} else if ((show == true) && (isdigit(this) != 0)) {
-				putc(this, outhand);
-				count++;
-				if ((count % CHUNKCHARS) == 0) {
-					if ((count % DIGITSLINE) == 0) {
-						putc('\n', outhand);
-						putc(' ', outhand);
-					}
-					putc(' ', outhand);
-				}
-			}
-		}
-	}
+    } else if (show == true) {
+      if (isdigit(this) != 0) {
+        putc(this, outhand);
+        count++;
+        if ((count % CHUNKCHARS) == 0) {
+          if ((count % DIGITSLINE) == 0) {
+            putc('\n', outhand);
+            putc(' ', outhand);
+          }
+          putc(' ', outhand);
+        }
+      }
+    } else if (this == CHAR_POINT) {
+      show = true;
+      putc(CHAR_THREE, outhand);
+      putc(CHAR_POINT, outhand);
+    }
+  }
 	
 	fclose(inphand);
 	fclose(outhand);

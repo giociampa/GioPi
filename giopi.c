@@ -7,6 +7,9 @@
 
 #include "giopi.h"
 
+// for m68k-atari-elf-gcc to allocate all memory (per mintlib)
+int _stksize = -1;
+
 // getdigits.c
 void getdigits(char *input, unsigned long *result);
 
@@ -20,7 +23,7 @@ void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy);
 void split(unsigned long a, unsigned long b, unsigned long splitdepth);
 
 // root10005.c
-void root10005(mpf_t r);
+void root10005(mpf_t r, unsigned long digits);
 
 // divide.c
 void divide(mpf_t r, mpf_t y, mpf_t x);
@@ -34,7 +37,7 @@ void writetxt(mpz_t result, char *outfile, unsigned long digits);
 
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits;
-  char          logfile[MAXCHARS], rawfile[MAXCHARS], txtfile[MAXCHARS], param[MAXCHARS], *txtpos;
+  char          logfile[MAXCHARS], rawfile[MAXCHARS], txtfile[MAXCHARS];
   clock_t       start_time, inter_time;
   bool          showoutput;
   mpf_t         xxx, yyy, pi;
@@ -93,11 +96,8 @@ int main(int argc, char *argv[]) {
   mpf_init(xxx);
   mpf_init(yyy);
   split_tidy(depth, xxx, yyy);
-  // rescale to allow division into a double
-  xxx->_mp_exp -= yyy->_mp_exp;
-  yyy->_mp_exp = 0;
   // sqrt(10005)
-  root10005(pi);
+  root10005(pi, digits);
   logthis(logfile, "Root:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
   logthis(NULL, "Mult:\r");
@@ -112,11 +112,10 @@ int main(int argc, char *argv[]) {
   inter_time = clock();
   divide(pi, xxx, yyy);
   logthis(logfile, "Divide: %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-  logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // output pi
   if (showoutput) {
-    logthis(logfile, "\n");
+    logthis(logfile, "Result: %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
     // convert result to integer
     inter_time = clock();
     logthis(NULL, "Convert:\r");
@@ -139,6 +138,7 @@ int main(int argc, char *argv[]) {
     logthis(logfile, "Write Txt: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 #endif
   }
+  logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   return EXIT_SUCCESS;
 }

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
 
@@ -25,19 +26,6 @@ void split_init(unsigned long depth, unsigned long terms) {
   splitprogress = 0;
   splitpercent = 0;
   splitlimit = 2 * terms;
-}
-
-void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy) {
-  unsigned long count;
-  
-  mpf_set_z(xxx, qstack[0]);
-  mpf_set_z(yyy, tstack[0]);
-
-  for (count = 0; count < depth; count++) {
-    mpz_clear(pstack[count]);
-    mpz_clear(qstack[count]);
-    mpz_clear(tstack[count]);
-  }
 }
 
 void split(unsigned long a, unsigned long b, unsigned long splitdepth) {
@@ -96,5 +84,22 @@ void split(unsigned long a, unsigned long b, unsigned long splitdepth) {
   if (splitpercent > splitprogress) {
     splitprogress = splitpercent;
     logthis(NULL, "Split: (%ld%%)\r", splitpercent);
+  }
+}
+
+void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy, unsigned long digits) {
+  unsigned long count;
+  
+  mpf_set_z(xxx, qstack[0]);
+  mpf_set_z(yyy, tstack[0]);
+  
+  // rescale to allow division into a double later
+  xxx->_mp_exp -= yyy->_mp_exp;
+  yyy->_mp_exp = 0;
+
+  for (count = 0; count < depth; count++) {
+    mpz_clear(pstack[count]);
+    mpz_clear(qstack[count]);
+    mpz_clear(tstack[count]);
   }
 }

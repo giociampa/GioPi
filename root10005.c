@@ -1,9 +1,10 @@
 #include <math.h>
 #include <gmp.h>
+#include <stdio.h>
 
 #define DOUBLE_PREC 53
 
-void root10005(mpf_t r) {
+void root10005(mpf_t r, unsigned long digits) {
   unsigned long prec0, bits, prec, bit;
   unsigned long t1prec, t2prec;
   mpf_t         t1, t2;
