@@ -5,10 +5,9 @@ RAWFILES = raw2txt.c getdigits.c logging.c output.c
 CMPFILES = compare.c
 DATFILES = dat2txt.c
 
-FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp
+FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -g
 FLAGSLOC = -ffast-math ${FLAGSALL}
 FLAGS000 = -m68000 -ffast-math ${FLAGSALL}
-FLAGS020 = -m68020 -mhard-float ${FLAGSALL}
 FLAGS040 = -m68040 -mhard-float ${FLAGSALL}
 FLAGSEXE = -ffast-math ${FLAGSALL}
 
@@ -20,7 +19,7 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi piraw pitst compare raw2txt dat2txt copydlls
+local: pi piraw pitst compare raw2txt dat2txt
 
 pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
@@ -42,7 +41,7 @@ dat2txt: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atari: m68000 m68020 m68040
+atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
@@ -71,31 +70,6 @@ dat2txt0.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68020: pi020.ttp piraw2.ttp pitst2.ttp compare2.ttp raw2txt2.ttp raw2tst2.ttp dat2txt2.ttp
-
-pi020.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
-
-piraw2.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -DRAWOUT -o $@
-
-pitst2.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -DTESTING -o $@
-
-compare2.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
-
-raw2txt2.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} -o $@
-
-raw2tst2.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} -DTESTING -o $@
-
-dat2txt2.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS020} -o $@
-
-# --------------------------------------------------------------------------------------------------
-
 m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp raw2tst4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
@@ -121,7 +95,7 @@ dat2txt4.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atariprg: m68000elf m68020elf m68040elf
+atariprg: m68000elf m68040elf
 
 # --------------------------------------------------------------------------------------------------
 
@@ -154,31 +128,6 @@ raw2tst0.prg: ${RAWFILES}
 dat2txt0.prg: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
 	${PRGTOELF) $@ $@.ttp
-
-# --------------------------------------------------------------------------------------------------
-
-m68020elf: pi020.prg piraw2.prg pitst2.prg compare2.prg raw2txt2.prg raw2tst2.prg dat2txt2.prg
-
-pi020.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
-
-piraw2.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -DRAWOUT -o $@
-
-pitst2.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -DTESTING -o $@
-
-compare2.prg: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
-
-raw2txt2.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} -o $@
-
-raw2tst2.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} -DTESTING -o $@
-
-dat2txt2.prg: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS020} -o $@
 
 # --------------------------------------------------------------------------------------------------
 

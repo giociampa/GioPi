@@ -20,7 +20,7 @@ void logthis(char *filename, char *fmt, ...);
 // split.c
 void split_init(unsigned long depth, unsigned long terms);
 void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy);
-void split(unsigned long a, unsigned long b, unsigned long splitdepth);
+void split(unsigned long b);
 
 // root10005.c
 void root10005(mpf_t r, unsigned long digits);
@@ -39,17 +39,20 @@ int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits;
   char          logfile[MAXCHARS], rawfile[MAXCHARS], txtfile[MAXCHARS];
   clock_t       start_time, inter_time;
-  bool          showoutput;
+  bool          justdosplit, showoutput;
   mpf_t         xxx, yyy, pi;
   mpz_t         scaled;
 
   digits = 0;
+  justdosplit = false;
   showoutput = true;
 
   if (argc > 1) {
     getdigits(argv[1], &digits);
     if (argc > 2) {
-      if (strcasecmp(argv[2], "noout") == 0) {
+      if (strcasecmp(argv[2], "split") == 0) {
+        justdosplit = true;
+      } else if (strcasecmp(argv[2], "noout") == 0) {
         showoutput = false;
       }
     }
@@ -68,7 +71,7 @@ int main(int argc, char *argv[]) {
 
   depth = 1;
   while ((1L << depth) < terms) { depth++; }
-  depth++;
+  depth += 1;
 
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
@@ -86,8 +89,11 @@ int main(int argc, char *argv[]) {
   // initialise the binary split structures
   split_init(depth, terms);
   // off we jolly well go
-  split(0, terms, 0);
+  split(terms);
   logthis(logfile, "Split:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+  if (justdosplit) {
+    return EXIT_SUCCESS;
+  }
   
   logthis(NULL, "Root:\r");
   // prepare floating point values
