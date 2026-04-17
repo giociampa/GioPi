@@ -18,6 +18,15 @@
 #define Q2  (qstack[splitdepth+1])
 #define T2  (tstack[splitdepth+1])
 
+#if defined(TESTING)
+#define P3  (pstack[splitdepth+2])
+#define Q3  (qstack[splitdepth+2])
+#define T3  (tstack[splitdepth+2])
+#define P4  (pstack[splitdepth+3])
+#define Q4  (qstack[splitdepth+3])
+#define T4  (tstack[splitdepth+3])
+#endif
+
 #define CHUNKCOUNT  5
 #define CHUNKCHARS  10
 #define DIGITSLINE  50

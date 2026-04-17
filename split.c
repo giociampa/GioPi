@@ -5,10 +5,10 @@
 #include "giopi.h"
 
 // logging.c
-void logthis(char *filename, char *fmt, ...);
+void logthis(char  * filename, char  * fmt, ...);
 
-unsigned long splitcount, splitprogress, splitpercent, splitlimit;
-mpz_t         *pstack, *qstack, *tstack;
+unsigned long splitcurrent, splitreached, splitpercent, splitmaxterm;
+mpz_t          * pstack,  * qstack,  * tstack;
 
 void split_init(unsigned long depth, unsigned long terms) {
   unsigned long count;
@@ -22,10 +22,10 @@ void split_init(unsigned long depth, unsigned long terms) {
     mpz_init(tstack[count]);
   }
   
-  splitcount = 0;
-  splitprogress = 0;
+  splitcurrent = 0;
+  splitreached = 0;
   splitpercent = 0;
-  splitlimit = 2 * terms;
+  splitmaxterm = 2 * terms;
 }
 
 void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy, unsigned long digits) {
@@ -54,10 +54,10 @@ void recursion(unsigned long a, unsigned long b, unsigned long splitdepth) {
       mpz_set_ui(Q1, 1);
       mpz_set_ui(T1, B);
     } else {
-      // p = (6*a-5) * (2*a-1) * (6*a-1)
-      mpz_set_ui(P1, 6*a-5);
-      mpz_mul_ui(P1, P1, 2*a-1);
-      mpz_mul_ui(P1, P1, 6*a-1);
+      // p = (6 * a - 5) * (2 * a - 1) * (6 * a - 1)
+      mpz_set_ui(P1, 6 * a - 5);
+      mpz_mul_ui(P1, P1, 2 * a - 1);
+      mpz_mul_ui(P1, P1, 6 * a - 1);
       // q = a * a * a * (C^3 / 24)
       mpz_set_ui(Q1, a);
       mpz_mul_ui(Q1, Q1, a);
@@ -69,15 +69,15 @@ void recursion(unsigned long a, unsigned long b, unsigned long splitdepth) {
       mpz_mul_ui(T1, T1, a);
       mpz_add_ui(T1, T1, B);
       mpz_mul(T1, T1, P1);
-      if (a % 2) {
+      if (a & 1) {
         mpz_neg(T1, T1);
       }
     }
   } else {
     // lower split - get P1, Q1, T1
-    recursion(a, m, splitdepth+0);
+    recursion(a, m, splitdepth + 0);
     // upper split - get P2, Q2, T2
-    recursion(m, b, splitdepth+1);
+    recursion(m, b, splitdepth + 1);
 
     // t2 = (pam * tmb)
     mpz_mul(T2, P1, T2);
@@ -96,10 +96,10 @@ void recursion(unsigned long a, unsigned long b, unsigned long splitdepth) {
   }
 
   // progress marker
-  splitcount += 1;
-  splitpercent = (splitcount * 100) / splitlimit;
-  if (splitpercent > splitprogress) {
-    splitprogress = splitpercent;
+  splitcurrent += 1;
+  splitpercent = (splitcurrent * 100) / splitmaxterm;
+  if (splitpercent > splitreached) {
+    splitreached = splitpercent;
     logthis(NULL, "Split: (%ld%%)\r", splitpercent);
   }
 }
