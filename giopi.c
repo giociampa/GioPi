@@ -19,7 +19,7 @@ void logthis(char *filename, char *fmt, ...);
 
 // split.c
 void split_init(unsigned long depth, unsigned long terms);
-void split_tidy(unsigned long depth, mpf_t xxx, mpf_t yyy);
+void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth);
 void split(unsigned long b);
 
 // root10005.c
@@ -98,10 +98,8 @@ int main(int argc, char *argv[]) {
   logthis(NULL, "Root:\r");
   // prepare floating point values
   inter_time = clock();
-  mpf_init(pi);
-  mpf_init(xxx);
-  mpf_init(yyy);
-  split_tidy(depth, xxx, yyy);
+  mpf_inits(pi, xxx, yyy, NULL);
+  split_tidy(xxx, yyy, depth);
   // sqrt(10005)
   root10005(pi, digits);
   logthis(logfile, "Root:   %10.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
