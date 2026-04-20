@@ -6,13 +6,12 @@
 
 #include "giopi.h"
 
+// convert.c
+void convert(char *inpfile, char *outfile, unsigned long digits, bool quiet);
+
 int main(int argc, char** argv)
 {
 	char	inpfile[NAMESIZE], outfile[NAMESIZE];
-	FILE	*inphand, *outhand;
-	bool	show, done;
-	int	count, this;
-
 	strcpy(inpfile, "pi.dat");
 	strcpy(outfile, "pi.txt");
 	
@@ -22,47 +21,8 @@ int main(int argc, char** argv)
 			strcpy(outfile, argv[2]);
 		}
 	}
-	
-	printf("Converting: %s to %s\n", inpfile, outfile);
 
-	inphand = fopen(inpfile, "rb");
-	if (inphand == NULL) {
-		printf("ERROR: Missing input file: %s\n", inpfile);
-		return EXIT_FAILURE;
-	}
-	outhand = fopen(outfile, "wb");
-	
-	show = false;
-	done = false;
-	count = 0;
-	
-	while (done == false) {
-		this = getc(inphand);
-		if ((this == EOF) || (isalpha(this) != 0)) {
-			printf("Digits: %d\n", count);
-			putc('\n', outhand);
-			done = true;
-    } else if (show == true) {
-      if (isdigit(this) != 0) {
-        putc(this, outhand);
-        count++;
-        if ((count % CHUNKCHARS) == 0) {
-          if ((count % DIGITSLINE) == 0) {
-            putc('\n', outhand);
-            putc(' ', outhand);
-          }
-          putc(' ', outhand);
-        }
-      }
-    } else if (this == CHAR_POINT) {
-      show = true;
-      putc(CHAR_THREE, outhand);
-      putc(CHAR_POINT, outhand);
-    }
-  }
-	
-	fclose(inphand);
-	fclose(outhand);
+	convert(inpfile, outfile, 0, false);
 	
 	return EXIT_SUCCESS;
 }

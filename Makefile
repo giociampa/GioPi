@@ -1,9 +1,9 @@
 BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 
-SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c output.c
+SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
 RAWFILES = raw2txt.c getdigits.c logging.c output.c
 CMPFILES = compare.c
-DATFILES = dat2txt.c
+DATFILES = dat2txt.c convert.c
 
 FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -g
 FLAGSLOC = -ffast-math ${FLAGSALL}
@@ -45,7 +45,7 @@ atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp raw2tst0.ttp dat2txt0.ttp
+m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
 
 pi000.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
@@ -62,15 +62,12 @@ compare0.ttp: ${CMPFILES}
 raw2txt0.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
 
-raw2tst0.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -DTESTING -o $@
-
 dat2txt0.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp raw2tst4.ttp dat2txt4.ttp
+m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
 
 pi040.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
@@ -87,72 +84,12 @@ compare4.ttp: ${CMPFILES}
 raw2txt4.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
 
-raw2tst4.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -DTESTING -o $@
-
 dat2txt4.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
 atariprg: m68000elf m68040elf
-
-# --------------------------------------------------------------------------------------------------
-
-m68000elf: pi000.prg piraw0.prg pitst0.prg compare0.prg raw2txt0.prg raw2tst0.prg dat2txt0.prg
-
-pi000.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
-	${PRGTOELF) $@ $@.ttp
-
-piraw0.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
-	${PRGTOELF) $@ $@.ttp
-
-pitst0.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -o $@
-	${PRGTOELF) $@ $@.ttp
-
-compare0.prg: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
-	${PRGTOELF) $@ $@.ttp
-
-raw2txt0.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
-	${PRGTOELF) $@ $@.ttp
-
-raw2tst0.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -DTESTING -o $@
-	${PRGTOELF) $@ $@.ttp
-
-dat2txt0.prg: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS000} -o $@
-	${PRGTOELF) $@ $@.ttp
-
-# --------------------------------------------------------------------------------------------------
-
-m68040elf: pi040.prg piraw4.prg pitst4.prg compare4.prg raw2txt4.prg raw2tst4.prg dat2txt4.prg
-
-pi040.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
-
-piraw4.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
-
-pitst4.prg: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -o $@
-
-compare4.prg: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
-
-raw2txt4.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
-
-raw2tst4.prg: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -DTESTING -o $@
-
-dat2txt4.prg: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -186,7 +123,7 @@ copydlls:
 
 # --------------------------------------------------------------------------------------------------
 
-all: local m68000 m68040 cross
+all: local m68000 m68040 #cross
 
 # --------------------------------------------------------------------------------------------------
 

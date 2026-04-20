@@ -7,9 +7,11 @@
 
 #include "giopi.h"
 
+// logging.c
 void logthis(char *filename, char *fmt, ...);
 
-// helper funcion
+// convert.c
+void convert(char *inpfile, char *outfile, unsigned long digits, bool quiet);
 
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
   mpf_t factor;
@@ -22,8 +24,21 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
 
 // txt output variants
 
-#if defined(GMPOUT)
-void writetxt(mpz_t result, char *outfile, unsigned long digits) {
+#if defined(TESTING)
+void writegmp(mpf_t result, char *outfile, unsigned long digits) {
+  char tmpfile[MAXCHARS];
+  FILE *tmphand, *outhand;
+
+  sprintf(tmpfile, "%lu.tmp", digits);
+  tmphand = fopen(tmpfile, "wb");
+  gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
+  fclose(tmphand);
+
+  convert(tmpfile, outfile, digits, true);
+  remove(tmpfile);
+}
+#elif defined(GMPOUT)
+void writegmp(mpz_t result, char *outfile, unsigned long digits) {
   FILE          *outhand;
   unsigned long written, percent, progress;
   char          *buffer, *chunk;
