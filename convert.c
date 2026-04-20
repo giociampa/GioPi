@@ -6,12 +6,15 @@
 
 #include "giopi.h"
 
-void convert(char *inpfile, char *outfile, unsigned long digits, bool quiet) {
+// logging.c
+void logthis(char *filename, char *fmt, ...);
+
+void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
 	FILE			*inphand, *outhand;
 	bool			show, done;
-	unsigned long	count, this, written;
+	unsigned long	count, this, written, progress, percent;
 
-	if (!quiet) {
+	if (!giopi) {
 		printf("Converting: %s to %s\n", inpfile, outfile);
 	}
 
@@ -26,11 +29,12 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool quiet) {
 	done = false;
 	count = 0;
 	written = 0;
+  progress = 0;
 
 	while (done == false) {
 		this = getc(inphand);
 		if ((this == EOF) || (isalpha(this) != 0)) {
-			if (!quiet) {
+			if (!giopi) {
 				printf("Digits: %d\n", count);
 			}
 			putc('\n', outhand);
@@ -46,10 +50,19 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool quiet) {
 					}
 					putc(' ', outhand);
 				}
-				written++;
-				if (written >= digits) {
-					done = true;
-				}
+        if (digits > 0) {
+          written++;
+          if (giopi) {
+            percent = (100 * written) / digits;
+            if (percent > progress) {
+              progress = percent;
+              logthis(NULL, "Write Txt: Write (%ld%%)\r", percent);
+            }
+          }
+          if (written >= digits) {
+            done = true;
+          }
+        }
 			}
 		} else if (this == CHAR_POINT) {
 			show = true;

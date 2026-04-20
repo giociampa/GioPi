@@ -2,8 +2,8 @@ BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
 RAWFILES = raw2txt.c getdigits.c logging.c output.c
+DATFILES = dat2txt.c convert.c logging.c
 CMPFILES = compare.c
-DATFILES = dat2txt.c convert.c
 
 FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -g
 FLAGSLOC = -ffast-math ${FLAGSALL}

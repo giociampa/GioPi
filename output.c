@@ -29,11 +29,13 @@ void writegmp(mpf_t result, char *outfile, unsigned long digits) {
   char tmpfile[MAXCHARS];
   FILE *tmphand, *outhand;
 
+  logthis(NULL, "Write Txt: Init\r");
   sprintf(tmpfile, "%lu.tmp", digits);
   tmphand = fopen(tmpfile, "wb");
   gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
   fclose(tmphand);
 
+  logthis(NULL, "Write Txt: Write (%ld%%)\r", 0);
   convert(tmpfile, outfile, digits, true);
   remove(tmpfile);
 }
