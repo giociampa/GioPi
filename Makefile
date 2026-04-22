@@ -1,15 +1,18 @@
 BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
-RAWFILES = raw2txt.c getdigits.c logging.c output.c
-DATFILES = dat2txt.c convert.c logging.c
+RAWFILES = raw2txt.c getdigits.c logging.c convert.c output.c
+DATFILES = dat2txt.c logging.c convert.c
 CMPFILES = compare.c
 
-FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -g
+FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -s
 FLAGSLOC = -ffast-math ${FLAGSALL}
 FLAGS000 = -m68000 -ffast-math ${FLAGSALL}
 FLAGS040 = -m68040 -mhard-float ${FLAGSALL}
 FLAGSEXE = -ffast-math ${FLAGSALL}
+
+FLAGSRAW = -DRAWOUT
+FLAGSTST = -DTESTING -pthread
 
 LOCALGCC = gcc
 ATARIGCC = m68k-atari-mintelf-gcc
@@ -25,10 +28,10 @@ pi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 
 piraw: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -DRAWOUT -o $@
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSRAW} -o $@
 
 pitst: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -DTESTING -o $@
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare: ${CMPFILES}
 	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} -o $@
@@ -51,10 +54,10 @@ pi000.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
 piraw0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DRAWOUT -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSRAW} -o $@
 
 pitst0.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -DTESTING -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare0.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
@@ -73,10 +76,10 @@ pi040.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
 piraw4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DRAWOUT -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSRAW} -o $@
 
 pitst4.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -DTESTING -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare4.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
@@ -99,10 +102,10 @@ pi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
 
 piraw.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -DRAWOUT -o $@
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSRAW} -o $@
 
 pitst.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -DTESTING -o $@
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare.exe: ${CMPFILES}
 	${CROSSGCC} ${CMPFILES} ${FLAGSEXE} -o $@

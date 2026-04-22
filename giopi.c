@@ -31,12 +31,7 @@ void divide(mpf_t r, mpf_t y, mpf_t x);
 // output.c
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits);
 void writeraw(mpz_t result, char *outfile);
-void writetxt(mpz_t result, char *outfile, unsigned long digits);
-#if defined(TESTING)
-void writegmp(mpf_t result, char *outfile, unsigned long digits);
-#else
-void writegmp(mpz_t result, char *outfile, unsigned long digits);
-#endif
+void writetxt(mpf_t result, char *outfile, unsigned long digits);
 
 // Usage: pi [digits] [noout]
 
@@ -125,28 +120,7 @@ int main(int argc, char *argv[]) {
   // output pi
   if (showoutput) {
     logthis(logfile, "Result: %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-#if defined(TESTING)
-    // generate the output
-    inter_time = clock();
-    logthis(NULL, "Write Txt:\r");
-    writegmp(pi, txtfile, digits);
-    logthis(logfile, "Write Txt: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-#elif defined(GMPOUT)
-    // convert result to integer
-    inter_time = clock();
-    logthis(NULL, "Convert:\r");
-    mpz_init(scaled);
-    mpf2mpz(scaled, pi, digits);
-    mpf_clear(xxx);
-    mpf_clear(yyy);
-    mpf_clear(pi);
-    logthis(logfile, "Convert: %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-    // generate the output
-    inter_time = clock();
-    logthis(NULL, "Write Txt:\r");
-    writegmp(pi, rawfile, digits);
-    logthis(logfile, "Write Txt: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-#elif defined(RAWOUT)
+#if defined(RAWOUT)
     // convert result to integer
     inter_time = clock();
     logthis(NULL, "Convert:\r");
@@ -162,19 +136,10 @@ int main(int argc, char *argv[]) {
     writeraw(scaled, rawfile);
     logthis(logfile, "Write Raw: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 #else
-    // convert result to integer
-    inter_time = clock();
-    logthis(NULL, "Convert:\r");
-    mpz_init(scaled);
-    mpf2mpz(scaled, pi, digits);
-    mpf_clear(xxx);
-    mpf_clear(yyy);
-    mpf_clear(pi);
-    logthis(logfile, "Convert: %9.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
     // generate the output
     inter_time = clock();
     logthis(NULL, "Write Txt:\r");
-    writetxt(scaled, txtfile, digits);
+    writetxt(pi, txtfile, digits);
     logthis(logfile, "Write Txt: %7.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 #endif
   }
