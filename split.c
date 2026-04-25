@@ -120,8 +120,8 @@ void split(unsigned long b) {
   mpz_clears(pp[1], qq[1], tt[1], NULL);
 
   // passes 2 and 3
+  mpz_inits(pp[2], qq[2], tt[2], NULL);
   mpz_inits(pp[3], qq[3], tt[3], NULL);
-  mpz_inits(pp[4], qq[4], tt[4], NULL);
 
   // off we jolly well go...
   recursion(  b/2, 3*b/4, pp[2], qq[2], tt[2]);

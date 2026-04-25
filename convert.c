@@ -35,7 +35,7 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
 		this = getc(inphand);
 		if ((this == EOF) || (isalpha(this) != 0)) {
 			if (!giopi) {
-				printf("Digits: %d\n", count);
+				printf("Digits: %lu\n", count);
 			}
 			putc('\n', outhand);
 			done = true;
