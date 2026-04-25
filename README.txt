@@ -13,10 +13,11 @@ compare Compare two formatted text files
 
 Usage: Run all from a suitable command line.
 
-pi [digits] [noout]
+pi [digits] [noout] [split]
 
 digits  (opt) Desired digits (prompted if missing)
 noout   (opt) Skip output file (useful for timing runs)
+split   (opt) Stop after binary split (no output file)
 
 raw2txt file [digits]
 
@@ -31,4 +32,3 @@ outfile (opt) Output file (defaults to "pi.txt")
 compare file1 file2
 
 file1, file2  Formatted text files
-

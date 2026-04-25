@@ -12,12 +12,10 @@ FLAGS040 = -m68040 -mhard-float ${FLAGSALL}
 FLAGSEXE = -ffast-math ${FLAGSALL}
 
 FLAGSRAW = -DRAWOUT
-FLAGSTST = -DTESTING -pthread
+FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
 ATARIGCC = m68k-atari-mintelf-gcc
-ATARIELF = m68k-atari-elf-gcc
-PRGTOELF = m68k-atari-elf-prg
 CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
@@ -92,10 +90,6 @@ dat2txt4.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atariprg: m68000elf m68040elf
-
-# --------------------------------------------------------------------------------------------------
-
 cross: pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
 
 pi.exe: ${SRCFILES}
@@ -126,27 +120,21 @@ copydlls:
 
 # --------------------------------------------------------------------------------------------------
 
-all: local m68000 m68040 #cross
+list:
+	@ls -l pi piraw pitst compare raw2txt dat2txt *.ttp *.exe *.dll 2>/dev/null ||:
+
+# --------------------------------------------------------------------------------------------------
+
+all: local m68000 m68040 cross list
 
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	rm -f pi piraw pitst compare raw2txt dat2txt *.prg *.ttp *.exe *.dll
+	rm -f pi piraw pitst compare raw2txt dat2txt *.ttp *.exe *.dll
 
 veryclean: clean
 	@mv README.txt README.txt.000 ||:
 	rm -f *.log *.raw *.txt
 	@mv README.txt.000 README.txt ||:
-#	rm -f 0*.log 0*.raw 0*.txt
-#	rm -f 1*.log 1*.raw 1*.txt
-#	rm -f 2*.log 2*.raw 2*.txt
-#	rm -f 3*.log 3*.raw 3*.txt
-#	rm -f 4*.log 4*.raw 4*.txt
-#	rm -f 5*.log 5*.raw 5*.txt
-#	rm -f 6*.log 6*.raw 6*.txt
-#	rm -f 7*.log 7*.raw 7*.txt
-#	rm -f 8*.log 8*.raw 8*.txt
-#	rm -f 9*.log 9*.raw 9*.txt
 
 # --------------------------------------------------------------------------------------------------
-
