@@ -7,15 +7,13 @@
 
 #include "giopi.h"
 
-// for m68k-atari-elf-gcc to allocate all memory (per mintlib)
-int _stksize = -1;
-
 // getdigits.c
 void getdigits(char *input, unsigned long *result);
 
 // logging.c
 void loginit(char *filename);
 void logthis(char *filename, char *fmt, ...);
+void logdone();
 
 // split.c
 void split_init(unsigned long depth, unsigned long terms);
@@ -37,7 +35,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits);
 
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits;
-  char          logfile[MAXCHARS], rawfile[MAXCHARS], txtfile[MAXCHARS];
+  char          logfile[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE];
   clock_t       start_time, inter_time;
   bool          justdosplit, showoutput;
   mpf_t         xxx, yyy, pi;
@@ -144,6 +142,7 @@ int main(int argc, char *argv[]) {
 #endif
   }
   logthis(logfile, "Total:  %10.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+  logdone();
 
   return EXIT_SUCCESS;
 }

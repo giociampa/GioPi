@@ -8,31 +8,13 @@
 #define DIGITS_PER_ITER 14.1816474627254776555
 #define DOUBLE_PREC     53
 #define LEEWAY          32
-#define NAMESIZE        256
 #define TEMPFILEFORMAT  "tmp_%02lu_%s.tmp"
-
-#define P1  (pstack[splitdepth])
-#define Q1  (qstack[splitdepth])
-#define T1  (tstack[splitdepth])
-#define P2  (pstack[splitdepth+1])
-#define Q2  (qstack[splitdepth+1])
-#define T2  (tstack[splitdepth+1])
-
-#if defined(TESTING)
-#define P3  (pstack[splitdepth+2])
-#define Q3  (qstack[splitdepth+2])
-#define T3  (tstack[splitdepth+2])
-#define P4  (pstack[splitdepth+3])
-#define Q4  (qstack[splitdepth+3])
-#define T4  (tstack[splitdepth+3])
-#endif
 
 #define CHUNKCOUNT  5
 #define CHUNKCHARS  10
 #define DIGITSLINE  50
 #define WHOLELINE   (DIGITSLINE + 6)
-#define MAXCHARS    128
-#define LASTCHAR    (MAXCHARS - 1)
+#define NAMESIZE    64
 
 #define CHAR_THREE  '3'
 #define CHAR_POINT  '.'

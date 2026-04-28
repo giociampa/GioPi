@@ -1,27 +1,57 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
-void loginit(char *filename) {
-    FILE *handle;
-    handle = fopen(filename, "w");
-    fclose(handle);
+#include "giopi.h"
+
+char  runfile[NAMESIZE];
+
+void loginit(char *logfile) {
+  FILE  *loghand, *runhand;
+  char  *dotlog;
+
+  loghand = fopen(logfile, "wb");
+  fclose(loghand);
+  
+  dotlog = strstr(logfile, ".log");
+  if (dotlog == NULL) {
+    strcpy(runfile, logfile);
+  } else {
+    strncpy(runfile, logfile, dotlog - logfile);
+    runfile[dotlog - logfile] = 0;
+  }
+  strcat(runfile, ".run");
+
+  runhand = fopen(runfile, "wb");
+  fclose(runhand);
 }
 
-void logthis(char *filename, char *fmt, ...) {
-    va_list   args;
-    FILE *    handle;
+void logthis(char *logfile, char *fmt, ...) {
+  FILE    *loghand, *runhand;
+  va_list args;
 
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
-    fflush(stdout);
-    va_end(args);
+  va_start(args, fmt);
+  vfprintf(stdout, fmt, args);
+  fflush(stdout);
+  va_end(args);
 
-    if (filename != NULL) {
-        handle = fopen(filename, "a");
-        va_start(args, fmt);
-        vfprintf(handle, fmt, args);
-        fflush(handle);
-        va_end(args);
-        fclose(handle);
-    }
+  runhand = fopen(runfile, "wb");
+  va_start(args, fmt);
+  vfprintf(runhand, fmt, args);
+  fflush(runhand);
+  va_end(args);
+  fclose(runhand);
+
+  if (logfile != NULL) {
+      loghand = fopen(logfile, "ab");
+      va_start(args, fmt);
+      vfprintf(loghand, fmt, args);
+      fflush(loghand);
+      va_end(args);
+      fclose(loghand);
+  }
+}
+
+void logdone() {
+  remove(runfile);
 }

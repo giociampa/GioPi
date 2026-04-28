@@ -20,7 +20,7 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
 }
 
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
-  char tmpfile[MAXCHARS];
+  char tmpfile[NAMESIZE];
   FILE *tmphand, *outhand;
 
   logthis(NULL, "Write Txt: Init\r");
