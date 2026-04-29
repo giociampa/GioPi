@@ -20,15 +20,15 @@ CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
 
-local: pi piraw pitst compare raw2txt dat2txt
+local: giopi gioraw giotst compare raw2txt dat2txt
 
-pi: ${SRCFILES}
+giopi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 
-piraw: ${SRCFILES}
+gioraw: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSRAW} -o $@
 
-pitst: ${SRCFILES}
+giotst: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare: ${CMPFILES}
@@ -46,15 +46,15 @@ atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: pi000.ttp piraw0.ttp pitst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
+m68000: giopi00.ttp gioraw0.ttp giotst0.ttp compare0.ttp raw2txt0.ttp dat2txt0.ttp
 
-pi000.ttp: ${SRCFILES}
+giopi00.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
-piraw0.ttp: ${SRCFILES}
+gioraw0.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSRAW} -o $@
 
-pitst0.ttp: ${SRCFILES}
+giotst0.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare0.ttp: ${CMPFILES}
@@ -68,15 +68,15 @@ dat2txt0.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: pi040.ttp piraw4.ttp pitst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
+m68040: giopi40.ttp gioraw4.ttp giotst4.ttp compare4.ttp raw2txt4.ttp dat2txt4.ttp
 
-pi040.ttp: ${SRCFILES}
+giopi40.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
-piraw4.ttp: ${SRCFILES}
+gioraw4.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSRAW} -o $@
 
-pitst4.ttp: ${SRCFILES}
+giotst4.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare4.ttp: ${CMPFILES}
@@ -90,15 +90,15 @@ dat2txt4.ttp: ${DATFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: pi.exe piraw.exe pitst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
+cross: giopi.exe gioraw.exe giotst.exe compare.exe raw2txt.exe dat2txt.exe copydlls
 
-pi.exe: ${SRCFILES}
+giopi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
 
-piraw.exe: ${SRCFILES}
+gioraw.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSRAW} -o $@
 
-pitst.exe: ${SRCFILES}
+giotst.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compare.exe: ${CMPFILES}
@@ -121,7 +121,7 @@ copydlls:
 # --------------------------------------------------------------------------------------------------
 
 list:
-	@ls -l pi piraw pitst compare raw2txt dat2txt *.ttp *.exe *.dll 2>/dev/null ||:
+	@ls -l giopi gioraw giotst compare raw2txt dat2txt *.ttp *.exe *.dll 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------
 
@@ -130,11 +130,11 @@ all: local m68000 m68040 cross list
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	rm -f pi piraw pitst compare raw2txt dat2txt *.ttp *.exe *.dll
+	rm -f giopi gioraw giotst compare raw2txt dat2txt *.ttp *.exe *.dll
 
 veryclean: clean
 	@mv README.txt README.txt.000 ||:
-	rm -f *.log *.raw *.run *.txt
+	rm -f *.log *.raw *.run *.tmp *.txt
 	@mv README.txt.000 README.txt ||:
 
 # --------------------------------------------------------------------------------------------------

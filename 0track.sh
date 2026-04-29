@@ -5,7 +5,7 @@ flag=""
 prev=""
 
 while true ; do
-  proc=$(ps -eo size,cmd | grep "/pi" | grep -v grep | grep -v pipe | grep -v tee | tr -s " ")
+  proc=$(ps -eo size,cmd | grep "gio" | grep -v grep | grep -v tee | tr -s " ")
   if [ "$proc" = "" ]; then
     if [ "$flag" = "flag" ]; then
       exit

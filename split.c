@@ -95,80 +95,47 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
 }
 
 #if defined(TESTING)
-void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
+void raw_export(unsigned long digits, unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char    filename[NAMESIZE];
   FILE    *filehand;
-  size_t  bytes;
 
-  sprintf(filename, "pass-%lu-p.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-p.tmp", digits, pass);
   filehand = fopen(filename, "wb");
-  bytes = mpz_out_raw(filehand, p);
+  mpz_out_raw(filehand, p);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Export Fail: Pass %lu (P)\n", pass);
-  }
 
-  sprintf(filename, "pass-%lu-q.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-q.tmp", digits, pass);
   filehand = fopen(filename, "wb");
-  bytes = mpz_out_raw(filehand, q);
+  mpz_out_raw(filehand, q);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Export Fail: Pass %lu (Q)\n", pass);
-  }
 
-  sprintf(filename, "pass-%lu-t.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-t.tmp", digits, pass);
   filehand = fopen(filename, "wb");
-  bytes = mpz_out_raw(filehand, t);
+  mpz_out_raw(filehand, t);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Export Fail: Pass %lu (T)\n", pass);
-  }
 }
 
-void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
+void raw_import(unsigned long digits, unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char    filename[NAMESIZE];
   FILE    *filehand;
-  size_t  bytes;
 
-  sprintf(filename, "pass-%lu-p.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-p.tmp", digits, pass);
   filehand = fopen(filename, "rb");
-  bytes = mpz_inp_raw(p, filehand);
+  mpz_inp_raw(p, filehand);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Import Fail: Pass %lu (P)\n", pass);
-  }
 
-  sprintf(filename, "pass-%lu-q.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-q.tmp", digits, pass);
   filehand = fopen(filename, "rb");
-  bytes = mpz_inp_raw(q, filehand);
+  mpz_inp_raw(q, filehand);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Import Fail: Pass %lu (Q)\n", pass);
-  }
 
-  sprintf(filename, "pass-%lu-t.tmp", pass);
+  sprintf(filename, "%lu-pass-%lu-t.tmp", digits, pass);
   filehand = fopen(filename, "rb");
-  bytes = mpz_inp_raw(t, filehand);
+  mpz_inp_raw(t, filehand);
   fclose(filehand);
-  if (bytes == 0) {
-    printf("Import Fail: Pass %lu (T)\n", pass);
-  }
 }
 
-void raw_delete(unsigned long pass) {
-  char    filename[NAMESIZE];
-
-  sprintf(filename, "pass-%lu-p.tmp", pass);
-  remove(filename);
-
-  sprintf(filename, "pass-%lu-q.tmp", pass);
-  remove(filename);
-
-  sprintf(filename, "pass-%lu-t.tmp", pass);
-  remove(filename);
-}
-
-void split(unsigned long b) {
+void split(unsigned long b, unsigned long digits) {
   unsigned long pass;
   mpz_t         ptmp, qtmp, ttmp;
   mpz_t         pppp, qqqq, tttt;
@@ -181,9 +148,9 @@ void split(unsigned long b) {
     // initialise
     mpz_inits(ptmp, qtmp, ttmp, NULL);
     // do the recursion
-    recursion(pass*b/4,(pass+1)*b/4, ptmp, qtmp, ttmp);
+    recursion(pass*b/4, (pass+1)*b/4, ptmp, qtmp, ttmp);
     // save to file
-    raw_export(pass, ptmp, qtmp, ttmp);
+    raw_export(digits, pass, ptmp, qtmp, ttmp);
     // tidy up
     mpz_clears(ptmp, qtmp, ttmp, NULL);
   }
@@ -195,8 +162,10 @@ void split(unsigned long b) {
   recursion(3*b/4, b, ptmp, qtmp, ttmp);
 
   // combine passes 2 and 3
+  logthis(NULL, "Combine: (2,3)\r");
   mpz_inits(pppp, qqqq, tttt, NULL);
-  raw_import(2, pppp, qqqq, tttt);
+  // import pass 2 result
+  raw_import(digits, 2, pppp, qqqq, tttt);
   // t3 = p2 * t3
   mpz_mul(ttmp, pppp, ttmp);
   // p2 = p2 * p3
@@ -208,8 +177,10 @@ void split(unsigned long b) {
   mpz_add(tttt, tttt, ttmp);
 
   // combine passes 0 and 1
-  raw_import(0, ppp, qqq, ttt);
-  raw_import(1, ptmp, qtmp, ttmp);
+  logthis(NULL, "Combine: (0,1)\r");
+  // import pass 0, 1 results
+  raw_import(digits, 0, ppp, qqq, ttt);
+  raw_import(digits, 1, ptmp, qtmp, ttmp);
   // t1 = p0 * t1
   mpz_mul(ttmp, ppp, ttmp);
   // p0 = p0 * p1
@@ -224,9 +195,10 @@ void split(unsigned long b) {
   mpz_clears(ptmp, qtmp, ttmp, NULL);
 
   // combine passes 0 and 2
+  logthis(NULL, "Combine: (0,2)\r");
   // t2 = p0 * t2
   mpz_mul(tttt, ppp, tttt);
-  // p0 = p0 * p2 (not needed)
+  // p0 = p0 * p2 not needed for final result
   mpz_clear(ppp);
   // q0 = q0 * q2
   mpz_mul(qqq, qqq, qqqq);
@@ -236,24 +208,15 @@ void split(unsigned long b) {
 
   // tidy up
   mpz_clears(pppp, qqqq, tttt, NULL);
-  raw_delete(0);
-  raw_delete(1);
-  raw_delete(2);
-
-  // done
-  logthis(NULL, "Split: (%ld%%)\r", 100);
 }
 #else
-void split(unsigned long b) {
+void split(unsigned long b, unsigned long digits) {
   splitcurrent = 0;
   splitreached = 0;
 
   recursion(0, b, ppp, qqq, ttt);
 
-  // not used after this point
+  // not needed for final result
   mpz_clear(ppp);
-
-  // done
-  logthis(NULL, "Split: (%ld%%)\r", 100);
 }
 #endif

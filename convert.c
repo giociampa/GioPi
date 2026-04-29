@@ -56,7 +56,7 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
             percent = (100 * written) / digits;
             if (percent > progress) {
               progress = percent;
-              logthis(NULL, "Write Txt: Write (%ld%%)\r", percent);
+              logthis(NULL, "Write: (%ld%%)\r", percent);
             }
           }
           if (written >= digits) {
