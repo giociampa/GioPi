@@ -52,20 +52,20 @@ void logthis(char *logfile, char *fmt, ...) {
   }
 }
 
-void logdone(unsigned long digits) {
+void logdone() {
   unsigned long pass;
   char          filename[NAMESIZE];
   
   remove(runfile);
 
   for (pass = 0 ; pass < 3 ; pass++) {
-    sprintf(filename, "%lu-pass-%lu-p.tmp", digits, pass);
+    sprintf(filename, "pass-%lu-p.tmp", pass);
     remove(filename);
 
-    sprintf(filename, "%lu-pass-%lu-q.tmp", digits, pass);
+    sprintf(filename, "pass-%lu-q.tmp", pass);
     remove(filename);
 
-    sprintf(filename, "%lu-pass-%lu-t.tmp", digits, pass);
+    sprintf(filename, "pass-%lu-t.tmp", pass);
     remove(filename);
   }
 }

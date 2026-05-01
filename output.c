@@ -29,7 +29,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
   fclose(tmphand);
 
-  logthis(NULL, "Write: File (%ld%%)\r", 0);
+  logthis(NULL, "Write: (%ld%%)\r", 0);
   convert(tmpfile, outfile, digits, true);
   remove(tmpfile);
 }
