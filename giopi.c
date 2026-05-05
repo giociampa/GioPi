@@ -28,14 +28,13 @@ void divide(mpf_t r, mpf_t y, mpf_t x);
 
 // output.c
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits);
-void writeraw(mpz_t result, char *outfile);
 void writetxt(mpf_t result, char *outfile, unsigned long digits);
 
 // Usage: pi [digits] [noout]
 
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits;
-  char          logfile[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE];
+  char          logfile[NAMESIZE], txtfile[NAMESIZE];
   clock_t       start_time, inter_time;
   bool          justdosplit, showoutput;
   mpf_t         xxx, yyy, pi;
@@ -45,16 +44,19 @@ int main(int argc, char *argv[]) {
   justdosplit = false;
   showoutput = true;
 
-  if (argc > 1) {
-    getdigits(argv[1], &digits);
-    if (argc > 2) {
-      if (strcasecmp(argv[2], "split") == 0) {
-        justdosplit = true;
-      } else if (strcasecmp(argv[2], "noout") == 0) {
-        showoutput = false;
+  for (count = 0 ; count < argc ; count++) {
+    if (strcasecmp(argv[count], "split") == 0) {
+      justdosplit = true;
+    } else if (strcasecmp(argv[count], "noout") == 0) {
+      showoutput = false;
+    } else if (digits == 0) {
+      getdigits(argv[count], &places);
+      if (places > 0) {
+        digits = places;
       }
     }
   }
+
   if (digits == 0) {
     printf("Digits? ");
     scanf("%lu", &digits);
@@ -75,7 +77,6 @@ int main(int argc, char *argv[]) {
   mpf_set_default_prec(bits);
 
   sprintf(logfile, "%lu.log", digits);
-  sprintf(rawfile, "%lu.raw", digits);
   sprintf(txtfile, "%lu.txt", digits);
 
   loginit(logfile);
@@ -89,6 +90,7 @@ int main(int argc, char *argv[]) {
   // off we jolly well go
   split(terms, digits);
   logthis(logfile, "Split:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+
   if (justdosplit) {
     return EXIT_SUCCESS;
   }
@@ -118,28 +120,11 @@ int main(int argc, char *argv[]) {
   // output pi
   if (showoutput) {
     logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-#if defined(RAWOUT)
-    // convert result to integer
-    inter_time = clock();
-    logthis(NULL, "Convert:\r");
-    mpz_init(scaled);
-    mpf2mpz(scaled, pi, digits);
-    mpf_clear(xxx);
-    mpf_clear(yyy);
-    mpf_clear(pi);
-    logthis(logfile, "Convert: %11.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-    // generate the output
-    inter_time = clock();
-    logthis(NULL, "Write:\r");
-    writeraw(scaled, rawfile);
-    logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-#else
     // generate the output
     inter_time = clock();
     logthis(NULL, "Write:\r");
     writetxt(pi, txtfile, digits);
     logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-#endif
   }
   logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   logdone(digits);

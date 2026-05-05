@@ -33,10 +33,3 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   convert(tmpfile, outfile, digits, true);
   remove(tmpfile);
 }
-
-void writeraw(mpz_t result, char *rawfile) {
-  FILE  *rawhand;
-  rawhand = fopen(rawfile, "wb");
-  mpz_out_raw(rawhand, result);
-  fclose(rawhand);
-}
