@@ -169,8 +169,9 @@ void split(unsigned long b, unsigned long digits) {
   mpz_mul(pppp, pppp, ptmp);
   // q2 = q2 * q3
   mpz_mul(qqqq, qqqq, qtmp);
-  // t2 = (q3 * t2) + t3
-  mpz_mul(tttt, qtmp, tttt);
+  // t2 = t2 * q3
+  mpz_mul(tttt, tttt, qtmp);
+  // t2 = t2 + t3
   mpz_add(tttt, tttt, ttmp);
 
   // combine passes 0 and 1
@@ -184,8 +185,9 @@ void split(unsigned long b, unsigned long digits) {
   mpz_mul(ppp, ppp, ptmp);
   // q0 = q0 * q1
   mpz_mul(qqq, qqq, qtmp);
-  // t0 = (q1 * t0) + t1
-  mpz_mul(ttt, qtmp, ttt);
+  // t0 = t0 * q1
+  mpz_mul(ttt, ttt, qtmp);
+  // t0 = t0 + t1
   mpz_add(ttt, ttt, ttmp);
 
   // tidy up
@@ -199,8 +201,9 @@ void split(unsigned long b, unsigned long digits) {
   mpz_clear(ppp);
   // q0 = q0 * q2
   mpz_mul(qqq, qqq, qqqq);
-  // t0 = (q2 * t0) + t2
-  mpz_mul(ttt, qqqq, ttt);
+  // t0 = t0 * q2
+  mpz_mul(ttt, ttt, qqqq);
+  // t0 = t0 + t2
   mpz_add(ttt, ttt, tttt);
 
   // tidy up
@@ -238,29 +241,31 @@ void split(unsigned long b, unsigned long digits) {
   mpz_inits(pppp, qqqq, tttt, NULL);
   // import pass 2 result
   raw_import(2, pppp, qqqq, tttt);
-  // t3 = p2 * t3
-  mpz_mul(ttmp, pppp, ttmp);
+  // t3 = t3 * p2
+  mpz_mul(ttmp, ttmp, pppp);
   // p2 = p2 * p3
   mpz_mul(pppp, pppp, ptmp);
   // q2 = q2 * q3
   mpz_mul(qqqq, qqqq, qtmp);
-  // t2 = (q3 * t2) + t3
-  mpz_mul(tttt, qtmp, tttt);
+  // t2 = t2 * q3
+  mpz_mul(tttt, tttt, qtmp);
+  // t2 = t2 + t3
   mpz_add(tttt, tttt, ttmp);
 
   // combine passes 0 and 1
   logthis(NULL, "Combine: (0,1)\r");
   // import pass 0, 1 results
-  raw_import(0, ppp, qqq, ttt);
   raw_import(1, ptmp, qtmp, ttmp);
+  raw_import(0, ppp, qqq, ttt);
   // t1 = p0 * t1
-  mpz_mul(ttmp, ppp, ttmp);
+  mpz_mul(ttmp, ttmp, ppp);
   // p0 = p0 * p1
   mpz_mul(ppp, ppp, ptmp);
   // q0 = q0 * q1
   mpz_mul(qqq, qqq, qtmp);
-  // t0 = (q1 * t0) + t1
-  mpz_mul(ttt, qtmp, ttt);
+  // t0 = t0 + t1
+  mpz_mul(ttt, ttt, qtmp);
+  // t0 = t0 + t1
   mpz_add(ttt, ttt, ttmp);
 
   // tidy up
@@ -268,14 +273,15 @@ void split(unsigned long b, unsigned long digits) {
 
   // combine passes 0 and 2
   logthis(NULL, "Combine: (0,2)\r");
-  // t2 = p0 * t2
-  mpz_mul(tttt, ppp, tttt);
+  // t2 = t2 * p0
+  mpz_mul(tttt, tttt, ppp);
   // p0 = p0 * p2 not needed for final result
   mpz_clear(ppp);
   // q0 = q0 * q2
   mpz_mul(qqq, qqq, qqqq);
-  // t0 = (q2 * t0) + t2
-  mpz_mul(ttt, qqqq, ttt);
+  // t0 = t0 * q2
+  mpz_mul(ttt, ttt, qqqq);
+  // t0 = t0 + t2
   mpz_add(ttt, ttt, tttt);
 
   // tidy up
