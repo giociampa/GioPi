@@ -3,11 +3,12 @@ BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
 
-FLAGSALL = -O3 -fomit-frame-pointer -lm -lgmp -s
-FLAGSLOC = -ffast-math ${FLAGSALL}
-FLAGS000 = -m68000 -ffast-math ${FLAGSALL}
-FLAGS040 = -m68040 -mhard-float ${FLAGSALL}
-FLAGSEXE = -ffast-math ${FLAGSALL}
+FLAGSALL = -O3 -fomit-frame-pointer -lm -s
+FLAGSLOC = -ffast-math ${FLAGSALL} -lgmp
+FLAGS000 = -m68000 -ffast-math ${FLAGSALL} -lgmp
+FLAGS020 = -m68020 -ffast-math ${FLAGSALL} -lgmp20
+FLAGS040 = -m68040 -mhard-float ${FLAGSALL} -lgmp40
+FLAGSEXE = -ffast-math ${FLAGSALL} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
@@ -29,7 +30,7 @@ compare: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atari: m68000 m68040
+atari: m68000 m68020 m68040
 
 # --------------------------------------------------------------------------------------------------
 
@@ -43,6 +44,19 @@ giotst0.ttp: ${SRCFILES}
 
 compare0.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
+
+# --------------------------------------------------------------------------------------------------
+
+m68020: giopi20.ttp giotst2.ttp compare2.ttp
+
+giopi20.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
+
+giotst2.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${FLAGSTST} -o $@
+
+compare2.ttp: ${CMPFILES}
+	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -85,7 +99,7 @@ list:
 
 # --------------------------------------------------------------------------------------------------
 
-all: local m68000 m68040 cross list
+all: local atari cross list
 
 # --------------------------------------------------------------------------------------------------
 
