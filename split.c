@@ -135,7 +135,6 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
 void split(unsigned long b, unsigned long digits) {
   unsigned long pass;
   mpz_t         ptmp, qtmp, ttmp;
-  mpz_t         pppp, qqqq, tttt;
   
   splitcurrent = 0;
   splitreached = 0;
@@ -160,54 +159,60 @@ void split(unsigned long b, unsigned long digits) {
 
   // combine passes 2 and 3
   logthis(NULL, "Combine: (2,3)\r");
-  mpz_inits(pppp, qqqq, tttt, NULL);
   // import pass 2 result
-  raw_import(2, pppp, qqqq, tttt);
-  // t3 = p2 * t3
-  mpz_mul(ttmp, pppp, ttmp);
+  mpz_inits(ppp, qqq, ttt, NULL);
+  raw_import(2, ppp, qqq, ttt);
+  // t3 = t3 * p2
+  mpz_mul(ttmp, ttmp, ppp);
   // p2 = p2 * p3
-  mpz_mul(pppp, pppp, ptmp);
+  mpz_mul(ppp, ppp, ptmp);
   // q2 = q2 * q3
-  mpz_mul(qqqq, qqqq, qtmp);
+  mpz_mul(qqq, qqq, qtmp);
   // t2 = t2 * q3
-  mpz_mul(tttt, tttt, qtmp);
+  mpz_mul(ttt, ttt, qtmp);
   // t2 = t2 + t3
-  mpz_add(tttt, tttt, ttmp);
+  mpz_add(ttt, ttt, ttmp);
+	// save to file
+	raw_export(2, ppp, qqq, ttt);
+	// tidy up
+	mpz_clears(ppp, qqq, ttt, NULL);
+	mpz_clears(ptmp, qtmp, ttmp, NULL);
 
   // combine passes 0 and 1
   logthis(NULL, "Combine: (0,1)\r");
   // import pass 0, 1 results
+	mpz_inits(ppp, qqq, ttt, NULL);
+	mpz_inits(ptmp, qtmp, ttmp, NULL);
   raw_import(0, ppp, qqq, ttt);
   raw_import(1, ptmp, qtmp, ttmp);
   // t1 = p0 * t1
-  mpz_mul(ttmp, ppp, ttmp);
+  mpz_mul(ttmp, ttmp, ppp);
   // p0 = p0 * p1
   mpz_mul(ppp, ppp, ptmp);
   // q0 = q0 * q1
   mpz_mul(qqq, qqq, qtmp);
-  // t0 = t0 * q1
+  // t0 = t0 + t1
   mpz_mul(ttt, ttt, qtmp);
   // t0 = t0 + t1
   mpz_add(ttt, ttt, ttmp);
-
-  // tidy up
-  mpz_clears(ptmp, qtmp, ttmp, NULL);
+	// tidy up
+	mpz_clears(ptmp, qtmp, ttmp, NULL);
 
   // combine passes 0 and 2
   logthis(NULL, "Combine: (0,2)\r");
-  // t2 = p0 * t2
-  mpz_mul(tttt, ppp, tttt);
+  // import pass 2 result
+	mpz_inits(ptmp, qtmp, ttmp, NULL);
+  raw_import(2, ptmp, qtmp, ttmp);
+  // t2 = t2 * p0
+  mpz_mul(ttmp, ttmp, ppp);
   // p0 = p0 * p2 not needed for final result
   mpz_clear(ppp);
   // q0 = q0 * q2
-  mpz_mul(qqq, qqq, qqqq);
+  mpz_mul(qqq, qqq, qtmp);
   // t0 = t0 * q2
-  mpz_mul(ttt, ttt, qqqq);
+  mpz_mul(ttt, ttt, qtmp);
   // t0 = t0 + t2
-  mpz_add(ttt, ttt, tttt);
-
-  // tidy up
-  mpz_clears(pppp, qqqq, tttt, NULL);
+  mpz_add(ttt, ttt, ttmp);
 }
 #else
 void split(unsigned long b, unsigned long digits) {
@@ -283,8 +288,5 @@ void split(unsigned long b, unsigned long digits) {
   mpz_mul(ttt, ttt, qqqq);
   // t0 = t0 + t2
   mpz_add(ttt, ttt, tttt);
-
-  // tidy up
-  mpz_clears(pppp, qqqq, tttt, NULL);
 }
 #endif

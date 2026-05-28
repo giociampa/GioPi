@@ -108,7 +108,7 @@ clean:
 
 veryclean: clean
 	@mv README.txt README.txt.000 ||:
-	rm -f *.log *.run *.tmp *.txt
+	rm -f *.log *.run *.running *.tmp *.txt
 	@mv README.txt.000 README.txt ||:
 
 # --------------------------------------------------------------------------------------------------
