@@ -8,13 +8,12 @@
 #define DIGITS_PER_ITER 14.1816474627254776555
 #define DOUBLE_PREC     53
 #define LEEWAY          32
-#define TEMPFILEFORMAT  "tmp_%02lu_%s.tmp"
 
 #define CHUNKCOUNT  5
 #define CHUNKCHARS  10
 #define DIGITSLINE  50
 #define WHOLELINE   (DIGITSLINE + 6)
-#define NAMESIZE    64
+#define NAMESIZE    256
 
 #define CHAR_THREE  '3'
 #define CHAR_POINT  '.'

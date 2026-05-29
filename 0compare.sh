@@ -1,6 +1,11 @@
-ls -1 *.txt 2>/dev/null | sort -n | grep -v README | while read f; do
-    echo $f
-    ~/Source/gio-pi/compare ~/1billion.pi $f | head -1
-    grep Total ${f%txt}log
-    echo
+#!/bin/bash
+
+grep Result *.log | sort -n | grep -v README | cut -d: -f1 | while read f ; do
+	r=${f%.log}.txt
+	echo $f
+	grep Total $f
+	if [ -e "$r" ]; then
+		./compare ~/1billion.pi "$r" | head -n 1
+	fi
+	echo
 done

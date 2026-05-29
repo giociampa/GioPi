@@ -95,40 +95,52 @@ void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char    filename[NAMESIZE];
   FILE    *filehand;
 
-  sprintf(filename, "pass-%lu-p.tmp", pass);
-  filehand = fopen(filename, "wb");
-  mpz_out_raw(filehand, p);
-  fclose(filehand);
+  if (p != NULL) {
+    sprintf(filename, "pass-%lu-p.tmp", pass);
+    filehand = fopen(filename, "wb");
+    mpz_out_raw(filehand, p);
+    fclose(filehand);
+  }
 
-  sprintf(filename, "pass-%lu-q.tmp", pass);
-  filehand = fopen(filename, "wb");
-  mpz_out_raw(filehand, q);
-  fclose(filehand);
+  if (q != NULL) {
+    sprintf(filename, "pass-%lu-q.tmp", pass);
+    filehand = fopen(filename, "wb");
+    mpz_out_raw(filehand, q);
+    fclose(filehand);
+  }
 
-  sprintf(filename, "pass-%lu-t.tmp", pass);
-  filehand = fopen(filename, "wb");
-  mpz_out_raw(filehand, t);
-  fclose(filehand);
+  if (t != NULL) {
+    sprintf(filename, "pass-%lu-t.tmp", pass);
+    filehand = fopen(filename, "wb");
+    mpz_out_raw(filehand, t);
+    fclose(filehand);
+  }
 }
 
 void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char    filename[NAMESIZE];
   FILE    *filehand;
 
-  sprintf(filename, "pass-%lu-p.tmp", pass);
-  filehand = fopen(filename, "rb");
-  mpz_inp_raw(p, filehand);
-  fclose(filehand);
+  if (p != NULL) {
+    sprintf(filename, "pass-%lu-p.tmp", pass);
+    filehand = fopen(filename, "rb");
+    mpz_inp_raw(p, filehand);
+    fclose(filehand);
+  }
 
-  sprintf(filename, "pass-%lu-q.tmp", pass);
-  filehand = fopen(filename, "rb");
-  mpz_inp_raw(q, filehand);
-  fclose(filehand);
+  if (q != NULL) {
+    sprintf(filename, "pass-%lu-q.tmp", pass);
+    filehand = fopen(filename, "rb");
+    mpz_inp_raw(q, filehand);
+    fclose(filehand);
+  }
 
-  sprintf(filename, "pass-%lu-t.tmp", pass);
-  filehand = fopen(filename, "rb");
-  mpz_inp_raw(t, filehand);
-  fclose(filehand);
+  if (t != NULL) {
+    sprintf(filename, "pass-%lu-t.tmp", pass);
+    filehand = fopen(filename, "rb");
+    mpz_inp_raw(t, filehand);
+    fclose(filehand);
+  }
 }
 
 #if defined(TESTING)
@@ -166,43 +178,52 @@ void split(unsigned long b, unsigned long digits) {
   mpz_mul(ttmp, ttmp, ppp);
   // p2 = p2 * p3
   mpz_mul(ppp, ppp, ptmp);
+  // tidy up
+  mpz_clear(ptmp);
   // q2 = q2 * q3
   mpz_mul(qqq, qqq, qtmp);
   // t2 = t2 * q3
   mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
   // t2 = t2 + t3
   mpz_add(ttt, ttt, ttmp);
-	// save to file
-	raw_export(2, ppp, qqq, ttt);
-	// tidy up
-	mpz_clears(ppp, qqq, ttt, NULL);
-	mpz_clears(ptmp, qtmp, ttmp, NULL);
+  // tidy up
+  mpz_clear(ttmp);
+  // save to file
+  raw_export(2, ppp, qqq, ttt);
+  // tidy up
+  mpz_clears(ppp, qqq, ttt, NULL);
 
   // combine passes 0 and 1
   logthis(NULL, "Combine: (0,1)\r");
   // import pass 0, 1 results
-	mpz_inits(ppp, qqq, ttt, NULL);
-	mpz_inits(ptmp, qtmp, ttmp, NULL);
+  mpz_inits(ppp, qqq, ttt, NULL);
+  mpz_inits(ptmp, qtmp, ttmp, NULL);
   raw_import(0, ppp, qqq, ttt);
   raw_import(1, ptmp, qtmp, ttmp);
   // t1 = p0 * t1
   mpz_mul(ttmp, ttmp, ppp);
   // p0 = p0 * p1
   mpz_mul(ppp, ppp, ptmp);
+  // tidy up
+  mpz_clear(ptmp);
   // q0 = q0 * q1
   mpz_mul(qqq, qqq, qtmp);
   // t0 = t0 + t1
   mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
   // t0 = t0 + t1
   mpz_add(ttt, ttt, ttmp);
-	// tidy up
-	mpz_clears(ptmp, qtmp, ttmp, NULL);
+  // tidy up
+  mpz_clear(ttmp);
 
   // combine passes 0 and 2
   logthis(NULL, "Combine: (0,2)\r");
   // import pass 2 result
-	mpz_inits(ptmp, qtmp, ttmp, NULL);
-  raw_import(2, ptmp, qtmp, ttmp);
+  mpz_inits(qtmp, ttmp, NULL);
+  raw_import(2, NULL, qtmp, ttmp);
   // t2 = t2 * p0
   mpz_mul(ttmp, ttmp, ppp);
   // p0 = p0 * p2 not needed for final result
@@ -211,8 +232,12 @@ void split(unsigned long b, unsigned long digits) {
   mpz_mul(qqq, qqq, qtmp);
   // t0 = t0 * q2
   mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
   // t0 = t0 + t2
   mpz_add(ttt, ttt, ttmp);
+  // tidy up
+  mpz_clear(ttmp);
 }
 #else
 void split(unsigned long b, unsigned long digits) {

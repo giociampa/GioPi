@@ -5,6 +5,7 @@
 #include "giopi.h"
 
 char  runfile[NAMESIZE];
+char  runtext[NAMESIZE];
 
 void loginit(char *logfile) {
   FILE  *loghand, *runhand;
@@ -28,28 +29,36 @@ void loginit(char *logfile) {
 
 void logthis(char *logfile, char *fmt, ...) {
   FILE    *loghand, *runhand;
+  char    *gotchar;
   va_list args;
-
+  
   va_start(args, fmt);
-  vfprintf(stdout, fmt, args);
+  vsprintf(runtext, fmt, args);
+  va_end(args);
+
+  fprintf(stdout, "%s", runtext);
   fflush(stdout);
-  va_end(args);
-
-  runhand = fopen(runfile, "wb");
-  va_start(args, fmt);
-  vfprintf(runhand, fmt, args);
-  fflush(runhand);
-  va_end(args);
-  fclose(runhand);
 
   if (logfile != NULL) {
       loghand = fopen(logfile, "ab");
-      va_start(args, fmt);
-      vfprintf(loghand, fmt, args);
-      fflush(loghand);
-      va_end(args);
+      fprintf(loghand, "%s", runtext);
       fclose(loghand);
   }
+
+  gotchar = strstr(runtext, "\r");
+  if (gotchar != NULL) {
+    gotchar[0] = 0;
+  }
+
+  gotchar = strstr(runtext, "\n");
+  if (gotchar != NULL) {
+    gotchar[0] = 0;
+  }
+
+  runhand = fopen(runfile, "wb");
+  fprintf(runhand, "%s", runtext);
+  fclose(runhand);
+
 }
 
 void logdone() {

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ -e README.txt ]; then
   mv README.txt README.txt.000
 fi

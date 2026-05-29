@@ -1,5 +1,14 @@
+#!/bin/bash
+
 params=$*
 digits=$1
+
+aranym=$(uname -a | grep -i aranym)
+if [ "$aranym" = "" ]; then
+  FILELIST="giopi giotst"
+else
+  FILELIST="gio*.ttp"
+fi
 
 function process () {
   local runthis=$1
@@ -18,4 +27,4 @@ function process () {
 }
 
 rm -f *running*
-for source in giopi giotst ; do process "${source}" ; done
+for source in $FILELIST ; do process "${source}" ; done

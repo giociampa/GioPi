@@ -12,7 +12,7 @@ FLAGSEXE = -ffast-math ${FLAGSALL} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
-ATARIGCC = m68k-atari-mintelf-gcc
+ATARIGCC = m68k-atari-mint-gcc
 CROSSGCC = x86_64-w64-mingw32-gcc
 
 # --------------------------------------------------------------------------------------------------
