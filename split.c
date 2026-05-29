@@ -63,6 +63,30 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
       }
     }
   } else {
+#if defined(TESTING)
+    // temporary values
+    mpz_inits(p1, q1, t1, p2, q2, t2, NULL);
+    // lower split
+    recursion(a, m, p1, q1, t1);
+    // upper split
+    recursion(m, b, p2, q2, t2);
+    // t2 = pam * tmb
+    mpz_mul(t2, p1, t2);
+    // p = pam * pmb
+    mpz_mul(p0, p1, p2);
+    mpz_clears(p1, p2, NULL);
+    // q = qam * qmb
+    mpz_mul(q0, q1, q2);
+    mpz_clear(q1);
+    // t = qmb * tam
+    mpz_mul(t1, q2, t1);
+    // tidy up
+    mpz_clear(q2);
+    // t = t + t2
+    mpz_add(t0, t1, t2);
+    // tidy up
+    mpz_clears(t1, t2, NULL);
+#else
     // temporary values
     mpz_inits(p1, q1, t1, p2, q2, t2, NULL);
     // lower split
@@ -80,6 +104,7 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
     mpz_add(t0, t1, t2);
     // tidy up
     mpz_clears(p1, q1, t1, p2, q2, t2, NULL);
+#endif
   }
 
   // progress marker
