@@ -24,6 +24,7 @@ while true ; do
   proc=$($PSCMD | grep -E "giopi|giotst" | grep -v grep | grep -v tee | tr -s " ")
   if [ "$proc" = "" ]; then
     if [ "$flag" = "flag" ]; then
+      echo "0 Finished" >> zzzz.txt
       exit
     fi
   else

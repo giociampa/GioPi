@@ -11,7 +11,7 @@ fi
 
 while true ; do
 	clear
-	tail -1 zzzz.txt
+	last=$(tail -1 zzzz.txt)
 	sort -n zzzz.txt | tail -1
 	echo
 	for f in $FILELIST ; do
@@ -22,6 +22,6 @@ while true ; do
 		done
 		echo
 	done
-	if [ "$once" != "" ]; then exit 0; fi
+	if [ "$once" != "" -o "$last" = "0 Finished" ]; then exit 0; fi
 	sleep 5
 done

@@ -190,6 +190,102 @@ void split(unsigned long b, unsigned long digits) {
   mpz_add(ttt, ttt, ttmp);
   // tidy up
   mpz_clear(ttmp);
+  // save to file (p not needed as not read back)
+  raw_export(2, NULL, qqq, ttt);
+  // tidy up
+  mpz_clears(ppp, qqq, ttt, NULL);
+
+  // combine passes 0 and 1
+  logthis(NULL, "Combine: (0,1)\r");
+  // import pass 0, 1 results
+  mpz_inits(ppp, qqq, ttt, NULL);
+  mpz_inits(ptmp, qtmp, ttmp, NULL);
+  raw_import(0, ppp, qqq, ttt);
+  raw_import(1, ptmp, qtmp, ttmp);
+  // t1 = p0 * t1
+  mpz_mul(ttmp, ttmp, ppp);
+  // p0 = p0 * p1
+  mpz_mul(ppp, ppp, ptmp);
+  // tidy up
+  mpz_clear(ptmp);
+  // q0 = q0 * q1
+  mpz_mul(qqq, qqq, qtmp);
+  // t0 = t0 + t1
+  mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
+  // t0 = t0 + t1
+  mpz_add(ttt, ttt, ttmp);
+  // tidy up
+  mpz_clear(ttmp);
+
+  // combine passes 0 and 2
+  logthis(NULL, "Combine: (0,2)\r");
+  // import pass 2 result (p not needed)
+  mpz_inits(qtmp, ttmp, NULL);
+  raw_import(2, NULL, qtmp, ttmp);
+  // t2 = t2 * p0
+  mpz_mul(ttmp, ttmp, ppp);
+  // p0 = p0 * p2 not needed for final result
+  mpz_clear(ppp);
+  // q0 = q0 * q2
+  mpz_mul(qqq, qqq, qtmp);
+  // t0 = t0 * q2
+  mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
+  // t0 = t0 + t2
+  mpz_add(ttt, ttt, ttmp);
+  // tidy up
+  mpz_clear(ttmp);
+}
+#else
+void split(unsigned long b, unsigned long digits) {
+  unsigned long pass;
+  mpz_t         ptmp, qtmp, ttmp;
+  
+  splitcurrent = 0;
+  splitreached = 0;
+
+  // passes 0 to 2
+  for (pass = 0 ; pass < 3 ; pass++) {
+    // initialise
+    mpz_inits(ptmp, qtmp, ttmp, NULL);
+    // do the recursion
+    recursion(pass*b/4, (pass+1)*b/4, ptmp, qtmp, ttmp);
+    // save to file
+    raw_export(pass, ptmp, qtmp, ttmp);
+    // tidy up
+    mpz_clears(ptmp, qtmp, ttmp, NULL);
+  }
+
+  // pass 3 (no need to save results as can be used immediately)
+  // initialise
+  mpz_inits(ptmp, qtmp, ttmp, NULL);
+  // do the recursion
+  recursion(3*b/4, b, ptmp, qtmp, ttmp);
+
+  // combine passes 2 and 3
+  logthis(NULL, "Combine: (2,3)\r");
+  // import pass 2 result
+  mpz_inits(ppp, qqq, ttt, NULL);
+  raw_import(2, ppp, qqq, ttt);
+  // t3 = t3 * p2
+  mpz_mul(ttmp, ttmp, ppp);
+  // p2 = p2 * p3
+  mpz_mul(ppp, ppp, ptmp);
+  // tidy up
+  mpz_clear(ptmp);
+  // q2 = q2 * q3
+  mpz_mul(qqq, qqq, qtmp);
+  // t2 = t2 * q3
+  mpz_mul(ttt, ttt, qtmp);
+  // tidy up
+  mpz_clear(qtmp);
+  // t2 = t2 + t3
+  mpz_add(ttt, ttt, ttmp);
+  // tidy up
+  mpz_clear(ttmp);
   // save to file
   raw_export(2, ppp, qqq, ttt);
   // tidy up
@@ -238,80 +334,5 @@ void split(unsigned long b, unsigned long digits) {
   mpz_add(ttt, ttt, ttmp);
   // tidy up
   mpz_clear(ttmp);
-}
-#else
-void split(unsigned long b, unsigned long digits) {
-  unsigned long pass;
-  mpz_t         ptmp, qtmp, ttmp;
-  mpz_t         pppp, qqqq, tttt;
-  
-  splitcurrent = 0;
-  splitreached = 0;
-
-  // passes 0 to 2
-  for (pass = 0 ; pass < 3 ; pass++) {
-    // initialise
-    mpz_inits(ptmp, qtmp, ttmp, NULL);
-    // do the recursion
-    recursion(pass*b/4, (pass+1)*b/4, ptmp, qtmp, ttmp);
-    // save to file
-    raw_export(pass, ptmp, qtmp, ttmp);
-    // tidy up
-    mpz_clears(ptmp, qtmp, ttmp, NULL);
-  }
-
-  // pass 3 (no need to save results as can be used immediately)
-  // initialise
-  mpz_inits(ptmp, qtmp, ttmp, NULL);
-  // do the recursion
-  recursion(3*b/4, b, ptmp, qtmp, ttmp);
-
-  // combine passes 2 and 3
-  logthis(NULL, "Combine: (2,3)\r");
-  mpz_inits(pppp, qqqq, tttt, NULL);
-  // import pass 2 result
-  raw_import(2, pppp, qqqq, tttt);
-  // t3 = t3 * p2
-  mpz_mul(ttmp, ttmp, pppp);
-  // p2 = p2 * p3
-  mpz_mul(pppp, pppp, ptmp);
-  // q2 = q2 * q3
-  mpz_mul(qqqq, qqqq, qtmp);
-  // t2 = t2 * q3
-  mpz_mul(tttt, tttt, qtmp);
-  // t2 = t2 + t3
-  mpz_add(tttt, tttt, ttmp);
-
-  // combine passes 0 and 1
-  logthis(NULL, "Combine: (0,1)\r");
-  // import pass 0, 1 results
-  raw_import(1, ptmp, qtmp, ttmp);
-  raw_import(0, ppp, qqq, ttt);
-  // t1 = p0 * t1
-  mpz_mul(ttmp, ttmp, ppp);
-  // p0 = p0 * p1
-  mpz_mul(ppp, ppp, ptmp);
-  // q0 = q0 * q1
-  mpz_mul(qqq, qqq, qtmp);
-  // t0 = t0 + t1
-  mpz_mul(ttt, ttt, qtmp);
-  // t0 = t0 + t1
-  mpz_add(ttt, ttt, ttmp);
-
-  // tidy up
-  mpz_clears(ptmp, qtmp, ttmp, NULL);
-
-  // combine passes 0 and 2
-  logthis(NULL, "Combine: (0,2)\r");
-  // t2 = t2 * p0
-  mpz_mul(tttt, tttt, ppp);
-  // p0 = p0 * p2 not needed for final result
-  mpz_clear(ppp);
-  // q0 = q0 * q2
-  mpz_mul(qqq, qqq, qqqq);
-  // t0 = t0 * q2
-  mpz_mul(ttt, ttt, qqqq);
-  // t0 = t0 + t2
-  mpz_add(ttt, ttt, tttt);
 }
 #endif
