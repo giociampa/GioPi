@@ -5,7 +5,6 @@
 #include "giopi.h"
 
 char  runfile[NAMESIZE];
-char  runtext[NAMESIZE];
 
 void loginit(char *logfile) {
   FILE  *loghand, *runhand;
@@ -28,23 +27,26 @@ void loginit(char *logfile) {
 }
 
 void logthis(char *logfile, char *fmt, ...) {
+  char    runtext[NAMESIZE], *gotchar;
   FILE    *loghand, *runhand;
-  char    *gotchar;
   va_list args;
   
   va_start(args, fmt);
   vsprintf(runtext, fmt, args);
   va_end(args);
 
+  // log to console
   fprintf(stdout, "%s", runtext);
   fflush(stdout);
 
+  // log to file
   if (logfile != NULL) {
       loghand = fopen(logfile, "ab");
-      fprintf(loghand, "%s", runtext);
+      fprintf(loghand, "%s\n", runtext);
       fclose(loghand);
   }
 
+  // log to run status
   gotchar = strstr(runtext, "\r");
   if (gotchar != NULL) {
     gotchar[0] = 0;
@@ -62,19 +64,5 @@ void logthis(char *logfile, char *fmt, ...) {
 }
 
 void logdone() {
-  unsigned long pass;
-  char          filename[NAMESIZE];
-  
   remove(runfile);
-
-  for (pass = 0 ; pass < 3 ; pass++) {
-    sprintf(filename, "pass-%lu-p.tmp", pass);
-    remove(filename);
-
-    sprintf(filename, "pass-%lu-q.tmp", pass);
-    remove(filename);
-
-    sprintf(filename, "pass-%lu-t.tmp", pass);
-    remove(filename);
-  }
 }

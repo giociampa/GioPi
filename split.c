@@ -21,6 +21,9 @@ void split_init(unsigned long depth, unsigned long terms) {
 }
 
 void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth) {
+  unsigned long pass;
+  char          tmpfile[NAMESIZE];
+
   // convert to floats
   mpf_set_z(xxx, qqq);
   mpf_set_z(yyy, ttt);
@@ -29,6 +32,17 @@ void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth) {
   xxx->_mp_exp -= yyy->_mp_exp;
   yyy->_mp_exp = 0;
 
+  // tidy up
+  for (pass = 0 ; pass < 3 ; pass++) {
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    remove(tmpfile);
+
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    remove(tmpfile);
+
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    remove(tmpfile);
+  }
   mpz_clears(qqq, ttt, NULL);
 }
 
@@ -94,54 +108,54 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
 }
 
 void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
-  char    filename[NAMESIZE];
-  FILE    *filehand;
+  char  tmpfile[NAMESIZE];
+  FILE  *tmphand;
 
   if (p) {
-    sprintf(filename, "pass-%lu-p.tmp", pass);
-    filehand = fopen(filename, "wb");
-    mpz_out_raw(filehand, p);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, p);
+    fclose(tmphand);
   }
 
   if (q) {
-    sprintf(filename, "pass-%lu-q.tmp", pass);
-    filehand = fopen(filename, "wb");
-    mpz_out_raw(filehand, q);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, q);
+    fclose(tmphand);
   }
 
   if (t) {
-    sprintf(filename, "pass-%lu-t.tmp", pass);
-    filehand = fopen(filename, "wb");
-    mpz_out_raw(filehand, t);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, t);
+    fclose(tmphand);
   }
 }
 
 void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
-  char    filename[NAMESIZE];
-  FILE    *filehand;
+  char  tmpfile[NAMESIZE];
+  FILE  *tmphand;
 
   if (p) {
-    sprintf(filename, "pass-%lu-p.tmp", pass);
-    filehand = fopen(filename, "rb");
-    mpz_inp_raw(p, filehand);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(p, tmphand);
+    fclose(tmphand);
   }
 
   if (q) {
-    sprintf(filename, "pass-%lu-q.tmp", pass);
-    filehand = fopen(filename, "rb");
-    mpz_inp_raw(q, filehand);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(q, tmphand);
+    fclose(tmphand);
   }
 
   if (t) {
-    sprintf(filename, "pass-%lu-t.tmp", pass);
-    filehand = fopen(filename, "rb");
-    mpz_inp_raw(t, filehand);
-    fclose(filehand);
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(t, tmphand);
+    fclose(tmphand);
   }
 }
 
@@ -169,10 +183,10 @@ void split(unsigned long b, unsigned long digits) {
   mpz_inits(ptmp, qtmp, ttmp, NULL);
   // do the recursion
   recursion(3*b/4, b, ptmp, qtmp, ttmp);
-  // tidy up
+  // tidy up (p3 not needed)
   mpz_clear(ptmp);
 
-  // combine passes 2 and 3 (p3 not needed)
+  // combine passes 2 and 3
   // p2 = ppp,  q2 = qqq,  t2 = ttt
   //            q3 = qtmp, t3 = ttmp
   logthis(NULL, "Combine: (2,3)\r");
@@ -185,8 +199,8 @@ void split(unsigned long b, unsigned long digits) {
   mpz_clear(ppp);
   // q2 = q2 * q3
   mpz_mul(qqq, qqq, qtmp);
+  // export and tidy up
   raw_export(2, NULL, qqq, NULL);
-  // tidy up
   mpz_clear(qqq);
   // t2 = t2 * q3
   mpz_mul(ttt, ttt, qtmp);
@@ -194,8 +208,8 @@ void split(unsigned long b, unsigned long digits) {
   mpz_clear(qtmp);
   // t2 = t2 + t3
   mpz_add(ttt, ttt, ttmp);
+  // export and tidy up
   raw_export(2, NULL, NULL, ttt);
-  // tidy up
   mpz_clears(ttt, ttmp, NULL);
 
   // combine passes 0 and 1
