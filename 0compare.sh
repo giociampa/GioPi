@@ -1,6 +1,6 @@
 #!/bin/bash
 
-grep Result *.log | sort -n | grep -v README | cut -d: -f1 | while read f ; do
+grep -H Result *.log | sort -n | grep -v README | cut -d: -f1 | while read f ; do
 	r=${f%.log}.txt
 	echo $f
 	grep Total $f

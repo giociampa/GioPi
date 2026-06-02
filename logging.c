@@ -38,7 +38,7 @@ void logthis(char *logfile, char *fmt, ...) {
   // log to file
   if (logfile != NULL) {
       loghand = fopen(logfile, "ab");
-      fprintf(loghand, "%s\n", runtext);
+      fprintf(loghand, "%s", runtext);
       fclose(loghand);
   }
 

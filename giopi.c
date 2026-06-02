@@ -108,17 +108,17 @@ int main(int argc, char *argv[]) {
   inter_time = clock();
   divide(pi, xxx, yyy);
   logthis(logfile, "Divide: %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+  logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // output pi
   if (showoutput) {
-    logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-    // generate the output
     inter_time = clock();
+    logthis(logfile, "\n");
     logthis(NULL, "Write:\r");
     writetxt(pi, txtfile, digits);
     logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
-  logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   logdone(digits);
 
   return EXIT_SUCCESS;

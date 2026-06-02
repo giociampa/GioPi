@@ -3,7 +3,7 @@
 // logging.c
 void logthis(char *filename, char *fmt, ...);
 
-void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
+void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point) {
 	FILE			*inphand, *outhand;
 	bool			show, done;
 	unsigned long	count, this, written, progress, percent;
@@ -50,7 +50,11 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
             percent = (100 * written) / digits;
             if (percent > progress) {
               progress = percent;
-              logthis(NULL, "Write: (%ld%%)\r", percent);
+              if (giopi) {
+                logthis(NULL, "Write: Write (%ld%%)\r", percent);
+              } else {
+                logthis(NULL, "Write: (%ld%%)\r", percent);
+              }
             }
           }
           if (written >= digits) {
@@ -58,7 +62,7 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi) {
           }
         }
 			}
-		} else if (this == CHAR_POINT) {
+		} else if (point || (this == CHAR_POINT)) {
 			show = true;
 			putc(CHAR_THREE, outhand);
 			putc(CHAR_POINT, outhand);
