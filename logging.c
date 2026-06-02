@@ -1,7 +1,3 @@
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "giopi.h"
 
 char  runfile[NAMESIZE];

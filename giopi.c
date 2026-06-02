@@ -1,10 +1,3 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <gmp.h>
-
 #include "giopi.h"
 
 // getdigits.c
@@ -27,7 +20,6 @@ void root10005(mpf_t r, unsigned long digits);
 void divide(mpf_t r, mpf_t y, mpf_t x);
 
 // output.c
-void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits);
 void writetxt(mpf_t result, char *outfile, unsigned long digits);
 
 // Usage: pi [digits] [noout]

@@ -1,3 +1,17 @@
+#ifndef _GIOPI_H
+#define _GIOPI_H 1
+
+#include <ctype.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <gmp.h>
+
 #define A   545140134
 #define B   13591409
 #define C   640320
@@ -20,4 +34,6 @@
 
 #ifndef BUILDDATE
 #define BUILDDATE   __TIMESTAMP__
+#endif
+
 #endif

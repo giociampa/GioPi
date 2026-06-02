@@ -1,8 +1,4 @@
-#include <math.h>
-#include <gmp.h>
-#include <stdio.h>
-
-#define DOUBLE_PREC 53
+#include "giopi.h"
 
 void root10005(mpf_t r, unsigned long digits) {
   unsigned long prec0, bits, prec, bit;

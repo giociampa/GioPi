@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include "giopi.h"
 
 void getdigits(char *input, unsigned long *result) {
   char          *temp;
