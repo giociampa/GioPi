@@ -64,13 +64,17 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     while (count > 0) {
       count--;
       index = count * 2;
-      // if (index > count) {
-        // mpz_realloc2(partial[index], 0);
-      // }
-      // mpz_realloc2(partial[index+1], 0);
+      if (index > count) {
+        mpz_realloc2(partial[index], 0);
+      }
+      mpz_realloc2(partial[index+1], 0);
+#if defined(__m68k__)
       logthis(NULL, "Test: %ld %ld %ld\r", power, count, calc_done);
+#endif
       mpz_tdiv_qr (partial[index+1], partial[index], partial[count], divisor);
+#if defined(__m68k__)
       logthis(NULL, "Done: %ld %ld %ld\r", power, count, calc_done);
+#endif
 
       calc_done++;
       percent = (100 * calc_done) / num_parts;

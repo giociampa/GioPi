@@ -3,6 +3,11 @@
 once=$(echo "$1" | grep -i once)
 
 aranym=$(uname -a | grep -i aranym)
+
+if [ "$aranym" = "" ]; then
+  aranym=$(echo $PWD | grep -i aranym)
+fi
+
 if [ "$aranym" = "" ]; then
   FILELIST="giopi giotst"
 else
@@ -10,6 +15,7 @@ else
 fi
 
 while true ; do
+	if [ "$once" != "" ]; then exit 0; fi
 	clear
 	last=$(tail -1 zzzz.txt)
 	sort -n zzzz.txt | tail -1

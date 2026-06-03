@@ -1,5 +1,10 @@
 #include "giopi.h"
 
+// for m68k-atari-elf-gcc to allocate all memory
+#if defined(__m68k__)
+int _stksize = -1;
+#endif
+
 // getdigits.c
 void getdigits(char *input, unsigned long *result);
 
