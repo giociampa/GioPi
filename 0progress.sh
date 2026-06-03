@@ -11,7 +11,7 @@ fi
 if [ "$aranym" = "" ]; then
   FILELIST="giopi giotst"
 else
-  FILELIST="gio*.ttp"
+  FILELIST="gio*.ttp gio*.prg"
 fi
 
 while true ; do

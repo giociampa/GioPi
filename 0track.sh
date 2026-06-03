@@ -4,6 +4,11 @@ rm -f zzzz.txt
 touch zzzz.txt
 
 aranym=$(uname -a | grep -i aranym)
+
+if [ "$aranym" = "" ]; then
+  aranym=$(echo $PWD | grep -i aranym)
+fi
+
 if [ "$aranym" = "" ]; then
   PSCMD="ps -eo size,cmd"
   PSIZE=1

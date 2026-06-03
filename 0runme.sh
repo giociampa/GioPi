@@ -4,10 +4,15 @@ params=$*
 digits=$1
 
 aranym=$(uname -a | grep -i aranym)
+
+if [ "$aranym" = "" ]; then
+  aranym=$(echo $PWD | grep -i aranym)
+fi
+
 if [ "$aranym" = "" ]; then
   FILELIST="giopi giotst"
 else
-  FILELIST="gio*.ttp"
+  FILELIST="gio*.ttp gio*.prg"
 fi
 
 function process () {
