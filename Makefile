@@ -3,19 +3,18 @@ BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
 
-FLAGSALL = -O3 -fomit-frame-pointer -lm
-FLAGSLOC = -ffast-math ${FLAGSALL} -lgmp -s
-FLAGS000 = -m68000 -ffast-math ${FLAGSALL} -lgmp -s
-FLAGS020 = -m68020 -ffast-math ${FLAGSALL} -lgmp20 -s
-FLAGS040 = -m68040 -mhard-float ${FLAGSALL} -lgmp40 -s
-ELFLG000 = -m68000 -ffast-math ${ELFLGALL} -lgmp
-ELFLG020 = -m68020 -ffast-math ${ELFLGALL} -lgmp20
-ELFLG040 = -m68040 -mhard-float ${ELFLGALL} -lgmp40
-FLAGSEXE = -ffast-math ${FLAGSALL} -lgmp -s
+FLAGSALL = -O3 -fomit-frame-pointer -lm -ffast-math
+FLAGSLOC = ${FLAGSALL} -lgmp
+FLAGS000 = -m68000 -msoft-float ${FLAGSALL} -lgmp
+FLAGS020 = -m68020 -msoft-float ${FLAGSALL} -lgmp20
+FLAGS040 = -m68040 -mhard-float ${FLAGSALL} -lgmp40
+FLAGSEXE = ${FLAGSALL} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
+LOCSTRIP = strip
 ATARIGCC = m68k-atari-mint-gcc
+M68STRIP = m68k-atari-mint-strip
 ATARIELF = m68k-atari-elf-gcc
 ELFTOPRG = m68k-atari-elf-prg
 CROSSGCC = x86_64-w64-mingw32-gcc
@@ -26,12 +25,15 @@ local: giopi giotst compare
 
 giopi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
 
 giotst: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -o $@
+	${LOCSTRIP} $@
 
 compare: ${CMPFILES}
 	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} -o $@
+	${LOCSTRIP} $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -43,12 +45,15 @@ m68000: giopi00.ttp giotst0.ttp compare0.ttp
 
 giopi00.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${M68STRIP} $@
 
 giotst0.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -o $@
+	${M68STRIP} $@
 
 compare0.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
+	${M68STRIP} $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -56,12 +61,15 @@ m68020: giopi20.ttp giotst2.ttp compare2.ttp
 
 giopi20.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
+	${M68STRIP} $@
 
 giotst2.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${FLAGSTST} -o $@
+	${M68STRIP} $@
 
 compare2.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
+	${M68STRIP} $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -69,12 +77,15 @@ m68040: giopi40.ttp giotst4.ttp compare4.ttp
 
 giopi40.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
+	${M68STRIP} $@
 
 giotst4.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
+	${M68STRIP} $@
 
 compare4.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
+	${M68STRIP} $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -88,19 +99,19 @@ giopi00.prg: giopi00.elf
 	${ELFTOPRG} giopi00.elf $@
 
 giopi00.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG000} ${BUILDDATE} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
 giotst0.prg: giotst0.elf
 	${ELFTOPRG} giotst0.elf $@
 
 giotst0.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG000} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
 
 compare0.prg: compare0.elf
 	${ELFTOPRG} compare0.elf $@
 
 compare0.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${ELFLG000} -o $@
+	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -110,19 +121,19 @@ giopi20.prg: giopi20.elf
 	${ELFTOPRG} giopi20.elf $@
 
 giopi20.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG020} ${BUILDDATE} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
 
 giotst2.prg: giotst2.elf
 	${ELFTOPRG} giotst2.elf $@
 
 giotst2.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG020} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${ELFLGTST} -o $@
 
 compare2.prg: compare2.elf
 	${ELFTOPRG} compare2.elf $@
 
 compare2.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${ELFLG020} -o $@
+	${ATARIELF} ${CMPFILES} ${FLAGS020} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -132,19 +143,19 @@ giopi40.prg: giopi40.elf
 	${ELFTOPRG} giopi40.elf $@
 
 giopi40.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG040} ${BUILDDATE} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
 giotst4.prg: giotst4.elf
 	${ELFTOPRG} giotst4.elf $@
 
 giotst4.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${ELFLG040} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${ELFLGTST} -o $@
 
 compare4.prg: compare4.elf
 	${ELFTOPRG} compare4.elf $@
 
 compare4.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${ELFLG040} -o $@
+	${ATARIELF} ${CMPFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
