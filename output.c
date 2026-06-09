@@ -26,6 +26,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   logthis(NULL, "Write: Init\r");
   
   dig_limb = (unsigned long)((double) mp_bits_per_limb / BITS_PER_DIGIT);
+
   max_limb = 1;
   for (count = 0 ; count < dig_limb ; count++) {
     max_limb *= 10;
@@ -35,7 +36,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   pow_count = dig_limb;
   while (pow_count < digits) {
     pow_parts++;
-    pow_count *= 2;
+    pow_count<<=1;
   }
   num_parts = (1 << pow_parts);
   
@@ -51,7 +52,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   part_count = 1;
   mpz_init(divisor);
   for (power = 0 ; power < pow_parts ; power++) {
-    pow_count /= 2;
+    pow_count>>=1;
     mpz_realloc2(divisor, 0);
     mpz_ui_pow_ui(divisor, 10, pow_count);
     
@@ -61,20 +62,18 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     }
     
     count = part_count;
+    index = count << 1;
     while (count > 0) {
       count--;
-      index = count * 2;
+      index--;
+      mpz_realloc2(partial[index], 0);
+      index--;
       if (index > count) {
         mpz_realloc2(partial[index], 0);
+      } else {
+        mpz_realloc2(partial[index], mpz_sizeinbase(partial[index], 2));
       }
-      mpz_realloc2(partial[index+1], 0);
-// #if defined(__m68k__)
-//       logthis(NULL, "Test: %ld %ld %ld\r", power, count, calc_done);
-// #endif
-      mpz_tdiv_qr (partial[index+1], partial[index], partial[count], divisor);
-// #if defined(__m68k__)
-//       logthis(NULL, "Done: %ld %ld %ld\r", power, count, calc_done);
-// #endif
+      mpz_tdiv_qr(partial[index+1], partial[index], partial[count], divisor);
 
       calc_done++;
       percent = (100 * calc_done) / num_parts;
@@ -84,7 +83,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
       }
 
     }
-    part_count *= 2;
+    part_count<<=1;
   }
   
   sprintf(tmpfile, "%lu.tmp", digits);

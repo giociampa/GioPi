@@ -27,8 +27,8 @@ bool readline(FILE *file, char *line, unsigned long *where) {
 int main(int argc, char *argv[]) {
   FILE          *file1, *file2;
   char          line1[WHOLELINE+1], line2[WHOLELINE+1];
-  unsigned long line, good, item, match, fails, pos1, pos2;
-  bool          done, end1, end2;
+  unsigned long count, line, good, item, match, fails, pos1, pos2;
+  bool          justgood, done, end1, end2;
   
   if (argc < 3) {
     printf("ERROR: Too few filenames\n");
@@ -47,6 +47,13 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   
+  justgood = false;
+  for (count = 3 ; count < argc ; count++) {
+    if (strcasecmp(argv[count], "good") == 0) {
+      justgood = true;
+    }
+  }
+
   good = 0;
   line = 0;
   done = false;
@@ -84,7 +91,7 @@ int main(int argc, char *argv[]) {
   }
   
   printf("Good digits: %lu\n", good);
-  if ( !(end1 && end2) ) {
+  if ( !(end1 && end2) && (!justgood) ) {
     printf("Fail line #: %lu\n", line);
     printf("File line 1:  %s\n", line1);
     printf("File line 2:  %s\n", line2);

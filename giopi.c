@@ -1,10 +1,5 @@
 #include "giopi.h"
 
-// for m68k-atari-elf-gcc to allocate all memory
-#if defined(__m68k__)
-int _stksize = -1;
-#endif
-
 // getdigits.c
 void getdigits(char *input, unsigned long *result);
 
@@ -36,6 +31,7 @@ int main(int argc, char *argv[]) {
   bool          justdosplit, showoutput;
   mpf_t         xxx, yyy, pi;
   mpz_t         scaled;
+  int           _stksize = -1; // m68k-atari-elf-gcc: allocate all memory
 
   digits = 0;
   justdosplit = false;
