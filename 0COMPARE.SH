@@ -1,0 +1,11 @@
+#!/bin/bash
+
+grep -H Result *.log | sort -n | grep -v README | cut -d: -f1 | while read f ; do
+	r=${f%.log}.txt
+	echo $f
+	grep Total $f
+	if [ -e "$r" ]; then
+		0compare ~/1billion.pi "$r" good
+	fi
+	echo
+done

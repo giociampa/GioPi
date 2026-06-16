@@ -15,18 +15,14 @@ else
 fi
 
 while true ; do
-	if [ "$once" != "" ]; then exit 0; fi
-	clear
+	if [ "$once" = "" ]; then clear; fi
 	last=$(tail -1 zzzz.txt)
-	sort -n zzzz.txt | tail -1
-	echo
 	for f in $FILELIST ; do
 		n=$(echo $f | cut -d. -f1)
-		sort -n zzzz.txt | grep $n | tail -1
 		for l in Split Combine Write Total ; do
-			sort zzzz.txt -n | grep $n | grep $l | tail -1
+			sort zzzz.txt -n | grep $n | grep $l | tail -5
+      echo
 		done
-		echo
 	done
 	if [ "$once" != "" -o "$last" = "0 Finished" ]; then exit 0; fi
 	sleep 5
