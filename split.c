@@ -42,8 +42,8 @@ void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth) {
 }
 
 void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
-  mpz_t         p1, q1, t1, p2, q2, t2;
-  unsigned long m = (a + b) / 2;
+  mpz_t         pam, qam, tam, pmb, qmb, tmb;
+  unsigned long m = (a + b) >> 1;
 
   if ((b - a) == 1) {
     if (a == 0) {
@@ -72,25 +72,25 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
     }
   } else {
     // temporary values
-    mpz_inits(p1, q1, t1, p2, q2, t2, NULL);
+    mpz_inits(pam, qam, tam, pmb, qmb, tmb, NULL);
     // lower split
-    recursion(a, m, p1, q1, t1);
+    recursion(a, m, pam, qam, tam);
     // upper split
-    recursion(m, b, p2, q2, t2);
-    // t2 = pam * tmb
-    mpz_mul(t2, p1, t2);
-    // p = pam * pmb
-    mpz_mul(p0, p1, p2);
-    mpz_clears(p1, p2, NULL);
-    // q = qam * qmb
-    mpz_mul(q0, q1, q2);
-    mpz_clear(q1);
-    // t = qmb * tam
-    mpz_mul(t1, q2, t1);
-    mpz_clear(q2);
-    // t = t + t2
-    mpz_add(t0, t1, t2);
-    mpz_clears(t1, t2, NULL);
+    recursion(m, b, pmb, qmb, tmb);
+    // tmb = pam * tmb
+    mpz_mul(tmb, pam, tmb);
+    // p0 = pam * pmb
+    mpz_mul(p0, pam, pmb);
+    mpz_clears(pam, pmb, NULL);
+    // q0 = qam * qmb
+    mpz_mul(q0, qam, qmb);
+    mpz_clear(qam);
+    // t0 = qmb * tam
+    mpz_mul(tam, qmb, tam);
+    mpz_clear(qmb);
+    // t0 = t0 + tmb
+    mpz_add(t0, tam, tmb);
+    mpz_clears(tam, tmb, NULL);
   }
 
   // progress marker
@@ -155,103 +155,80 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
 }
 
 void split(unsigned long b, unsigned long digits) {
-  unsigned long pass;
-  mpz_t         ptmp, qtmp, ttmp;
-  
+  mpz_t pmb, qmb, tmb;
+
   splitcurrent = 0;
   splitreached = 0;
 
-  // passes 0 to 2
-  for (pass = 0 ; pass < 3 ; pass++) {
-    // initialise
-    mpz_inits(ptmp, qtmp, ttmp, NULL);
-    // do the recursion
-    recursion(pass*b/4, (pass+1)*b/4, ptmp, qtmp, ttmp);
-    // save to file
-    raw_export(pass, ptmp, qtmp, ttmp);
-    // tidy up
-    mpz_clears(ptmp, qtmp, ttmp, NULL);
-  }
+  // pass 0
+  recursion(0, (b/4), ppp, qqq, ttt);
+  raw_export(0, ppp, qqq, ttt);
+
+  // pass 1
+  mpz_realloc2(ppp, 0);
+  mpz_realloc2(qqq, 0);
+  mpz_realloc2(ttt, 0);
+  recursion((b/4), (b/2), ppp, qqq, ttt);
+  raw_export(1, ppp, qqq, ttt);
+
+  // pass 2
+  mpz_realloc2(ppp, 0);
+  mpz_realloc2(qqq, 0);
+  mpz_realloc2(ttt, 0);
+  recursion((b/2), 3*(b/4), ppp, qqq, ttt);
 
   // pass 3
-  // initialise
-  mpz_inits(ptmp, qtmp, ttmp, NULL);
-  // do the recursion
-  recursion(3*b/4, b, ptmp, qtmp, ttmp);
-  // tidy up (p3 not needed)
-  mpz_clear(ptmp);
+  mpz_inits(pmb, qmb, tmb, NULL);
+  recursion(3*(b/4), b, pmb, qmb, tmb);
 
-  // combine passes 2 and 3
-  // p2 = ppp,  q2 = qqq,  t2 = ttt
-  //            q3 = qtmp, t3 = ttmp
+  // combine 2 and 3
   logthis(NULL, "Combine: (2,3)\r");
-  // import pass 2 result
-  mpz_inits(ppp, qqq, ttt, NULL);
-  raw_import(2, ppp, qqq, ttt);
-  // t3 = t3 * p2
-  mpz_mul(ttmp, ttmp, ppp);
-  // p2 = p2 * p3 (not used)
-  mpz_clear(ppp);
-  // q2 = q2 * q3
-  mpz_mul(qqq, qqq, qtmp);
-  // export and tidy up
+  // tmb = tmb * ppp
+  mpz_mul(tmb, tmb, ppp);
+  // ppp = ppp * pmb
+  mpz_mul(ppp, ppp, pmb);
+  raw_export(2, ppp, NULL, NULL);
+  mpz_realloc2(ppp, 0);
+  mpz_realloc2(pmb, 0);
+  // qqq = qqq * qmb
+  mpz_mul(qqq, qqq, qmb);
   raw_export(2, NULL, qqq, NULL);
-  mpz_clear(qqq);
-  // t2 = t2 * q3
-  mpz_mul(ttt, ttt, qtmp);
-  // tidy up
-  mpz_clear(qtmp);
-  // t2 = t2 + t3
-  mpz_add(ttt, ttt, ttmp);
-  // export and tidy up
+  mpz_realloc2(qqq, 0);
+  // ttt = qmb * ttt
+  mpz_mul(ttt, qmb, ttt);
+  mpz_realloc2(qmb, 0);
+  // ttt = ttt + tmb
+  mpz_add(ttt, ttt, tmb);
   raw_export(2, NULL, NULL, ttt);
-  mpz_clears(ttt, ttmp, NULL);
 
-  // combine passes 0 and 1
-  // p0 = ppp,  q0 = qqq,  t0 = ttt
-  // p1 = ptmp, q1 = qtmp, t1 = ttmp
+  // combine 0 and 1
   logthis(NULL, "Combine: (0,1)\r");
-  // import pass 0, 1 results
-  mpz_inits(ppp, qqq, ttt, NULL);
-  mpz_inits(ptmp, qtmp, ttmp, NULL);
   raw_import(0, ppp, qqq, ttt);
-  raw_import(1, ptmp, qtmp, ttmp);
-  // t1 = p0 * t1
-  mpz_mul(ttmp, ttmp, ppp);
-  // p0 = p0 * p1
-  mpz_mul(ppp, ppp, ptmp);
-  // tidy up
-  mpz_clear(ptmp);
-  // q0 = q0 * q1
-  mpz_mul(qqq, qqq, qtmp);
-  // t0 = t0 + t1
-  mpz_mul(ttt, ttt, qtmp);
-  // tidy up
-  mpz_clear(qtmp);
-  // t0 = t0 + t1
-  mpz_add(ttt, ttt, ttmp);
-  // tidy up
-  mpz_clear(ttmp);
+  raw_import(1, pmb, qmb, tmb);
+  // tmb = tmb * ppp
+  mpz_mul(tmb, tmb, ppp);
+  // ppp = ppp * pmb
+  mpz_mul(ppp, ppp, pmb);
+  mpz_clear(pmb);
+  // qqq = qqq * qmb
+  mpz_mul(qqq, qqq, qmb);
+  // ttt = qmb * ttt
+  mpz_mul(ttt, qmb, ttt);
+  mpz_realloc2(qmb, 0);
+  // ttt = ttt + tmb
+  mpz_add(ttt, ttt, tmb);
 
-  // combine passes 0 (0 and 1) and 2 (2 and 3)
-  // p0 = ppp,  q0 = qqq,  t0 = ttt
-  //            q2 = qtmp, t2 = ttmp
+  // combine (0,1) and (2,3)
   logthis(NULL, "Combine: (0,2)\r");
-  // import pass 2 result (p2 not needed)
-  mpz_inits(qtmp, ttmp, NULL);
-  raw_import(2, NULL, qtmp, ttmp);
-  // t2 = t2 * p0
-  mpz_mul(ttmp, ttmp, ppp);
-  // p0 = p0 * p2 (p0 not needed)
-  mpz_clear(ppp);
-  // q0 = q0 * q2
-  mpz_mul(qqq, qqq, qtmp);
-  // t0 = t0 * q2
-  mpz_mul(ttt, ttt, qtmp);
-  // tidy up
-  mpz_clear(qtmp);
-  // t0 = t0 + t2
-  mpz_add(ttt, ttt, ttmp);
-  // tidy up
-  mpz_clear(ttmp);
+  raw_import(2, NULL, qmb, tmb);
+  // tmb = tmb * ppp
+  mpz_mul(tmb, tmb, ppp);
+  // ppp = ppp * pmb not needed
+  mpz_clear(ppp); // mpz_mul(ppp, ppp, pmb);
+  // qqq = qqq * qmb
+  mpz_mul(qqq, qqq, qmb);
+  // ttt = qmb * ttt
+  mpz_mul(ttt, qmb, ttt);
+  // ttt = ttt + tmb
+  mpz_add(ttt, ttt, tmb);
 }

@@ -3,7 +3,7 @@ BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
 
-FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm 
+FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
 FLAGSLOC = ${FLAGSALL} -lgmp
 FLAGS000 = -m68000 -msoft-float ${FLAGSALL} -lgmp
 FLAGS020 = -m68020 -msoft-float ${FLAGSALL} -lgmp20
@@ -41,7 +41,7 @@ compare: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atari: m68000 m68020 m68040
+atari: local m68000 m68020 m68040
 
 # --------------------------------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ compare4.ttp: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-atarielf: m68000elf m68020elf m68040elf
+atarielf: local m68000elf m68020elf m68040elf
 
 # --------------------------------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ compare4.elf: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: giopi.exe giotst.exe compare.exe copydlls
+cross: local giopi.exe giotst.exe compare.exe copydlls
 
 giopi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
@@ -222,14 +222,15 @@ clean:
 veryclean: clean
 	@mv README.txt README.txt.000 2>/dev/null ||:
 	rm -f *.log *.run *.running *.tmp *.txt
+	rm -f *.LOG *.RUN *.RUNNING *.TMP *.TXT
 	@mv README.txt.000 README.txt 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------
 
-all: local atari cross list
+all: atari cross list
 
 # --------------------------------------------------------------------------------------------------
 
-allelf: local atarielf cross list
+allelf: atarielf cross list
 
 # --------------------------------------------------------------------------------------------------
