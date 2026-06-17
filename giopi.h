@@ -36,4 +36,7 @@
 #define BUILDDATE   __TIMESTAMP__
 #endif
 
+#define DEBUGGING   0
+#define DEBUG_FILE  "zzzdebug.txt"
+
 #endif
