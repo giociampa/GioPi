@@ -9,20 +9,20 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, boo
 #if defined(TESTING)
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
   mpf_t factor;
-  mpf_init(factor);
 
+  logthis(NULL, "Write: Pow10\r");
+  mpf_init(factor);
   mpz_ui_pow_ui(result, 10, digits);
   mpf_set_z(factor, result);
   mpz_realloc2(result, 0);
-  logthis(NULL, "Write: Pow10\r");
 
-  mpf_mul(source, source, factor);
-  mpf_clear(factor);
   logthis(NULL, "Write: Scale\r");
-  
-  mpz_set_f(result, source);
+  mpf_mul(factor, factor, source);
   mpf_clear(source);
+  
   logthis(NULL, "Write: Convert\r");
+  mpz_set_f(result, factor);
+  mpf_clear(factor);
 }
 
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
@@ -33,6 +33,8 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   bool          showme;
 #if DEBUGGING
   unsigned long debugcount = 0;
+  char          dumpfile[NAMESIZE];
+  FILE          *dumphand;
 #endif
 
   logthis(NULL, "Write: Init\r");
@@ -64,9 +66,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   part_count = 1;
   mpz_init(divisor);
   for (power = 0 ; power < pow_parts ; power++) {
-#if DEBUGGING
-    logthis(DEBUG_FILE, "%-10lu power = %lu\n", ++debugcount, power);
-#endif
     pow_count >>= 1;
     mpz_realloc2(divisor, 0);
     mpz_ui_pow_ui(divisor, 10, pow_count);
@@ -83,7 +82,17 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
       index -= 2;
       plus1 -= 2;
 #if DEBUGGING
-      logthis(DEBUG_FILE, "%-10lu count = %lu index = %lu plus1 = %lu\n", ++debugcount, count, index, plus1);
+      logthis(DEBUG_FILE, "%-10lu power = %lu count = %lu index = %lu plus1 = %lu\n", ++debugcount, power, count, index, plus1);
+
+      sprintf(dumpfile, "%lu.num", digits);
+      dumphand = fopen(dumpfile, "wb");
+      mpz_out_raw(dumphand, partial[count]);
+      fclose(dumphand);
+
+      sprintf(dumpfile, "%lu.div", digits);
+      dumphand = fopen(dumpfile, "wb");
+      mpz_out_raw(dumphand, divisor);
+      fclose(dumphand);
 #endif
 
       mpz_tdiv_qr(partial[plus1], partial[index], partial[count], divisor);

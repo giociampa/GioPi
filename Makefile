@@ -106,23 +106,23 @@ atarielf: local m68000elf m68020elf m68040elf
 
 # --------------------------------------------------------------------------------------------------
 
-m68000elf: giopi00.prg giotst0.prg compare0.prg
+m68000elf: giopi00e.ttp giotst0e.ttp compar0e.ttp
 
-giopi00.prg: giopi00.elf
+giopi00e.ttp: giopi00.elf
 	${ELFTOPRG} giopi00.elf $@
 	@echo ||:
 
 giopi00.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
-giotst0.prg: giotst0.elf
+giotst0e.ttp: giotst0.elf
 	${ELFTOPRG} giotst0.elf $@
 	@echo ||:
 
 giotst0.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
 
-compare0.prg: compare0.elf
+compar0e.ttp: compare0.elf
 	${ELFTOPRG} compare0.elf $@
 	@echo ||:
 
@@ -131,23 +131,23 @@ compare0.elf: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68020elf: giopi20.prg giotst2.prg compare2.prg
+m68020elf: giopi20e.ttp giotst2e.ttp compar2e.ttp
 
-giopi20.prg: giopi20.elf
+giopi20e.ttp: giopi20.elf
 	${ELFTOPRG} giopi20.elf $@
 	@echo ||:
 
 giopi20.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
 
-giotst2.prg: giotst2.elf
+giotst2e.ttp: giotst2.elf
 	${ELFTOPRG} giotst2.elf $@
 	@echo ||:
 
 giotst2.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${ELFLGTST} -o $@
 
-compare2.prg: compare2.elf
+compar2e.ttp: compare2.elf
 	${ELFTOPRG} compare2.elf $@
 	@echo ||:
 
@@ -156,23 +156,23 @@ compare2.elf: ${CMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040elf: giopi40.prg giotst4.prg compare4.prg
+m68040elf: giopi40e.ttp giotst4e.ttp compar4e.ttp
 
-giopi40.prg: giopi40.elf
+giopi40e.ttp: giopi40.elf
 	${ELFTOPRG} giopi40.elf $@
 	@echo ||:
 
 giopi40.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
-giotst4.prg: giotst4.elf
+giotst4e.ttp: giotst4.elf
 	${ELFTOPRG} giotst4.elf $@
 	@echo ||:
 
 giotst4.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${ELFLGTST} -o $@
 
-compare4.prg: compare4.elf
+compar4e.ttp: compare4.elf
 	${ELFTOPRG} compare4.elf $@
 	@echo ||:
 
@@ -210,13 +210,13 @@ copydlls:
 # --------------------------------------------------------------------------------------------------
 
 list:
-	@du -b giopi giotst compare *.ttp *.prg *.exe *.dll 2>/dev/null ||:
+	@du -b giopi giotst compare *.elf *.ttp *.exe *.dll 2>/dev/null ||:
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	rm -f giopi giotst compare *.ttp *.prg *.exe *.dll
+	rm -f giopi giotst compare *.elf *.ttp *e.ttp *.exe *.dll
 	@echo ||:
 
 veryclean: clean
