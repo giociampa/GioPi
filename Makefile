@@ -110,6 +110,7 @@ m68000elf: giopi00e.ttp giotst0e.ttp compar0e.ttp
 
 giopi00e.ttp: giopi00.elf
 	${ELFTOPRG} giopi00.elf $@
+	chmod +x $@
 	@echo ||:
 
 giopi00.elf: ${SRCFILES}
@@ -117,6 +118,7 @@ giopi00.elf: ${SRCFILES}
 
 giotst0e.ttp: giotst0.elf
 	${ELFTOPRG} giotst0.elf $@
+	chmod +x $@
 	@echo ||:
 
 giotst0.elf: ${SRCFILES}
@@ -124,6 +126,7 @@ giotst0.elf: ${SRCFILES}
 
 compar0e.ttp: compare0.elf
 	${ELFTOPRG} compare0.elf $@
+	chmod +x $@
 	@echo ||:
 
 compare0.elf: ${CMPFILES}
@@ -135,6 +138,7 @@ m68020elf: giopi20e.ttp giotst2e.ttp compar2e.ttp
 
 giopi20e.ttp: giopi20.elf
 	${ELFTOPRG} giopi20.elf $@
+	chmod +x $@
 	@echo ||:
 
 giopi20.elf: ${SRCFILES}
@@ -142,6 +146,7 @@ giopi20.elf: ${SRCFILES}
 
 giotst2e.ttp: giotst2.elf
 	${ELFTOPRG} giotst2.elf $@
+	chmod +x $@
 	@echo ||:
 
 giotst2.elf: ${SRCFILES}
@@ -149,6 +154,7 @@ giotst2.elf: ${SRCFILES}
 
 compar2e.ttp: compare2.elf
 	${ELFTOPRG} compare2.elf $@
+	chmod +x $@
 	@echo ||:
 
 compare2.elf: ${CMPFILES}
@@ -160,6 +166,7 @@ m68040elf: giopi40e.ttp giotst4e.ttp compar4e.ttp
 
 giopi40e.ttp: giopi40.elf
 	${ELFTOPRG} giopi40.elf $@
+	chmod +x $@
 	@echo ||:
 
 giopi40.elf: ${SRCFILES}
@@ -167,6 +174,7 @@ giopi40.elf: ${SRCFILES}
 
 giotst4e.ttp: giotst4.elf
 	${ELFTOPRG} giotst4.elf $@
+	chmod +x $@
 	@echo ||:
 
 giotst4.elf: ${SRCFILES}
@@ -174,6 +182,7 @@ giotst4.elf: ${SRCFILES}
 
 compar4e.ttp: compare4.elf
 	${ELFTOPRG} compare4.elf $@
+	chmod +x $@
 	@echo ||:
 
 compare4.elf: ${CMPFILES}
