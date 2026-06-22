@@ -7,6 +7,56 @@ void logthis(char *filename, char *fmt, ...);
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point);
 
 #if defined(TESTING)
+void writetxt(mpf_t result, char *outfile, unsigned long digits) {
+  unsigned long written, percent, progress;
+  char          tmpfile[NAMESIZE], chunk[WRITECHUNK + LEEWAY];
+  FILE          *tmphand;
+  mpf_t         factor, scaled;
+  
+  mpf_inits(factor, scaled, NULL);
+  
+  mpf_set_ui(factor, 10);
+  mpf_pow_ui(factor, factor, WRITECHUNK);
+  
+  written = 0;
+  percent = 0;
+  progress = 0;
+  
+  sprintf(tmpfile, "%lu.tmp", digits);
+  tmphand = fopen(tmpfile, "wb");
+  
+  mpf_set(scaled, result);
+  mpf_trunc(scaled, scaled);
+  mpf_sub(result, result, scaled);
+  gmp_fprintf(tmphand, "%.0Ff.", scaled);
+  
+  while (written < digits) {
+    mpf_mul(result, result, factor);
+    mpf_trunc(scaled, result);
+    mpf_sub(result, result, scaled);
+    gmp_fprintf(tmphand, "%0*.0Ff", WRITECHUNK, scaled);
+    fflush(tmphand);
+    written += WRITECHUNK;
+
+    percent = (100 * written) / digits;
+    if (percent > progress) {
+        progress = percent;
+      if (written > digits) {
+        logthis(NULL, "Write: Calc (%ld%%)\r", 99);
+      } else {
+        logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+      }
+    }
+  }
+
+  fclose(tmphand);
+
+  logthis(NULL, "Write: Write (%ld%%)\r", 0);
+  convert(tmpfile, outfile, digits, true, true);
+  remove(tmpfile);
+
+}
+#elif defined(IGNOREME)
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
   mpf_t factor;
 
@@ -28,14 +78,9 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   mpz_t         *partial, divisor;
   unsigned long dig_limb, max_limb, pow_parts, pow_count, num_parts, part_count, count, power, index, plus1, calc_done, progress, percent;
-  char          tmpfile[NAMESIZE], chunk[NAMESIZE];
+  char          tmpfile[NAMESIZE];
   FILE          *tmphand;
   bool          showme;
-#if DEBUGGING
-  unsigned long debugcount = 0;
-  char          dumpfile[NAMESIZE];
-  FILE          *dumphand;
-#endif
 
   logthis(NULL, "Write: Init\r");
   
@@ -82,7 +127,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
       index -= 2;
       plus1 -= 2;
 #if DEBUGGING
-      logthis(DEBUG_FILE, "%-10lu power = %lu count = %lu index = %lu plus1 = %lu\n", ++debugcount, power, count, index, plus1);
+      logthis(DEBUG_FILE, "power = %lu count = %lu index = %lu plus1 = %lu\n", power, count, index, plus1);
 
       sprintf(dumpfile, "%lu.num", digits);
       dumphand = fopen(dumpfile, "wb");
@@ -97,7 +142,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
 
       mpz_tdiv_qr(partial[plus1], partial[index], partial[count], divisor);
 #if DEBUGGING
-      logthis(DEBUG_FILE, "%-10lu mpz_tdiv_qr(partial[%lu], partial[%lu], partial[%lu], divisor);\n", ++debugcount, plus1, index, count);
+      logthis(DEBUG_FILE, "mpz_tdiv_qr(partial[%lu], partial[%lu], partial[%lu], divisor);\n", plus1, index, count);
 #endif
 
       calc_done++;
@@ -141,7 +186,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   char tmpfile[NAMESIZE];
   FILE *tmphand;
 
-  logthis(NULL, "Write: Init\r");
+  logthis(NULL, "Write: Convert\r");
   sprintf(tmpfile, "%lu.tmp", digits);
   tmphand = fopen(tmpfile, "wb");
   gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);

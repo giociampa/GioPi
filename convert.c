@@ -66,6 +66,10 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, boo
 			show = true;
 			putc(CHAR_THREE, outhand);
 			putc(CHAR_POINT, outhand);
+		} else if (this == CHAR_THREE) {
+			show = true;
+			putc(CHAR_THREE, outhand);
+			putc(CHAR_POINT, outhand);
 		}
 	}
 

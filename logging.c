@@ -5,9 +5,6 @@ char  runfile[NAMESIZE];
 void loginit(char *logfile) {
   FILE  *loghand, *runhand;
   char  *dotlog;
-#if DEBUGGING
-  remove(DEBUG_FILE);
-#endif
 
   loghand = fopen(logfile, "wb");
   fclose(loghand);
@@ -31,29 +28,23 @@ void logthis(char *logfile, char *fmt, ...) {
   char    runtext[NAMESIZE], *gotchar;
   FILE    *loghand, *runhand;
   va_list args;
-#if DEBUGGING
   bool    debugging = false;
 
   if (logfile != NULL) {
     debugging = (strcasecmp(logfile, DEBUG_FILE) == 0);
   }
-#endif
   
   va_start(args, fmt);
   vsprintf(runtext, fmt, args);
   va_end(args);
 
-  // log to console
-#if DEBUGGING
+  // log to console?
   if (!debugging) {
-#endif
     fprintf(stdout, "%s", runtext);
     fflush(stdout);
-#if DEBUGGING
   }
-#endif
 
-  // log to file
+  // log to file?
   if (logfile != NULL) {
       loghand = fopen(logfile, "ab");
       fprintf(loghand, "%s", runtext);

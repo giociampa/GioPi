@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,8 @@
 #define DIGITSLINE  50
 #define WHOLELINE   (DIGITSLINE + 6)
 #define NAMESIZE    256
+#define WRITECHUNK  1000000
+#define DEBUG_FILE  "zzzdebug.txt"
 
 #define CHAR_THREE  '3'
 #define CHAR_POINT  '.'
@@ -36,7 +39,5 @@
 #define BUILDDATE   __TIMESTAMP__
 #endif
 
-#define DEBUGGING   0
-#define DEBUG_FILE  "zzzdebug.txt"
 
 #endif
