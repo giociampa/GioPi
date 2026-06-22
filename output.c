@@ -41,7 +41,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     percent = (100 * written) / digits;
     if (percent > progress) {
         progress = percent;
-      if (written > digits) {
+      if (percent > 99) {
         logthis(NULL, "Write: Calc (%ld%%)\r", 99);
       } else {
         logthis(NULL, "Write: Calc (%ld%%)\r", percent);
