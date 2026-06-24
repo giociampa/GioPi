@@ -13,13 +13,11 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, boo
 
 int main(int argc, char *argv[]) {
   unsigned long digits, count;
-  char          logfile[NAMESIZE], inpfile[NAMESIZE], tmpfile[NAMESIZE], outfile[NAMESIZE], *txtpos;
+  char          golfile[NAMESIZE], inpfile[NAMESIZE], tmpfile[NAMESIZE], outfile[NAMESIZE], *txtpos;
   FILE          *inphand, *tmphand;
   mpz_t         scaled;
   clock_t       start_time;
   
-  remove(DEBUG_FILE);
-
   if (argc < 2) {
     printf("ERROR: Invalid parameter list\n");
     return EXIT_FAILURE;
@@ -28,24 +26,20 @@ int main(int argc, char *argv[]) {
   strcpy(inpfile, argv[1]);
   for (count = 0 ; count < strlen(inpfile) ; count++) {
     outfile[count] = inpfile[count] - (((inpfile[count] < 'A') || (inpfile[count] > 'Z')) ? 0 : 32);
-    logfile[count] = inpfile[count] - (((inpfile[count] < 'A') || (inpfile[count] > 'Z')) ? 0 : 32);
+    golfile[count] = inpfile[count] - (((inpfile[count] < 'A') || (inpfile[count] > 'Z')) ? 0 : 32);
   }
   outfile[strlen(inpfile)] = 0;
-  logfile[strlen(inpfile)] = 0;
+  golfile[strlen(inpfile)] = 0;
 
   txtpos = strstr(outfile, ".raw");
   if (txtpos != NULL) { txtpos[0] = 0; }
   strcat(outfile, ".txt");
   
-  txtpos = strstr(logfile, ".raw");
+  txtpos = strstr(golfile, ".raw");
   if (txtpos != NULL) { txtpos[0] = 0; }
-  strcat(logfile, ".gol");
+  strcat(golfile, ".gol");
   
   start_time = clock();
-  
-  loginit(logfile);
-  logthis(DEBUG_FILE, "inpfile = %s\n", inpfile);
-  logthis(DEBUG_FILE, "outfile = %s\n", outfile);
   
   digits = 0;
   if (argc > 2) {
@@ -62,7 +56,6 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
   }
-  logthis(DEBUG_FILE, " digits = %lu\n", digits);
 
   inphand = fopen(inpfile, "rb");
   if (inphand == NULL) {
@@ -70,8 +63,9 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  logthis(NULL, "Raw:   %s\n", inpfile);
-  logthis(NULL, "Txt:   %s\n", outfile);
+  loginit(golfile);
+  logthis(golfile, "Raw:   %s\n", inpfile);
+  logthis(golfile, "Txt:   %s\n", outfile);
   mpz_init(scaled);
   mpz_inp_raw(scaled, inphand);
   fclose(inphand);
@@ -85,11 +79,11 @@ int main(int argc, char *argv[]) {
 
   logthis(NULL, "Write: Write (%ld%%)\r", 0);
   convert(tmpfile, outfile, digits, true, false);
-  logthis(logfile, "Write: %.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+  logthis(golfile, "Write: %.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   // tidy up
   remove(tmpfile);
-  remove(logfile);
+  remove(golfile);
   logdone();
 
   return EXIT_SUCCESS;

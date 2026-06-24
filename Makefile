@@ -269,7 +269,7 @@ copydlls:
 # --------------------------------------------------------------------------------------------------
 
 list:
-	@echo 'File list:' ||:
+	@echo 'File list' ||:
 	@du -b giopi giotst compare rawtxt *.elf *.ttp *.exe *.dll 2>/dev/null ||:
 	@echo ||:
 
@@ -280,7 +280,7 @@ clean:
 	@echo ||:
 
 veryclean: clean
-	@echo 'Cleaning files:' ||:
+	@echo 'Cleaning files' ||:
 	@mv README.txt README.txt.000 2>/dev/null ||:
 	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt
 	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT
