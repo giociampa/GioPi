@@ -6,6 +6,58 @@ void logthis(char  * filename, char  * fmt, ...);
 unsigned long splitcurrent, splitreached, splitpercent, splitmaxterm;
 mpz_t         ppp, qqq, ttt;
 
+void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
+  char  tmpfile[NAMESIZE];
+  FILE  *tmphand;
+
+  if (p) {
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, p);
+    fclose(tmphand);
+  }
+
+  if (q) {
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, q);
+    fclose(tmphand);
+  }
+
+  if (t) {
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    tmphand = fopen(tmpfile, "wb");
+    mpz_out_raw(tmphand, t);
+    fclose(tmphand);
+  }
+}
+
+void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
+  char  tmpfile[NAMESIZE];
+  FILE  *tmphand;
+
+  if (p) {
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(p, tmphand);
+    fclose(tmphand);
+  }
+
+  if (q) {
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(q, tmphand);
+    fclose(tmphand);
+  }
+
+  if (t) {
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    tmphand = fopen(tmpfile, "rb");
+    mpz_inp_raw(t, tmphand);
+    fclose(tmphand);
+  }
+}
+
 void split_init(unsigned long depth, unsigned long terms) {
   mpz_inits(ppp, qqq, ttt, NULL);
 
@@ -15,19 +67,11 @@ void split_init(unsigned long depth, unsigned long terms) {
   splitmaxterm = 2 * terms;
 }
 
-void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth) {
+void split_tidy() {
   unsigned long pass;
   char          tmpfile[NAMESIZE];
 
-  // convert to floats
-  mpf_set_z(xxx, qqq);
-  mpf_set_z(yyy, ttt);
-
-  // rescale to allow division into a double later
-  xxx->_mp_exp -= yyy->_mp_exp;
-  yyy->_mp_exp = 0;
-
-  // tidy up
+  // tidy up old temporary files
   for (pass = 0 ; pass < 3 ; pass++) {
     sprintf(tmpfile, "pass-%lu-p.tmp", pass);
     remove(tmpfile);
@@ -38,6 +82,9 @@ void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth) {
     sprintf(tmpfile, "pass-%lu-t.tmp", pass);
     remove(tmpfile);
   }
+
+  // save results for later
+  raw_export(9, NULL, qqq, ttt);
   mpz_clears(qqq, ttt, NULL);
 }
 
@@ -99,58 +146,6 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
   if (splitpercent > splitreached) {
     splitreached = splitpercent;
     logthis(NULL, "Split: (%ld%%)\r", splitreached);
-  }
-}
-
-void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
-  char  tmpfile[NAMESIZE];
-  FILE  *tmphand;
-
-  if (p) {
-    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
-    tmphand = fopen(tmpfile, "wb");
-    mpz_out_raw(tmphand, p);
-    fclose(tmphand);
-  }
-
-  if (q) {
-    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
-    tmphand = fopen(tmpfile, "wb");
-    mpz_out_raw(tmphand, q);
-    fclose(tmphand);
-  }
-
-  if (t) {
-    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
-    tmphand = fopen(tmpfile, "wb");
-    mpz_out_raw(tmphand, t);
-    fclose(tmphand);
-  }
-}
-
-void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
-  char  tmpfile[NAMESIZE];
-  FILE  *tmphand;
-
-  if (p) {
-    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
-    tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(p, tmphand);
-    fclose(tmphand);
-  }
-
-  if (q) {
-    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
-    tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(q, tmphand);
-    fclose(tmphand);
-  }
-
-  if (t) {
-    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
-    tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(t, tmphand);
-    fclose(tmphand);
   }
 }
 

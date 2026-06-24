@@ -45,9 +45,14 @@ while true ; do
   else
     line=""
   fi
-  
-  size=$(echo $proc | cut -d\  -f$PSIZE)
-  what=$(basename $(echo $proc | cut -d\  -f$PNAME))
+
+  if [ "$proc" != "" ]; then
+    size=$(echo $proc | cut -d\  -f$PSIZE)
+    what=$(basename $(echo $proc | cut -d\  -f$PNAME))
+  else
+    size=""
+    what=""
+  fi
   this="$size $what $line"
   if [ "$this" != "$prev" ]; then
     echo "$this" >> zzzz.txt

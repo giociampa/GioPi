@@ -1,4 +1,3 @@
-
 #include "giopi.h"
 
 // getdigits.c
@@ -7,13 +6,14 @@ void getdigits(char *input, unsigned long *result);
 // logging.c
 void loginit(char *filename);
 void logthis(char *filename, char *fmt, ...);
-void logdone(unsigned long digits);
+void logdone();
 
 // split.c
 void split_init(unsigned long depth, unsigned long terms);
-void split_tidy(mpf_t xxx, mpf_t yyy, unsigned long depth);
+void split_tidy();
 void split(unsigned long b, unsigned long digits);
-
+void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t);
+ 
 // root10005.c
 void root10005(mpf_t r, unsigned long digits);
 
@@ -26,12 +26,12 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits);
 // Usage: pi [digits] [noout]
 
 int main(int argc, char *argv[]) {
-  unsigned long digits, places, count, index, terms, depth, bits;
+  unsigned long digits, places, count, index, terms, depth, bits, exponent;
   char          logfile[NAMESIZE], txtfile[NAMESIZE];
   clock_t       start_time, inter_time;
   bool          justdosplit, showoutput;
-  mpf_t         xxx, yyy, pi;
-  mpz_t         scaled;
+  mpf_t         pi, tmp_mpf_t;
+  mpz_t         tmp_mpz_t;
 
   digits = 0;
   justdosplit = false;
@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  start_time = clock();
   terms = (digits / DIGITS_PER_ITER) + 1;
 
   depth = 1;
@@ -77,40 +76,53 @@ int main(int argc, char *argv[]) {
   logthis(logfile, "Digits: %lu\n", digits);
   logthis(logfile, "Terms:  %lu\n\n", terms);
 
+  // binary split
+  start_time = clock();
   logthis(NULL, "Split:\r");
-  // initialise the binary split structures
   split_init(depth, terms);
-  // off we jolly well go
   split(terms, digits);
+  split_tidy();
   logthis(logfile, "Split:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
   if (justdosplit) {
     return EXIT_SUCCESS;
   }
-  
-  logthis(NULL, "Root:\r");
-  // prepare floating point values
-  inter_time = clock();
-  mpf_inits(pi, xxx, yyy, NULL);
-  split_tidy(xxx, yyy, depth);
+
   // sqrt(10005)
+  inter_time = clock();
+  logthis(NULL, "Root:\r");
+  mpf_init(pi);
   root10005(pi, digits);
   logthis(logfile, "Root:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  logthis(NULL, "Mult:\r");
   // [ sqrt(10005) ] * 426880 * q
   inter_time = clock();
+  logthis(NULL, "Mult:\r");
   mpf_mul_ui(pi, pi, 426880);
-  mpf_mul(xxx, pi, xxx);
+  // convert qqq to floating point
+  mpz_init(tmp_mpz_t);
+  raw_import(9, NULL, tmp_mpz_t, NULL);
+  mpf_init(tmp_mpf_t);
+  mpf_set_z(tmp_mpf_t, tmp_mpz_t);
+  mpz_clear(tmp_mpz_t);
+  mpf_mul(pi, pi, tmp_mpf_t);
+  mpf_clear(tmp_mpf_t);
   logthis(logfile, "Mult:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  logthis(NULL, "Divide:\r");
   // [ sqrt(10005) * 426880 * q ] / t
+  logthis(NULL, "Divide:\r");
   inter_time = clock();
-  divide(pi, xxx, yyy);
+  // convert ttt to floating point
+  mpz_init(tmp_mpz_t);
+  raw_import(9, NULL, NULL, tmp_mpz_t);
+  mpf_init(tmp_mpf_t);
+  mpf_set_z(tmp_mpf_t, tmp_mpz_t);
+  mpz_clear(tmp_mpz_t);
+  divide(pi, pi, tmp_mpf_t);
+  mpf_clear(tmp_mpf_t);
   logthis(logfile, "Divide: %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
   logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-
+  
   // output pi
   if (showoutput) {
     inter_time = clock();
@@ -120,7 +132,8 @@ int main(int argc, char *argv[]) {
     logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
     logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
-  logdone(digits);
+  // tidy up
+  logdone();
 
   return EXIT_SUCCESS;
 }

@@ -69,5 +69,7 @@ void logthis(char *logfile, char *fmt, ...) {
 }
 
 void logdone() {
+  remove("pass-9-q.tmp");
+  remove("pass-9-t.tmp");
   remove(runfile);
 }
