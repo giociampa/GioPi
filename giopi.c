@@ -22,26 +22,30 @@ void divide(mpf_t r, mpf_t y, mpf_t x);
 
 // output.c
 void writetxt(mpf_t result, char *outfile, unsigned long digits);
+void writeraw(mpf_t result, char *rawfile, unsigned long digits);
 
 // Usage: pi [digits] [noout]
 
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, index, terms, depth, bits, exponent;
-  char          logfile[NAMESIZE], txtfile[NAMESIZE];
+  char          logfile[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE];
   clock_t       start_time, inter_time;
-  bool          justdosplit, showoutput;
+  bool          justdosplit, showoutput, rawoutput;
   mpf_t         pi, tmp_mpf_t;
   mpz_t         tmp_mpz_t;
 
   digits = 0;
   justdosplit = false;
   showoutput = true;
+  rawoutput = false;
 
   for (count = 0 ; count < argc ; count++) {
     if (strcasecmp(argv[count], "split") == 0) {
       justdosplit = true;
     } else if (strcasecmp(argv[count], "noout") == 0) {
       showoutput = false;
+    } else if (strcasecmp(argv[count], "raw") == 0) {
+      rawoutput = true;
     } else if (digits == 0) {
       getdigits(argv[count], &places);
       if (places > 0) {
@@ -69,6 +73,7 @@ int main(int argc, char *argv[]) {
   mpf_set_default_prec(bits);
 
   sprintf(logfile, "%lu.log", digits);
+  sprintf(rawfile, "%lu.raw", digits);
   sprintf(txtfile, "%lu.txt", digits);
 
   loginit(logfile);
@@ -128,7 +133,11 @@ int main(int argc, char *argv[]) {
     inter_time = clock();
     logthis(logfile, "\n");
     logthis(NULL, "Write:\r");
-    writetxt(pi, txtfile, digits);
+    if (rawoutput) {
+      writeraw(pi, rawfile, digits);
+    } else {
+      writetxt(pi, txtfile, digits);
+    }
     logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
     logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }

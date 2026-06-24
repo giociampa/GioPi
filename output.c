@@ -6,9 +6,42 @@ void logthis(char *filename, char *fmt, ...);
 // convert.c
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point);
 
+void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
+  mpf_t factor;
+
+  logthis(NULL, "Write: Pow10\r");
+  mpf_init(factor);
+  mpz_ui_pow_ui(result, 10, digits);
+  mpf_set_z(factor, result);
+  mpz_realloc2(result, 0);
+
+  logthis(NULL, "Write: Scale\r");
+  mpf_mul(factor, factor, source);
+  mpf_clear(source);
+  
+  logthis(NULL, "Write: Convert\r");
+  mpz_set_f(result, factor);
+  mpf_clear(factor);
+}
+
+void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
+  mpz_t   scaled;
+  FILE  *rawhand;
+  
+  mpz_init(scaled);
+  mpf2mpz(scaled, result, digits);
+  
+  logthis(NULL, "Write: Raw File\r");
+  rawhand = fopen(rawfile, "wb");
+  mpz_out_raw(rawhand, scaled);
+  fclose(rawhand);
+
+  mpz_clear(scaled);
+}
+
 #if defined(TESTING)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
-  unsigned long places, chunksize, written, percent, progress;
+  unsigned long chunksize, written, percent, progress;
   char          tmpfile[NAMESIZE];
   FILE          *tmphand;
   mpf_t         factor, scaled;
@@ -22,9 +55,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   if (chunksize < 1000) {
     chunksize = 1000;
   }
-  
-  remove(DEBUG_FILE);
-  logthis(DEBUG_FILE, "chunks = %lu\n", chunksize);
 
   mpf_inits(factor, scaled, NULL);
   mpf_set_ui(factor, 10);
@@ -117,24 +147,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   remove(tmpfile);
 }
 #elif defined(IGNOREME)
-void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
-  mpf_t factor;
-
-  logthis(NULL, "Write: Pow10\r");
-  mpf_init(factor);
-  mpz_ui_pow_ui(result, 10, digits);
-  mpf_set_z(factor, result);
-  mpz_realloc2(result, 0);
-
-  logthis(NULL, "Write: Scale\r");
-  mpf_mul(factor, factor, source);
-  mpf_clear(source);
-  
-  logthis(NULL, "Write: Convert\r");
-  mpz_set_f(result, factor);
-  mpf_clear(factor);
-}
-
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   mpz_t         *partial, divisor;
   unsigned long dig_limb, max_limb, pow_parts, pow_count, num_parts, part_count, count, power, index, plus1, calc_done, progress, percent;
@@ -186,24 +198,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
       count--;
       index -= 2;
       plus1 -= 2;
-#if DEBUGGING
-      logthis(DEBUG_FILE, "power = %lu count = %lu index = %lu plus1 = %lu\n", power, count, index, plus1);
-
-      sprintf(dumpfile, "%lu.num", digits);
-      dumphand = fopen(dumpfile, "wb");
-      mpz_out_raw(dumphand, partial[count]);
-      fclose(dumphand);
-
-      sprintf(dumpfile, "%lu.div", digits);
-      dumphand = fopen(dumpfile, "wb");
-      mpz_out_raw(dumphand, divisor);
-      fclose(dumphand);
-#endif
-
       mpz_tdiv_qr(partial[plus1], partial[index], partial[count], divisor);
-#if DEBUGGING
-      logthis(DEBUG_FILE, "mpz_tdiv_qr(partial[%lu], partial[%lu], partial[%lu], divisor);\n", plus1, index, count);
-#endif
 
       calc_done++;
       percent = (100 * calc_done) / num_parts;
