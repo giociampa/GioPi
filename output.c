@@ -6,12 +6,12 @@ void logthis(char *filename, char *fmt, ...);
 // convert.c
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point);
 
-void mpf2mpz(mpz_t result, mpf_t source, unsigned long digits) {
+void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
   mpf_t factor;
 
   logthis(NULL, "Write: Pow10\r");
   mpf_init(factor);
-  mpz_ui_pow_ui(result, 10, digits);
+  mpz_ui_pow_ui(result, 10, places);
   mpf_set_z(factor, result);
   mpz_realloc2(result, 0);
 
@@ -29,7 +29,7 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
   FILE  *rawhand;
   
   mpz_init(scaled);
-  mpf2mpz(scaled, result, digits);
+  mpf2mpz(scaled, result, digits + LEEWAY);
   
   logthis(NULL, "Write: Raw File\r");
   rawhand = fopen(rawfile, "wb");
