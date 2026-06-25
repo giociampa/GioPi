@@ -1,13 +1,14 @@
 #!/bin/bash
 
 D=${1:-1000}
+P=${2}
 
 ls -1 *.PRG *.TTP 2>/dev/null | while read F ; do
-  N=$(echo $F | cut -d\. -f1)
-  E=$(echo $F | cut -d\. -f2)
+  N=$(echo ${F} | cut -d\. -f1)
+  E=$(echo ${F} | cut -d\. -f2)
   R="$N.RUN"
-  echo "ECHO $F $D > RUNNING.TXT"
-  echo $F $D
+  echo "ECHO $F $D $P > RUNNING.TXT"
+  echo $F $D $P
   for X in LOG TXT; do
     echo "REN $D.$X $(echo $N | sed -e 's/gio//' -e 's/GIO//')$E.$X"
   done
@@ -16,3 +17,4 @@ ls -1 *.PRG *.TTP 2>/dev/null | while read F ; do
 done | tee 0RUNME.BAT
 
 unix2dos 0RUNME.BAT
+chmod +x 0RUNME.BAT

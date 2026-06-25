@@ -24,7 +24,13 @@ function process () {
     ./${runthis} ${params}
     rm -f RUNNING.TXT
     for ext in log raw run txt ; do
-      if [ -e "${digits}.${ext}" ]; then mv "${digits}.${ext}" "${running}.${ext}"; fi
+      if [ -e "${digits}.${ext}" ]; then
+        if [ "${ext}" = "raw" ]; then
+          ./rawtxt "${digits}.${ext}"
+        else
+          mv "${digits}.${ext}" "${running}.${ext}"
+        fi
+      fi
       if [ -e "pi.${ext}" ]; then mv "pi.${ext}" "${running}.${ext}"; fi
     done
     echo
