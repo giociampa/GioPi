@@ -16,8 +16,10 @@ grep -H Total *.log *.LOG 2>/dev/null | while read l ; do
   f=$(echo $l | cut -d: -f1)
   d=$(echo $l | cut -d: -f2-)
   t=$(echo $f | sed -e "s/log/txt/" -e "s/LOG/TXT/")
+  r=$(echo $f | sed -e "s/log/raw/" -e "s/LOG/RAW/")
   echo $f
-  0compare ~/1billion.pi $t | head -1
+  if [ -e "$r" -a ! -e "$t" ]; then 0raw2txt $r ; fi
+  if [ -e "$t" ]; then 0compare ~/1billion.pi $t | head -1 ; fi
   echo $d
   echo
 done

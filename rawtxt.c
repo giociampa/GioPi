@@ -13,7 +13,7 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, boo
 
 int main(int argc, char *argv[]) {
   unsigned long digits, count;
-  char          golfile[NAMESIZE], inpfile[NAMESIZE], tmpfile[NAMESIZE], outfile[NAMESIZE], *txtpos;
+  char          golfile[NAMESIZE], inpfile[NAMESIZE], outfile[NAMESIZE], tmpfile[NAMESIZE], *txtpos;
   FILE          *inphand, *tmphand;
   mpz_t         scaled;
   clock_t       start_time;
@@ -27,16 +27,26 @@ int main(int argc, char *argv[]) {
   strcpy(outfile, argv[1]);
   strcpy(golfile, argv[1]);
 
-  txtpos = strstr(outfile, ".raw");
-  if (txtpos == NULL) {
-    txtpos = strstr(outfile, ".RAW");
-  }
+  txtpos = strstr(inpfile, ".raw");
   if (txtpos != NULL) {
-    outfile[txtpos - outfile] = 0;
-    golfile[txtpos - outfile] = 0;
+    count = txtpos - inpfile;
+    outfile[count] = 0;
+    golfile[count] = 0;
+    strcat(outfile, ".txt");
+    strcat(golfile, ".gol");
+  } else {
+    txtpos = strstr(inpfile, ".RAW");
+    if (txtpos != NULL) {
+      count = txtpos - inpfile;
+      outfile[count] = 0;
+      golfile[count] = 0;
+      strcat(outfile, ".TXT");
+      strcat(golfile, ".GOL");
+    } else {
+      strcat(outfile, ".txt");
+      strcat(golfile, ".gol");
+    }
   }
-  strcat(outfile, ".txt");
-  strcat(golfile, ".txt");
   
   digits = 0;
   if (argc > 2) {
