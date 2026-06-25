@@ -24,22 +24,19 @@ int main(int argc, char *argv[]) {
   }
 
   strcpy(inpfile, argv[1]);
-  for (count = 0 ; count < strlen(inpfile) ; count++) {
-    outfile[count] = inpfile[count] - (((inpfile[count] < 'A') || (inpfile[count] > 'Z')) ? 0 : 32);
-    golfile[count] = inpfile[count] - (((inpfile[count] < 'A') || (inpfile[count] > 'Z')) ? 0 : 32);
-  }
-  outfile[strlen(inpfile)] = 0;
-  golfile[strlen(inpfile)] = 0;
+  strcpy(outfile, argv[1]);
+  strcpy(golfile, argv[1]);
 
   txtpos = strstr(outfile, ".raw");
-  if (txtpos != NULL) { txtpos[0] = 0; }
+  if (txtpos == NULL) {
+    txtpos = strstr(outfile, ".RAW");
+  }
+  if (txtpos != NULL) {
+    outfile[txtpos - outfile] = 0;
+    golfile[txtpos - outfile] = 0;
+  }
   strcat(outfile, ".txt");
-  
-  txtpos = strstr(golfile, ".raw");
-  if (txtpos != NULL) { txtpos[0] = 0; }
-  strcat(golfile, ".gol");
-  
-  start_time = clock();
+  strcat(golfile, ".txt");
   
   digits = 0;
   if (argc > 2) {
@@ -56,6 +53,8 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
   }
+  
+  start_time = clock();
 
   inphand = fopen(inpfile, "rb");
   if (inphand == NULL) {
