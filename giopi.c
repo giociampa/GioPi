@@ -89,57 +89,55 @@ int main(int argc, char *argv[]) {
   split_tidy();
   logthis(logfile, "Split:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
 
-  if (justdosplit) {
-    return EXIT_SUCCESS;
-  }
-
-  // sqrt(10005)
-  inter_time = clock();
-  logthis(NULL, "Root:\r");
-  mpf_init(pi);
-  root10005(pi, digits);
-  logthis(logfile, "Root:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-
-  // [ sqrt(10005) ] * 426880 * q
-  inter_time = clock();
-  logthis(NULL, "Mult:\r");
-  mpf_mul_ui(pi, pi, 426880);
-  // convert qqq to floating point
-  mpz_init(tmp_mpz_t);
-  raw_import(9, NULL, tmp_mpz_t, NULL);
-  mpf_init(tmp_mpf_t);
-  mpf_set_z(tmp_mpf_t, tmp_mpz_t);
-  mpz_clear(tmp_mpz_t);
-  mpf_mul(pi, pi, tmp_mpf_t);
-  mpf_clear(tmp_mpf_t);
-  logthis(logfile, "Mult:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-
-  // [ sqrt(10005) * 426880 * q ] / t
-  logthis(NULL, "Divide:\r");
-  inter_time = clock();
-  // convert ttt to floating point
-  mpz_init(tmp_mpz_t);
-  raw_import(9, NULL, NULL, tmp_mpz_t);
-  mpf_init(tmp_mpf_t);
-  mpf_set_z(tmp_mpf_t, tmp_mpz_t);
-  mpz_clear(tmp_mpz_t);
-  divide(pi, pi, tmp_mpf_t);
-  mpf_clear(tmp_mpf_t);
-  logthis(logfile, "Divide: %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-  logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
-  
-  // output pi
-  if (showoutput) {
+  if (! justdosplit) {
+    // sqrt(10005)
     inter_time = clock();
-    logthis(logfile, "\n");
-    logthis(NULL, "Write:\r");
-    if (rawoutput) {
-      writeraw(pi, rawfile, digits);
-    } else {
-      writetxt(pi, txtfile, digits);
+    logthis(NULL, "Root:\r");
+    mpf_init(pi);
+    root10005(pi, digits);
+    logthis(logfile, "Root:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+
+    // [ sqrt(10005) ] * 426880 * q
+    inter_time = clock();
+    logthis(NULL, "Mult:\r");
+    mpf_mul_ui(pi, pi, 426880);
+    // convert qqq to floating point
+    mpz_init(tmp_mpz_t);
+    raw_import(9, NULL, tmp_mpz_t, NULL);
+    mpf_init(tmp_mpf_t);
+    mpf_set_z(tmp_mpf_t, tmp_mpz_t);
+    mpz_clear(tmp_mpz_t);
+    mpf_mul(pi, pi, tmp_mpf_t);
+    mpf_clear(tmp_mpf_t);
+    logthis(logfile, "Mult:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+
+    // [ sqrt(10005) * 426880 * q ] / t
+    logthis(NULL, "Divide:\r");
+    inter_time = clock();
+    // convert ttt to floating point
+    mpz_init(tmp_mpz_t);
+    raw_import(9, NULL, NULL, tmp_mpz_t);
+    mpf_init(tmp_mpf_t);
+    mpf_set_z(tmp_mpf_t, tmp_mpz_t);
+    mpz_clear(tmp_mpz_t);
+    divide(pi, pi, tmp_mpf_t);
+    mpf_clear(tmp_mpf_t);
+    logthis(logfile, "Divide: %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+    logthis(logfile, "Result: %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
+
+    // output pi
+    if (showoutput) {
+      inter_time = clock();
+      logthis(logfile, "\n");
+      logthis(NULL, "Write:\r");
+      if (rawoutput) {
+        writeraw(pi, rawfile, digits);
+      } else {
+        writetxt(pi, txtfile, digits);
+      }
+      logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
+      logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
     }
-    logthis(logfile, "Write:  %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
-    logthis(logfile, "Total:  %12.2f seconds\n", (double) (clock() - start_time) / CLOCKS_PER_SEC);
   }
   // tidy up
   logdone();
