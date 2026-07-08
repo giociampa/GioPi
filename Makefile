@@ -1,8 +1,9 @@
 BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
 
-SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c output.c
+SRCFILES = giopi.c getdigits.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
 RAWFILES = rawtxt.c getdigits.c logging.c convert.c
+TMPFILES = tmp2txt.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 
 FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
 FLAGSLOC = ${FLAGSALL} -lgmp
@@ -23,7 +24,7 @@ CROSTRIP = x86_64-w64-mingw32-strip
 
 # --------------------------------------------------------------------------------------------------
 
-local: giopi giotst compare rawtxt
+local: giopi giotst compare rawtxt tmptxt
 
 giopi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
@@ -36,13 +37,18 @@ giotst: ${SRCFILES}
 	@echo ||:
 
 compare: ${CMPFILES}
-	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} -o $@
+	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
 	@echo ||:
 
 rawtxt: ${RAWFILES}
-	${LOCALGCC} ${RAWFILES} ${FLAGSLOC} -g -o $@
-	# ${LOCSTRIP} $@
+	${LOCALGCC} ${RAWFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@echo ||:
+
+tmptxt: ${TMPFILES}
+	${LOCALGCC} ${TMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -51,7 +57,7 @@ atari: local m68000 m68020 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: giopi00.ttp giotst0.ttp compare0.ttp rawtxt0.ttp
+m68000: giopi00.ttp giotst0.ttp compare0.ttp rawtxt0.ttp tmptxt0.ttp
 
 giopi00.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
@@ -73,9 +79,14 @@ rawtxt0.ttp: ${RAWFILES}
 	${M68STRIP} $@
 	@echo ||:
 
+tmptxt0.ttp: ${TMPFILES}
+	${ATARIGCC} ${TMPFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${M68STRIP} $@
+	@echo ||:
+
 # --------------------------------------------------------------------------------------------------
 
-m68020: giopi20.ttp giotst2.ttp compare2.ttp rawtxt2.ttp
+m68020: giopi20.ttp giotst2.ttp compare2.ttp rawtxt2.ttp tmptxt2.ttp
 
 giopi20.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
@@ -97,9 +108,14 @@ rawtxt2.ttp: ${RAWFILES}
 	${M68STRIP} $@
 	@echo ||:
 
+tmptxt2.ttp: ${TMPFILES}
+	${ATARIGCC} ${TMPFILES} ${FLAGS020} ${BUILDDATE} -o $@
+	${M68STRIP} $@
+	@echo ||:
+
 # --------------------------------------------------------------------------------------------------
 
-m68040: giopi40.ttp giotst4.ttp compare4.ttp rawtxt4.ttp
+m68040: giopi40.ttp giotst4.ttp compare4.ttp rawtxt4.ttp tmptxt4.ttp
 
 giopi40.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
@@ -121,36 +137,41 @@ rawtxt4.ttp: ${RAWFILES}
 	${M68STRIP} $@
 	@echo ||:
 
+tmptxt4.ttp: ${TMPFILES}
+	${ATARIGCC} ${TMPFILES} ${FLAGS040} ${BUILDDATE} -o $@
+	${M68STRIP} $@
+	@echo ||:
+
 # --------------------------------------------------------------------------------------------------
 
 atarielf: local m68000elf m68020elf m68040elf
 
 # --------------------------------------------------------------------------------------------------
 
-m68000elf: giopi00e.ttp giotst0e.ttp compar0e.ttp rawtxt0e.ttp
+m68000elf: giopi00e.ttp giotst0e.ttp compar0e.ttp rawtxt0e.ttp tmptxt0e.ttp
 
-giopi00e.ttp: giopi00.elf
-	${ELFTOPRG} giopi00.elf $@
+giopi00e.ttp: giopi00e.elf
+	${ELFTOPRG} giopi00e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giopi00.elf: ${SRCFILES}
+giopi00e.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
-giotst0e.ttp: giotst0.elf
-	${ELFTOPRG} giotst0.elf $@
+giotst0e.ttp: giotst0e.elf
+	${ELFTOPRG} giotst0e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giotst0.elf: ${SRCFILES}
+giotst0e.elf: ${SRCFILES}
 	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
 
-compar0e.ttp: compare0.elf
-	${ELFTOPRG} compare0.elf $@
+compar0e.ttp: compare0e.elf
+	${ELFTOPRG} compare0e.elf $@
 	chmod +x $@
 	@echo ||:
 
-compare0.elf: ${CMPFILES}
+compare0e.elf: ${CMPFILES}
 	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
 
 rawtxt0e.ttp: rawtxt0e.elf
@@ -158,84 +179,108 @@ rawtxt0e.ttp: rawtxt0e.elf
 	chmod +x $@
 	@echo ||:
 
-rawtxt0e.elf: ${CMPFILES}
+rawtxt0e.elf: ${RAWFILES}
+	${ATARIELF} ${RAWFILES} ${FLAGS000} -o $@
+
+tmptxt0e.ttp: tmptxt0e.elf
+	${ELFTOPRG} tmptxt0e.elf $@
+	chmod +x $@
+	@echo ||:
+
+tmptxt0e.elf: ${TMPFILES}
+	${ATARIELF} ${TMPFILES} ${FLAGS000} -o $@
+
+# --------------------------------------------------------------------------------------------------
+
+m68020elf: giopi20e.ttp giotst2e.ttp compar2e.ttp rawtxt2e.ttp tmptxt2e.ttp
+
+giopi20e.ttp: giopi20e.elf
+	${ELFTOPRG} giopi20e.elf $@
+	chmod +x $@
+	@echo ||:
+
+giopi20e.elf: ${SRCFILES}
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+
+giotst2e.ttp: giotst2e.elf
+	${ELFTOPRG} giotst2e.elf $@
+	chmod +x $@
+	@echo ||:
+
+giotst2e.elf: ${SRCFILES}
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
+
+compar2e.ttp: compare2e.elf
+	${ELFTOPRG} compare2e.elf $@
+	chmod +x $@
+	@echo ||:
+
+compare2e.elf: ${CMPFILES}
 	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
 
-# --------------------------------------------------------------------------------------------------
-
-m68020elf: giopi20e.ttp giotst2e.ttp compar2e.ttp rawtxt2e.ttp
-
-giopi20e.ttp: giopi20.elf
-	${ELFTOPRG} giopi20.elf $@
+rawtxt2e.ttp: rawtxt0e.elf
+	${ELFTOPRG} rawtxt0e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giopi20.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
+rawtxt2e.elf: ${RAWFILES}
+	${ATARIELF} ${RAWFILES} ${FLAGS000} -o $@
 
-giotst2e.ttp: giotst2.elf
-	${ELFTOPRG} giotst2.elf $@
+tmptxt2e.ttp: tmptxt0e.elf
+	${ELFTOPRG} tmptxt0e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giotst2.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${ELFLGTST} -o $@
-
-compar2e.ttp: compare2.elf
-	${ELFTOPRG} compare2.elf $@
-	chmod +x $@
-	@echo ||:
-
-compare2.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS020} -o $@
-
-rawtxt2e.ttp: rawtxt2e.elf
-	${ELFTOPRG} rawtxt2e.elf $@
-	chmod +x $@
-	@echo ||:
-
-rawtxt2e.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS020} -o $@
+tmptxt2e.elf: ${TMPFILES}
+	${ATARIELF} ${TMPFILES} ${FLAGS000} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
-m68040elf: giopi40e.ttp giotst4e.ttp compar4e.ttp rawtxt4e.ttp
+m68040elf: giopi40e.ttp giotst4e.ttp compar4e.ttp rawtxt4e.ttp tmptxt4e.ttp
 
-giopi40e.ttp: giopi40.elf
-	${ELFTOPRG} giopi40.elf $@
+giopi40e.ttp: giopi40e.elf
+	${ELFTOPRG} giopi40e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giopi40.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
+giopi40e.elf: ${SRCFILES}
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 
-giotst4e.ttp: giotst4.elf
-	${ELFTOPRG} giotst4.elf $@
+giotst4e.ttp: giotst4e.elf
+	${ELFTOPRG} giotst4e.elf $@
 	chmod +x $@
 	@echo ||:
 
-giotst4.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${ELFLGTST} -o $@
+giotst4e.elf: ${SRCFILES}
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
 
-compar4e.ttp: compare4.elf
-	${ELFTOPRG} compare4.elf $@
+compar4e.ttp: compare4e.elf
+	${ELFTOPRG} compare4e.elf $@
 	chmod +x $@
 	@echo ||:
 
-compare4.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS040} -o $@
+compare4e.elf: ${CMPFILES}
+	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
 
-rawtxt4e.ttp: rawtxt4e.elf
-	${ELFTOPRG} rawtxt4e.elf $@
+rawtxt4e.ttp: rawtxt0e.elf
+	${ELFTOPRG} rawtxt0e.elf $@
 	chmod +x $@
 	@echo ||:
 
-rawtxt4e.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS040} -o $@
+rawtxt4e.elf: ${RAWFILES}
+	${ATARIELF} ${RAWFILES} ${FLAGS000} -o $@
+
+tmptxt4e.ttp: tmptxt0e.elf
+	${ELFTOPRG} tmptxt0e.elf $@
+	chmod +x $@
+	@echo ||:
+
+tmptxt4e.elf: ${TMPFILES}
+	${ATARIELF} ${TMPFILES} ${FLAGS000} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
-cross: local giopi.exe giotst.exe compare.exe rawtxt.exe copydlls
+cross: local giopi.exe giotst.exe compare.exe rawtxt.exe tmptxt.exe copydlls
 
 giopi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
@@ -276,7 +321,7 @@ list:
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	rm -f giopi giotst compare rawtxt *.elf *.ttp *.exe *.dll
+	rm -f giopi giotst compare rawtxt tmptxt *.elf *.ttp *.exe *.dll
 	@echo ||:
 
 veryclean: clean

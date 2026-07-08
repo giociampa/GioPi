@@ -22,6 +22,8 @@ void loginit(char *logfile) {
   runhand = fopen(runfile, "wb");
   fclose(runhand);
   remove(runfile);
+
+  remove(DEBUG_FILE);
 }
 
 void logthis(char *logfile, char *fmt, ...) {
@@ -69,7 +71,8 @@ void logthis(char *logfile, char *fmt, ...) {
 }
 
 void logdone() {
-  remove("pass-9-q.tmp");
-  remove("pass-9-t.tmp");
+  // remove("pass-9-p.tmp");
+  // remove("pass-9-q.tmp");
+  // remove("pass-9-t.tmp");
   remove(runfile);
 }

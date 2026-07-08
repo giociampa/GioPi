@@ -67,12 +67,13 @@ void split_init(unsigned long depth, unsigned long terms) {
   splitmaxterm = 2 * terms;
 }
 
-void split_tidy() {
+void split_tidy(unsigned long digits) {
   unsigned long pass;
   char          tmpfile[NAMESIZE];
+  mpz_t         ppp;
 
   // tidy up old temporary files
-  for (pass = 0 ; pass < 3 ; pass++) {
+  for (pass = 0 ; pass < 10 ; pass++) {
     sprintf(tmpfile, "pass-%lu-p.tmp", pass);
     remove(tmpfile);
 
@@ -83,9 +84,10 @@ void split_tidy() {
     remove(tmpfile);
   }
 
-  // save results for later
-  raw_export(9, NULL, qqq, ttt);
-  mpz_clears(qqq, ttt, NULL);
+  // save results for later (ppp
+  mpz_init_set_ui(ppp, digits);
+  raw_export(9, ppp, qqq, ttt);
+  mpz_clears(ppp, qqq, ttt, NULL);
 }
 
 void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
