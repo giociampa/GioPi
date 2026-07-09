@@ -39,22 +39,37 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   if (p) {
     sprintf(tmpfile, "pass-%lu-p.tmp", pass);
     tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(p, tmphand);
-    fclose(tmphand);
+    if (tmphand == NULL) {
+      printf("ERROR: Missing input file: %s\n", tmpfile);
+      exit(EXIT_FAILURE);
+    } else {
+      mpz_inp_raw(p, tmphand);
+      fclose(tmphand);
+    }
   }
 
   if (q) {
     sprintf(tmpfile, "pass-%lu-q.tmp", pass);
     tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(q, tmphand);
-    fclose(tmphand);
+    if (tmphand == NULL) {
+      printf("ERROR: Missing input file: %s\n", tmpfile);
+      exit(EXIT_FAILURE);
+    } else {
+      mpz_inp_raw(q, tmphand);
+      fclose(tmphand);
+    }
   }
 
   if (t) {
     sprintf(tmpfile, "pass-%lu-t.tmp", pass);
     tmphand = fopen(tmpfile, "rb");
-    mpz_inp_raw(t, tmphand);
-    fclose(tmphand);
+    if (tmphand == NULL) {
+      printf("ERROR: Missing input file: %s\n", tmpfile);
+      exit(EXIT_FAILURE);
+    } else {
+      mpz_inp_raw(t, tmphand);
+      fclose(tmphand);
+    }
   }
 }
 
@@ -84,7 +99,7 @@ void split_tidy(unsigned long digits) {
     remove(tmpfile);
   }
 
-  // save results for later (ppp
+  // save results for tmptxt() call (now, or for PC reprocessing of ST crash)
   mpz_init_set_ui(ppp, digits);
   raw_export(9, ppp, qqq, ttt);
   mpz_clears(ppp, qqq, ttt, NULL);

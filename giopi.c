@@ -4,7 +4,7 @@
 void getdigits(char *input, unsigned long *result);
 
 // logging.c
-void loginit(char *filename);
+void loginit(char *logfile, bool keeplog);
 void logthis(char *filename, char *fmt, ...);
 void logdone();
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
   sprintf(rawfile, "%lu.raw", digits);
   sprintf(txtfile, "%lu.txt", digits);
 
-  loginit(logfile);
+  loginit(logfile, false);
   logthis(logfile, "Build:  GioPi (%s)\n", BUILDDATE);
   logthis(logfile, "Digits: %lu\n", digits);
   logthis(logfile, "Terms:  %lu\n\n", terms);

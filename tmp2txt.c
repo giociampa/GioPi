@@ -1,7 +1,7 @@
 #include "giopi.h"
 
 // logging.c
-void loginit(char *filename);
+void loginit(char *logfile, bool keeplog);
 void logthis(char *filename, char *fmt, ...);
 void logdone();
 
@@ -25,14 +25,14 @@ int main() {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
-  loginit(logfile);
-  logthis(logfile, "Build:  TmpTxt (%s)\n", BUILDDATE);
-  logthis(logfile, "Digits: %lu\n", digits);
-  
   sprintf(logfile, "%lu.log", digits);
   sprintf(rawfile, "%lu.raw", digits);
   sprintf(txtfile, "%lu.txt", digits);
 
+  loginit(logfile, true);
+  logthis(logfile, "Build:  TmpTxt (%s)\n", BUILDDATE);
+  logthis(logfile, "Digits: %lu\n\n", digits);
+  
   start_time = clock();
   tmptxt(digits, true, false, start_time, logfile, rawfile, txtfile);
   logdone();

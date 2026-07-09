@@ -2,13 +2,15 @@
 
 char  runfile[NAMESIZE];
 
-void loginit(char *logfile) {
+void loginit(char *logfile, bool keeplog) {
   FILE  *loghand, *runhand;
   char  *dotlog;
 
-  loghand = fopen(logfile, "wb");
-  fclose(loghand);
-  remove(logfile);
+  if (! keeplog) {
+    loghand = fopen(logfile, "wb");
+    fclose(loghand);
+    remove(logfile);
+  }
   
   dotlog = strstr(logfile, ".log");
   if (dotlog == NULL) {
@@ -71,8 +73,8 @@ void logthis(char *logfile, char *fmt, ...) {
 }
 
 void logdone() {
-  // remove("pass-9-p.tmp");
-  // remove("pass-9-q.tmp");
-  // remove("pass-9-t.tmp");
+  remove("pass-9-p.tmp");
+  remove("pass-9-q.tmp");
+  remove("pass-9-t.tmp");
   remove(runfile);
 }
