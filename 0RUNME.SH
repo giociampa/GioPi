@@ -20,17 +20,20 @@ function process () {
   if [ -e "${runthis}" ]; then
     stripped=${runthis%.ttp}
     running=${digits}-${stripped}
-    echo "Running: ${stripped} ${params}" 2>&1 | tee RUNNING.TXT
+
+    echo "Running: ${stripped} ${params}" | tee RUNNING.TXT
     ./${runthis} ${params}
     rm -f RUNNING.TXT
-    for ext in log run raw txt ; do
-      if [ "${ext}" = "raw" ]; then
-        if [ -e "${digits}.txt" ]; then ./rawtxt "${digits}.${ext}"; fi
-      else
-        mv "${digits}.${ext}" "${running}.${ext}"
-      fi
+
+    for ext in log raw run txt ; do
+      if [ -e "${digits}.${ext}" ]; then mv "${digits}.${ext}" "${running}.${ext}"; fi
       if [ -e "pi.${ext}" ]; then mv "pi.${ext}" "${running}.${ext}"; fi
     done
+
+    for part in p q t ; do
+      if [ -e "pass-9-${part}.tmp" ]; then mv "pass-9-${part}.tmp" "${running}-9-${part}.tmp"; fi
+    done
+
     echo
   fi
 }

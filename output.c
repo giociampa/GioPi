@@ -54,6 +54,8 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   chunksize /= 10;
   if (chunksize < 1000) {
     chunksize = 1000;
+  // } else if (chunksize > 1000000) {
+  //   chunksize = 1000000;
   }
 
   mpf_inits(factor, scaled, NULL);
@@ -97,7 +99,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   convert(tmpfile, outfile, digits, true, true);
   remove(tmpfile);
 }
-#elif defined(NOTTESTING)
+#elif defined(IGNOREME)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   unsigned long written, percent, progress;
   char          tmpfile[NAMESIZE];
@@ -146,7 +148,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   convert(tmpfile, outfile, digits, true, true);
   remove(tmpfile);
 }
-#elif defined(IGNOREME)
+#elif defined(IGNOREMETOO)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   mpz_t         *partial, divisor;
   unsigned long dig_limb, max_limb, pow_parts, pow_count, num_parts, part_count, count, power, index, plus1, calc_done, progress, percent;
