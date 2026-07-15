@@ -51,11 +51,8 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     chunksize *= 10;
   }
 
-  chunksize /= 10;
-  if (chunksize < 1000) {
-    chunksize = 1000;
-  // } else if (chunksize > 1000000) {
-  //   chunksize = 1000000;
+  if (chunksize > WRITECHUNK) {
+    chunksize = WRITECHUNK;
   }
 
   mpf_inits(factor, scaled, NULL);
@@ -99,56 +96,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   convert(tmpfile, outfile, digits, true, true);
   remove(tmpfile);
 }
-#elif defined(IGNOREME)
-void writetxt(mpf_t result, char *outfile, unsigned long digits) {
-  unsigned long written, percent, progress;
-  char          tmpfile[NAMESIZE];
-  FILE          *tmphand;
-  mpf_t         factor, scaled;
-  
-  mpf_inits(factor, scaled, NULL);
-  
-  mpf_set_ui(factor, 10);
-  mpf_pow_ui(factor, factor, WRITECHUNK);
-  
-  written = 0;
-  percent = 0;
-  progress = 0;
-  
-  sprintf(tmpfile, "%lu.tmp", digits);
-  tmphand = fopen(tmpfile, "wb");
-  
-  mpf_set(scaled, result);
-  mpf_trunc(scaled, scaled);
-  mpf_sub(result, result, scaled);
-  gmp_fprintf(tmphand, "%.0Ff.", scaled);
-  
-  while (written < digits) {
-    mpf_mul(result, result, factor);
-    mpf_trunc(scaled, result);
-    mpf_sub(result, result, scaled);
-    gmp_fprintf(tmphand, "%0*.0Ff", WRITECHUNK, scaled);
-    fflush(tmphand);
-    written += WRITECHUNK;
-
-    percent = (100 * written) / digits;
-    if (percent > progress) {
-        progress = percent;
-      if (percent > 99) {
-        logthis(NULL, "Write: Calc (%ld%%)\r", 99);
-      } else {
-        logthis(NULL, "Write: Calc (%ld%%)\r", percent);
-      }
-    }
-  }
-
-  fclose(tmphand);
-
-  logthis(NULL, "Write: Write (%ld%%)\r", 0);
-  convert(tmpfile, outfile, digits, true, true);
-  remove(tmpfile);
-}
-#elif defined(IGNOREMETOO)
+#elif 0
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   mpz_t         *partial, divisor;
   unsigned long dig_limb, max_limb, pow_parts, pow_count, num_parts, part_count, count, power, index, plus1, calc_done, progress, percent;

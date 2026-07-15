@@ -7,16 +7,20 @@ done
 
 ls -1 *.run *.RUN 2>/dev/null | sort -n | while read f ; do
   echo "  File: $f"
-  stat $f | grep -E 'Change|Birth' | cut -d. -f1 | sort
+  stat $f | grep -E 'Change|Birth' | sort | cut -c-30
   printf "Status: %s\n" "$(tail -1 $f)"
   echo
 done
 
 ls -1 *.log *.LOG 2>/dev/null | sort -n | while read f ; do
+  echo $f
+
+  r=$(echo $f | sed -e "s/log/raw/" -e "s/LOG/RAW/")
   t=$(echo $f | sed -e "s/log/txt/" -e "s/LOG/TXT/")
+  if [ -e "$r" -a ! -e "$t" ]; then 0raw2txt $r ; fi
+
   if [ -e "$t" ]; then
-    echo $f
-    0compare ~/1billion.pi $t | head -1
+    0compare ~/1billion.pi $t | head -n 1
 
     bad=$(grep TmpTxt $f)
     if [ "${bad}" = "" ]; then
@@ -28,4 +32,7 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read f ; do
 
     echo
   fi
+
+  stat $f | grep -E 'Change|Birth' | sort | cut -c-30
+  echo
 done
