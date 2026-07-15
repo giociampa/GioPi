@@ -16,6 +16,7 @@ FLAGSTST = -DTESTING
 LOCALGCC = gcc
 LOCSTRIP = strip
 ATARIGCC = m68k-atari-mint-gcc
+M68FLAGS = m68k-atari-mint-flags
 M68STRIP = m68k-atari-mint-strip
 ATARIELF = m68k-atari-elf-gcc
 ELFTOPRG = m68k-atari-elf-prg
@@ -62,26 +63,31 @@ m68000: giopi00.ttp giotst0.ttp compare0.ttp rawtxt0.ttp tmptxt0.ttp
 giopi00.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 giotst0.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 compare0.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 rawtxt0.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 tmptxt0.ttp: ${TMPFILES}
 	${ATARIGCC} ${TMPFILES} ${FLAGS000} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -91,26 +97,31 @@ m68020: giopi20.ttp giotst2.ttp compare2.ttp rawtxt2.ttp tmptxt2.ttp
 giopi20.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 giotst2.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${FLAGSTST} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 compare2.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 rawtxt2.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS020} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 tmptxt2.ttp: ${TMPFILES}
 	${ATARIGCC} ${TMPFILES} ${FLAGS020} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -120,26 +131,31 @@ m68040: giopi40.ttp giotst4.ttp compare4.ttp rawtxt4.ttp tmptxt4.ttp
 giopi40.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 giotst4.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 compare4.ttp: ${CMPFILES}
 	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 rawtxt4.ttp: ${RAWFILES}
 	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 tmptxt4.ttp: ${TMPFILES}
 	${ATARIGCC} ${TMPFILES} ${FLAGS040} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	${M68FLAGS} -f7 $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -152,6 +168,7 @@ m68000elf: giopi00e.ttp giotst0e.ttp compar0e.ttp rawtxt0e.ttp tmptxt0e.ttp
 
 giopi00e.ttp: giopi00e.elf
 	${ELFTOPRG} giopi00e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
@@ -160,14 +177,16 @@ giopi00e.elf: ${SRCFILES}
 
 giotst0e.ttp: giotst0e.elf
 	${ELFTOPRG} giotst0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 giotst0e.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compar0e.ttp: compare0e.elf
 	${ELFTOPRG} compare0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
@@ -176,6 +195,7 @@ compare0e.elf: ${CMPFILES}
 
 rawtxt0e.ttp: rawtxt0e.elf
 	${ELFTOPRG} rawtxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
@@ -184,6 +204,7 @@ rawtxt0e.elf: ${RAWFILES}
 
 tmptxt0e.ttp: tmptxt0e.elf
 	${ELFTOPRG} tmptxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
@@ -196,43 +217,48 @@ m68020elf: giopi20e.ttp giotst2e.ttp compar2e.ttp rawtxt2e.ttp tmptxt2e.ttp
 
 giopi20e.ttp: giopi20e.elf
 	${ELFTOPRG} giopi20e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 giopi20e.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
 
 giotst2e.ttp: giotst2e.elf
 	${ELFTOPRG} giotst2e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 giotst2e.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compar2e.ttp: compare2e.elf
 	${ELFTOPRG} compare2e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 compare2e.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${CMPFILES} ${FLAGS020} -o $@
 
 rawtxt2e.ttp: rawtxt0e.elf
 	${ELFTOPRG} rawtxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 rawtxt2e.elf: ${RAWFILES}
-	${ATARIELF} ${RAWFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${RAWFILES} ${FLAGS020} -o $@
 
 tmptxt2e.ttp: tmptxt0e.elf
 	${ELFTOPRG} tmptxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 tmptxt2e.elf: ${TMPFILES}
-	${ATARIELF} ${TMPFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${TMPFILES} ${FLAGS020} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
@@ -240,43 +266,48 @@ m68040elf: giopi40e.ttp giotst4e.ttp compar4e.ttp rawtxt4e.ttp tmptxt4e.ttp
 
 giopi40e.ttp: giopi40e.elf
 	${ELFTOPRG} giopi40e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 giopi40e.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
 
 giotst4e.ttp: giotst4e.elf
 	${ELFTOPRG} giotst4e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 giotst4e.elf: ${SRCFILES}
-	${ATARIELF} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${ELFLGTST} -o $@
+	${ATARIELF} ${SRCFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
 
 compar4e.ttp: compare4e.elf
 	${ELFTOPRG} compare4e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 compare4e.elf: ${CMPFILES}
-	${ATARIELF} ${CMPFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${CMPFILES} ${FLAGS040} -o $@
 
 rawtxt4e.ttp: rawtxt0e.elf
 	${ELFTOPRG} rawtxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 rawtxt4e.elf: ${RAWFILES}
-	${ATARIELF} ${RAWFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${RAWFILES} ${FLAGS040} -o $@
 
 tmptxt4e.ttp: tmptxt0e.elf
 	${ELFTOPRG} tmptxt0e.elf $@
+	${M68FLAGS} -f7 $@
 	chmod +x $@
 	@echo ||:
 
 tmptxt4e.elf: ${TMPFILES}
-	${ATARIELF} ${TMPFILES} ${FLAGS000} -o $@
+	${ATARIELF} ${TMPFILES} ${FLAGS040} -o $@
 
 # --------------------------------------------------------------------------------------------------
 
