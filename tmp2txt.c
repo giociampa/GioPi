@@ -8,7 +8,7 @@ void logdone();
 // split.c
 void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t);
  
-// tmp2txt.c
+// tmptxt.c
 void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
 
 int main() {

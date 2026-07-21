@@ -31,6 +31,7 @@
 #define NAMESIZE    256
 #define WRITECHUNK  1000000
 #define DEBUG_FILE  "zzzdebug.txt"
+#define STACKSIZE   131072L
 
 #define CHAR_THREE  '3'
 #define CHAR_POINT  '.'
@@ -38,6 +39,5 @@
 #ifndef BUILDDATE
 #define BUILDDATE   __TIMESTAMP__
 #endif
-
 
 #endif

@@ -11,6 +11,9 @@ void logdone();
 // convert.c
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point);
 
+// override default stack size
+long _stksize = STACKSIZE;
+
 int main(int argc, char *argv[]) {
   unsigned long digits, count;
   char          golfile[NAMESIZE], inpfile[NAMESIZE], outfile[NAMESIZE], tmpfile[NAMESIZE], *txtpos;

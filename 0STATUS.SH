@@ -20,7 +20,7 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read f ; do
   if [ -e "$r" -a ! -e "$t" ]; then 0raw2txt $r ; fi
 
   if [ -e "$t" ]; then
-    0compare ~/1billion.pi $t | head -n 1
+    0check ~/1billion.pi $t | head -n 1
 
     bad=$(grep TmpTxt $f)
     if [ "${bad}" = "" ]; then
