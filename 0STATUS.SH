@@ -20,13 +20,13 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read f ; do
   if [ -e "$r" -a ! -e "$t" ]; then 0raw2txt $r ; fi
 
   if [ -e "$t" ]; then
-    0check ~/1billion.pi $t | head -n 1
+    0compare ~/1billion.pi $t | head -n 1
 
     bad=$(grep TmpTxt $f)
+    grep Result $f | head -n 1
     if [ "${bad}" = "" ]; then
-      grep Total $f | head -n 1
+      grep -E "Write|Total" $f
     else
-      grep Result $f | head -n 1
       grep Total $f | tail -n 1 | sed "s/Total: /TmpTxt:/"
     fi
 
