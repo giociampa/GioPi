@@ -14,7 +14,7 @@ if [ "$aranym" = "" ]; then
 fi
 
 if [ "$aranym" = "" ]; then
-  PSCMD="ps -eo size,cmd"
+  PSCMD="ps -eo size,comm"
   PSIZE=1
   PNAME=2
 else

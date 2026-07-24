@@ -1,38 +1,36 @@
 #!/bin/bash
 
-find -maxdepth 1 -iname "running.txt" | while read f ; do
-  printf "Runner: %s\n" "$(tail -1 $f)"
-  echo
-done
+ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
+  bad=$(grep TmpTxt $log)
+  run=$(echo $log | sed -e "s/log/run/" -e "s/LOG/RUN/")
+  txt=$(echo $log | sed -e "s/log/txt/" -e "s/LOG/TXT/")
 
-ls -1 *.run *.RUN 2>/dev/null | sort -n | while read f ; do
-  echo "  File: $f"
-  stat $f | grep -E 'Change|Birth' | sort | cut -c-30
-  printf "Status: %s\n" "$(tail -1 $f)"
-  echo
-done
+  echo $log
 
-ls -1 *.log *.LOG 2>/dev/null | sort -n | while read f ; do
-  echo $f
-
-  r=$(echo $f | sed -e "s/log/raw/" -e "s/LOG/RAW/")
-  t=$(echo $f | sed -e "s/log/txt/" -e "s/LOG/TXT/")
-  if [ -e "$r" -a ! -e "$t" ]; then 0raw2txt $r ; fi
-
-  if [ -e "$t" ]; then
-    0compare ~/1billion.pi $t | head -n 1
-
-    bad=$(grep TmpTxt $f)
-    grep Result $f | head -n 1
-    if [ "${bad}" = "" ]; then
-      grep -E "Write|Total" $f
-    else
-      grep Total $f | tail -n 1 | sed "s/Total: /TmpTxt:/"
-    fi
-
-    echo
+  if [ "${bad}" = "" ]; then
+    grep -E 'Result|Write|Total' $log
+  else
+    grep -E 'Result|Write' $log
+    grep -E 'Total' $log | tail -n 1 | sed "s/Total: /TmpTxt:/"
   fi
 
-  stat $f | grep -E 'Change|Birth' | sort | cut -c-30
+  if [ -e $run ]; then
+    stat $run | grep -E 'Change|Birth' | sort | cut -c-30
+    cat $run
+    echo
+  else
+    stat $log | grep -E 'Change|Birth' | sort | cut -c-30
+  fi
+
+  if [ -e $txt ]; then
+    0compare ~/1billion.pi $txt good
+  fi
+
   echo
 done
+
+find -maxdepth 1 -iname "running.txt" | while read f ; do
+  tail -1 $f
+  echo
+done
+
