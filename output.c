@@ -74,13 +74,26 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   
   for (power = 0 ; power < pow_powers ; power++) {
     pow_digits >>= 1;
-
     mpz_realloc2(divisor, 0);
     mpz_ui_pow_ui(divisor, 10, pow_digits);
+
+    calc_done++;
+    percent = (33 * calc_done) / pow_powers;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+    }
 
     mpz_realloc2(quotient, 0);
     mpz_tdiv_qr(quotient, remainder, remainder, divisor);
     
+    calc_done++;
+    percent = (33 * calc_done) / pow_powers;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+    }
+
     if (power > 0) {
       gmp_fprintf(tmphand, "%0*Zd", pow_digits, quotient);
     } else {
@@ -88,7 +101,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     }
 
     calc_done++;
-    percent = (100 * calc_done) / pow_powers;
+    percent = (33 * calc_done) / pow_powers;
     if (percent > progress) {
       progress = percent;
       logthis(NULL, "Write: Calc (%ld%%)\r", percent);
