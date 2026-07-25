@@ -61,31 +61,35 @@ int main(int argc, char *argv[]) {
   line = 0;
   done = false;
   
-  while (!done) {
+  while (! done) {
     end1 = readline(file1, line1, &pos1);
     end2 = readline(file2, line2, &pos2);
 
+    // both finished?
+    if (end1 && end2) {
+      done = true;
+    } else {
+      line++;
+      if (strcmp(line1, line2) == 0) {
+        good = (line * DIGITSLINE);
+      } else {
+        done = true;
+        item = 2;
+        while ((item < pos1) && (item < pos2)) {
+          if (line1[item] == line2[item]) {
+            if ((line1[item] >= '0') && (line1[item] <= '9')) {
+              good++;
+            }
+          } else {
+            break;
+          }
+          item++;
+        }
+      }
+    }
+    // one finished?
     if (end1 || end2) {
       done = true;
-      break;
-    }
-    
-    line++;
-    if (strcmp(line1, line2) == 0) {
-      good = (line * DIGITSLINE);
-    } else {
-      done = true;
-      item = 2;
-      while ((item < pos1) && (item < pos2)) {
-        if (line1[item] == line2[item]) {
-          if ((line1[item] >= '0') && (line1[item] <= '9')) {
-            good++;
-          }
-        } else {
-          break;
-        }
-        item++;
-      }
     }
   }
 

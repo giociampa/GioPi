@@ -44,6 +44,22 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
 
 #if defined(TESTING)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
+  char tmpfile[NAMESIZE];
+  FILE *tmphand;
+
+  logthis(NULL, "Write: Convert\r");
+  sprintf(tmpfile, "%lu.tmp", digits);
+  tmphand = fopen(tmpfile, "wb");
+  gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
+  fclose(tmphand);
+  mpf_clear(result);
+
+  logthis(NULL, "Write: Write (%ld%%)\r", 0);
+  convert(tmpfile, outfile, digits, true, false);
+  remove(tmpfile);
+}
+#else
+void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   unsigned long dig_limb, max_limb, count, pow_powers, pow_digits, power, calc_done, progress, percent;
   mpz_t         remainder, quotient, divisor;
   char          tmpfile[NAMESIZE];
@@ -114,22 +130,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
 
   logthis(NULL, "Write: Write (%ld%%)\r", 0);
   convert(tmpfile, outfile, digits, true, true);
-  remove(tmpfile);
-}
-#else
-void writetxt(mpf_t result, char *outfile, unsigned long digits) {
-  char tmpfile[NAMESIZE];
-  FILE *tmphand;
-
-  logthis(NULL, "Write: Convert\r");
-  sprintf(tmpfile, "%lu.tmp", digits);
-  tmphand = fopen(tmpfile, "wb");
-  gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
-  fclose(tmphand);
-  mpf_clear(result);
-
-  logthis(NULL, "Write: Write (%ld%%)\r", 0);
-  convert(tmpfile, outfile, digits, true, false);
   remove(tmpfile);
 }
 #endif
