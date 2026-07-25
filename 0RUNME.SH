@@ -3,6 +3,8 @@
 params=$*
 digits=$1
 
+if [ "$digits" = "" ]; then echo "Missing digits parameter"; exit; fi
+
 aranym=$(uname -a | grep -i aranym)
 
 if [ "$aranym" = "" ]; then
@@ -12,7 +14,7 @@ fi
 if [ "$aranym" = "" ]; then
   FILELIST="giopi giotst"
 else
-  FILELIST="gio*.ttp gio*.prg"
+  FILELIST="gio*.ttp"
 fi
 
 function process () {
@@ -20,17 +22,13 @@ function process () {
   if [ -e "${runthis}" ]; then
     stripped=${runthis%.ttp}
     running=${digits}-${stripped}
+
     echo "Running: ${stripped} ${params}" 2>&1 | tee RUNNING.TXT
     ./${runthis} ${params}
     rm -f RUNNING.TXT
+
     for ext in log raw run txt ; do
-      if [ -e "${digits}.${ext}" ]; then
-        if [ "${ext}" = "raw" ]; then
-          if [ -e "${digits}.txt" -a -e rawtxt ]; then ./rawtxt "${digits}.${ext}"; fi
-        else
-          mv "${digits}.${ext}" "${running}.${ext}"
-        fi
-      fi
+      if [ -e "${digits}.${ext}" ]; then mv "${digits}.${ext}" "${running}.${ext}"; fi
       if [ -e "pi.${ext}" ]; then mv "pi.${ext}" "${running}.${ext}"; fi
     done
 
