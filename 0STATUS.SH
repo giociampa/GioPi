@@ -16,10 +16,10 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
   fi
 
   if [ -e $run ]; then
-    stat $run | grep -E 'Change|Birth' | sort | cut -c-30
+    stat $run | grep -E 'Modify|Birth' | sort | cut -c-30 | sed "s/ Birth/Create/"
     echo $(cat $run)
   else
-    stat $log | grep -E 'Change|Birth' | sort | cut -c-30
+    stat $log | grep -E 'Modify|Birth' | sort | cut -c-30 | sed "s/ Birth/Create/"
   fi
 
   if [ -e $raw -a ! -e $txt ]; then 0raw2txt $raw; fi
