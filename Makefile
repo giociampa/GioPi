@@ -16,6 +16,7 @@ FLAGSTST = -DTESTING
 LOCALGCC = gcc
 LOCSTRIP = strip
 ATARIGCC = m68k-atari-mint-gcc
+M68STACK = m68k-atari-mint-stack
 M68STRIP = m68k-atari-mint-strip
 CROSSGCC = x86_64-w64-mingw32-gcc
 CROSTRIP = x86_64-w64-mingw32-strip
@@ -37,16 +38,19 @@ giotst: ${SRCFILES}
 compare: ${CMPFILES}
 	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 raw2txt: ${RAWFILES}
 	${LOCALGCC} ${RAWFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 tmp2txt: ${TMPFILES}
 	${LOCALGCC} ${TMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
