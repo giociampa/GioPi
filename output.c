@@ -44,6 +44,83 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
 
 #if defined(TESTING)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
+  unsigned long dig_limb, max_limb, count, pow_powers, pow_digits, power, calc_done, progress, percent;
+  mpz_t         remainder, quotient, divisor;
+  char          tmpfile[NAMESIZE];
+  FILE          *tmphand;
+
+  dig_limb = (unsigned long)((double) mp_bits_per_limb / BITS_PER_DIGIT);
+
+  max_limb = 1;
+  for (count = 0 ; count < dig_limb ; count++) { max_limb *= 10; }
+
+  pow_powers = 0;
+  pow_digits = dig_limb;
+  while (pow_digits < digits) {
+    pow_powers++;
+    pow_digits <<= 1;
+  }
+
+  sprintf(tmpfile, "%lu.tmp", digits);
+  tmphand = fopen(tmpfile, "wb");
+  
+  mpz_inits(remainder, quotient, divisor, NULL);
+  mpf2mpz(remainder, result, digits);
+
+  calc_done = 0;
+  progress = 0;
+  percent = 0;
+  logthis(NULL, "Write: Calc (%ld%%)\r", 0);
+  
+  for (power = 0 ; power < pow_powers ; power++) {
+    pow_digits >>= 1;
+    mpz_realloc2(divisor, 0);
+    mpz_ui_pow_ui(divisor, 10, pow_digits);
+
+    calc_done++;
+    percent = (33 * calc_done) / pow_powers;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+    }
+
+    mpz_realloc2(quotient, 0);
+    mpz_realloc2(remainder, mpz_sizeinbase(remainder, 2));
+    mpz_tdiv_qr(quotient, remainder, remainder, divisor);
+    
+    calc_done++;
+    percent = (33 * calc_done) / pow_powers;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+    }
+
+    if (power > 0) {
+      gmp_fprintf(tmphand, "%0*Zd", pow_digits, quotient);
+    } else {
+      gmp_fprintf(tmphand, "%Zd", quotient);
+    }
+
+    calc_done++;
+    percent = (33 * calc_done) / pow_powers;
+    if (percent > progress) {
+      progress = percent;
+      logthis(NULL, "Write: Calc (%ld%%)\r", percent);
+    }
+  }
+
+  mpz_realloc2(remainder, mpz_sizeinbase(remainder, 2));
+  gmp_fprintf(tmphand, "%0*Zd\n", dig_limb, remainder);
+  fclose(tmphand);
+
+  mpz_clears(remainder, quotient, divisor, NULL);
+
+  logthis(NULL, "Write: Write (%ld%%)\r", 0);
+  convert(tmpfile, outfile, digits, true, true);
+  remove(tmpfile);
+}
+#elif defined(IGNOREME)
+void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   char tmpfile[NAMESIZE];
   FILE *tmphand;
 
@@ -123,6 +200,7 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
       logthis(NULL, "Write: Calc (%ld%%)\r", percent);
     }
   }
+
   gmp_fprintf(tmphand, "%0*Zd\n", dig_limb, remainder);
   fclose(tmphand);
 
