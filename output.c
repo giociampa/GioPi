@@ -9,16 +9,41 @@ void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, boo
 // override default stack size
 long _stksize = STACKSIZE;
 
+#if defined(TESTING)
+void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
+  unsigned long partsize;
+  mpf_t         factor;
+
+  mpf_init(factor);
+  partsize = (places >> 1);
+
+  logthis(NULL, "Write: Factor\r");
+  mpz_ui_pow_ui(result, 10, partsize);
+  mpf_set_z(factor, result);
+  mpz_realloc2(result, 0);
+
+  logthis(NULL, "Write: Scale 1\r");
+  mpf_mul(source, source, factor);
+
+  logthis(NULL, "Write: Scale 2\r");
+  mpf_mul(source, source, factor);
+  mpf_clear(factor);
+  
+  logthis(NULL, "Write: Convert\r");
+  mpz_set_f(result, source);
+  mpf_clear(source);
+}
+#else
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
   mpf_t factor;
 
-  logthis(NULL, "Write: Pow10\r");
+  logthis(NULL, "Write: Factor\r");
   mpf_init(factor);
   mpz_ui_pow_ui(result, 10, places);
   mpf_set_z(factor, result);
   mpz_realloc2(result, 0);
 
-  logthis(NULL, "Write: Scale\r");
+  logthis(NULL, "Write: Scaling\r");
   mpf_mul(factor, factor, source);
   mpf_clear(source);
   
@@ -26,6 +51,7 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
   mpz_set_f(result, factor);
   mpf_clear(factor);
 }
+#endif
 
 void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
   mpz_t   scaled;
@@ -42,7 +68,23 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
   mpz_clear(scaled);
 }
 
-#if defined(TESTING)
+#if defined(IGNOREME)
+void writetxt(mpf_t result, char *outfile, unsigned long digits) {
+  char tmpfile[NAMESIZE];
+  FILE *tmphand;
+
+  logthis(NULL, "Write: Convert\r");
+  sprintf(tmpfile, "%lu.tmp", digits);
+  tmphand = fopen(tmpfile, "wb");
+  gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
+  fclose(tmphand);
+  mpf_clear(result);
+
+  logthis(NULL, "Write: Write (%ld%%)\r", 0);
+  convert(tmpfile, outfile, digits, true, false);
+  remove(tmpfile);
+}
+#elif defined(TESTING)
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {
   unsigned long dig_limb, max_limb, count, pow_powers, pow_digits, power, calc_done, progress, percent;
   mpz_t         remainder, quotient, divisor;
@@ -85,7 +127,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     }
 
     mpz_realloc2(quotient, 0);
-    mpz_realloc2(remainder, mpz_sizeinbase(remainder, 2));
     mpz_tdiv_qr(quotient, remainder, remainder, divisor);
     
     calc_done++;
@@ -109,7 +150,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
     }
   }
 
-  mpz_realloc2(remainder, mpz_sizeinbase(remainder, 2));
   gmp_fprintf(tmphand, "%0*Zd\n", dig_limb, remainder);
   fclose(tmphand);
 
@@ -117,22 +157,6 @@ void writetxt(mpf_t result, char *outfile, unsigned long digits) {
 
   logthis(NULL, "Write: Write (%ld%%)\r", 0);
   convert(tmpfile, outfile, digits, true, true);
-  remove(tmpfile);
-}
-#elif defined(IGNOREME)
-void writetxt(mpf_t result, char *outfile, unsigned long digits) {
-  char tmpfile[NAMESIZE];
-  FILE *tmphand;
-
-  logthis(NULL, "Write: Convert\r");
-  sprintf(tmpfile, "%lu.tmp", digits);
-  tmphand = fopen(tmpfile, "wb");
-  gmp_fprintf(tmphand, "%.*Ff", digits + LEEWAY, result);
-  fclose(tmphand);
-  mpf_clear(result);
-
-  logthis(NULL, "Write: Write (%ld%%)\r", 0);
-  convert(tmpfile, outfile, digits, true, false);
   remove(tmpfile);
 }
 #else
