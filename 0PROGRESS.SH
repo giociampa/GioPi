@@ -1,29 +1,48 @@
 #!/bin/bash
 
-once=$(echo "$1" | grep -i once)
+ONEPASS=""
+NUMLINE=1
+for PARAM in $* ; do
+  TEST=$(echo "$PARAM" | grep -i -E "ONCE|ONEPASS")
+  if [ "$TEST" != "" ]; then ONEPASS="ONEPASS"; fi
 
-aranym=$(uname -a | grep -i aranym)
+  TEST=$(echo ":$PARAM:" | tr -d "[0-9]")
+  if [ "$TEST" = "::" ]; then NUMLINE=$PARAM; fi
+done
 
-if [ "$aranym" = "" ]; then
-  aranym=$(echo $PWD | grep -i aranym)
+ARANYM=$(uname -a | grep -i ARANYM)
+if [ "$ARANYM" = "" ]; then
+  ARANYM=$(echo $PWD | grep -i ARANYM)
 fi
-
-if [ "$aranym" = "" ]; then
+if [ "$ARANYM" = "" ]; then
   FILELIST="giopi giotst"
 else
-  FILELIST="gio*.ttp gio*.prg"
+  FILELIST="gio*.ttp"
+fi
+
+ZEDFILE="NONE"
+for TEST in zzzz.txt ZZZZ.TXT; do
+  if [ -e $TEST ]; then
+    SIZE=$(du -b $TEST | cut -f1)
+    if [ $SIZE -gt 0 ]; then ZEDFILE=$TEST; fi
+  fi
+done
+if [ "$ZEDFILE" = "NONE" ]; then
+  echo "No zedfile found"
+  exit
 fi
 
 while true ; do
-	if [ "$once" = "" ]; then clear; fi
-	last=$(tail -1 zzzz.txt | grep "Finished")
+	if [ "$ONEPASS" = "" ]; then clear; fi
+	last=$(tail -1 $ZEDFILE | grep "Finished")
 	for f in $FILELIST ; do
 		n=$(echo $f | cut -d. -f1)
 		for l in Split Combine Write Total ; do
-			sort zzzz.txt -n | grep $n | grep $l | tail -3
-      echo
+			sort $ZEDFILE -n | grep $n | grep $l | tail -$NUMLINE
+      if [ $NUMLINE -gt 1 ]; then echo; fi
 		done
+    if [ $NUMLINE -eq 1 ]; then echo; fi
 	done
-	if [ "$once" != "" -o "$last" != "" ]; then exit 0; fi
+	if [ "$ONEPASS" != "" -o "$last" != "" ]; then exit 0; fi
 	sleep 5
 done

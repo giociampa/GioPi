@@ -4,7 +4,6 @@
 void logthis(char  * filename, char  * fmt, ...);
 
 unsigned long splitcurrent, splitreached, splitpercent, splitmaxterm;
-mpz_t         ppp, qqq, ttt;
 
 void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char  tmpfile[NAMESIZE];
@@ -74,8 +73,6 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
 }
 
 void split_init(unsigned long depth, unsigned long terms) {
-  mpz_inits(ppp, qqq, ttt, NULL);
-
   splitcurrent = 0;
   splitreached = 0;
   splitpercent = 0;
@@ -85,10 +82,9 @@ void split_init(unsigned long depth, unsigned long terms) {
 void split_tidy(unsigned long digits) {
   unsigned long pass;
   char          tmpfile[NAMESIZE];
-  mpz_t         ppp;
 
   // tidy up old temporary files
-  for (pass = 0 ; pass < 10 ; pass++) {
+  for (pass = 0 ; pass < 9 ; pass++) {
     sprintf(tmpfile, "pass-%lu-p.tmp", pass);
     remove(tmpfile);
 
@@ -98,11 +94,6 @@ void split_tidy(unsigned long digits) {
     sprintf(tmpfile, "pass-%lu-t.tmp", pass);
     remove(tmpfile);
   }
-
-  // save results for tmptxt() call (now, or for PC reprocessing of ST crash)
-  mpz_init_set_ui(ppp, digits);
-  raw_export(9, ppp, qqq, ttt);
-  mpz_clears(ppp, qqq, ttt, NULL);
 }
 
 void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
@@ -166,81 +157,70 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
   }
 }
 
-void split(unsigned long b, unsigned long digits) {
-  mpz_t pmb, qmb, tmb;
+void partial(unsigned long lower, unsigned long upper, unsigned long terms, unsigned long chunk) {
+  mpz_t pval, qval, tval;
 
+  mpz_inits(pval, qval, tval, NULL);
+  recursion((lower*terms)/chunk, (upper*terms)/chunk, pval, qval, tval);
+  raw_export(lower, pval, qval, tval);
+  mpz_clears(pval, qval, tval, NULL);
+}
+
+void combine(unsigned long one, unsigned long two, unsigned long out) {
+  mpz_t pval, qval, tval;
+  mpz_t ptmp, qtmp, ttmp;
+
+  logthis(NULL, "Combine: (%lu,%lu)\r", one, two);
+  mpz_inits(pval, qval, tval, NULL);
+  mpz_inits(ptmp, qtmp, ttmp, NULL);
+
+  // ttmp = ttmp * pval
+  raw_import(one, pval, NULL, NULL);
+  raw_import(two, NULL, NULL, ttmp);
+  mpz_mul(ttmp, ttmp, pval);
+  raw_export(two, NULL, NULL, ttmp);
+  mpz_realloc2(ttmp, 0);
+
+  // pval = pval * ptmp
+  raw_import(two, ptmp, NULL, NULL);
+  mpz_mul(pval, pval, ptmp);
+  mpz_clear(ptmp);
+  raw_export(out, pval, NULL, NULL);
+  mpz_clear(pval);
+
+  // qval = qval * qtmp
+  raw_import(one, NULL, qval, NULL);
+  raw_import(two, NULL, qtmp, NULL);
+  mpz_mul(qval, qval, qtmp);
+  raw_export(out, NULL, qval, NULL);
+  mpz_clear(qval);
+
+  // tval = qtmp * tval
+  mpz_realloc2(tval, 0);
+  raw_import(one, NULL, NULL, tval);
+  mpz_mul(tval, qtmp, tval);
+  mpz_clear(qtmp);
+
+  // tval = tval + ttmp
+  raw_import(two, NULL, NULL, ttmp);
+  mpz_add(tval, tval, ttmp);
+  mpz_clear(ttmp);
+  raw_export(out, NULL, NULL, tval);
+  mpz_clear(tval);
+}
+
+void split(unsigned long b, unsigned long digits) {
   splitcurrent = 0;
   splitreached = 0;
 
-  // pass 0
-  recursion(0, (b/4), ppp, qqq, ttt);
-  raw_export(0, ppp, qqq, ttt);
-
-  // pass 1
-  mpz_realloc2(ppp, 0);
-  mpz_realloc2(qqq, 0);
-  mpz_realloc2(ttt, 0);
-  recursion((b/4), (b/2), ppp, qqq, ttt);
-  raw_export(1, ppp, qqq, ttt);
-
-  // pass 2
-  mpz_realloc2(ppp, 0);
-  mpz_realloc2(qqq, 0);
-  mpz_realloc2(ttt, 0);
-  recursion((b/2), 3*(b/4), ppp, qqq, ttt);
-
-  // pass 3
-  mpz_inits(pmb, qmb, tmb, NULL);
-  recursion(3*(b/4), b, pmb, qmb, tmb);
-
-  // combine 2 and 3
-  logthis(NULL, "Combine: (2,3)\r");
-  // tmb = tmb * ppp
-  mpz_mul(tmb, tmb, ppp);
-  // ppp = ppp * pmb
-  mpz_mul(ppp, ppp, pmb);
-  raw_export(2, ppp, NULL, NULL);
-  mpz_realloc2(ppp, 0);
-  mpz_realloc2(pmb, 0);
-  // qqq = qqq * qmb
-  mpz_mul(qqq, qqq, qmb);
-  raw_export(2, NULL, qqq, NULL);
-  mpz_realloc2(qqq, 0);
-  // ttt = qmb * ttt
-  mpz_mul(ttt, qmb, ttt);
-  mpz_realloc2(qmb, 0);
-  // ttt = ttt + tmb
-  mpz_add(ttt, ttt, tmb);
-  raw_export(2, NULL, NULL, ttt);
-
-  // combine 0 and 1
-  logthis(NULL, "Combine: (0,1)\r");
-  raw_import(0, ppp, qqq, ttt);
-  raw_import(1, pmb, qmb, tmb);
-  // tmb = tmb * ppp
-  mpz_mul(tmb, tmb, ppp);
-  // ppp = ppp * pmb
-  mpz_mul(ppp, ppp, pmb);
-  mpz_clear(pmb);
-  // qqq = qqq * qmb
-  mpz_mul(qqq, qqq, qmb);
-  // ttt = qmb * ttt
-  mpz_mul(ttt, qmb, ttt);
-  mpz_realloc2(qmb, 0);
-  // ttt = ttt + tmb
-  mpz_add(ttt, ttt, tmb);
-
-  // combine (0,1) and (2,3)
-  logthis(NULL, "Combine: (0,2)\r");
-  raw_import(2, NULL, qmb, tmb);
-  // tmb = tmb * ppp
-  mpz_mul(tmb, tmb, ppp);
-  // ppp = ppp * pmb not needed
-  mpz_clear(ppp); // mpz_mul(ppp, ppp, pmb);
-  // qqq = qqq * qmb
-  mpz_mul(qqq, qqq, qmb);
-  // ttt = qmb * ttt
-  mpz_mul(ttt, qmb, ttt);
-  // ttt = ttt + tmb
-  mpz_add(ttt, ttt, tmb);
+  // recursive passes
+  partial(0, 1 ,b, 4);
+  partial(1, 2 ,b, 4);
+  partial(2, 3 ,b, 4);
+  partial(3, 4 ,b, 4);
+  
+  // combine passes
+  combine(0, 1, 0);
+  combine(2, 3, 2);
+  combine(0, 2, 9);
 }
