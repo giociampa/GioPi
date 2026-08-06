@@ -37,7 +37,7 @@ while true ; do
 	last=$(tail -1 $ZEDFILE | grep "Finished")
 	for f in $FILELIST ; do
 		n=$(echo $f | cut -d. -f1)
-		for l in Split Combine Write Total ; do
+		for l in Split Combine Write ; do
 			sort $ZEDFILE -n | grep $n | grep $l | tail -$NUMLINE
       if [ $NUMLINE -gt 1 ]; then echo; fi
 		done

@@ -27,15 +27,22 @@ fi
 
 flag=""
 prev=""
-
 while true ; do
-  proc=$($PSCMD | grep -E "giopi|giotst" | grep -v grep | grep -v tee | tr -s " " | tail -1)
-  if [ "$flag" = "" -a "$(echo $proc | grep giotst)" != "" ]; then
+  proc=$($PSCMD | grep -E "giopi|giotst" | tr -s " " | tail -1)
+  if [ "$(echo $proc | grep giotst)" != "" -a "$flag" = "" ]; then
     flag="flag"
   fi
-  if [ "$proc" = "" -a "$flag" = "flag" ]; then
-    echo "Done"
-    exit 0
+
+  size=""
+  what=""
+  if [ "$proc" = "" ]; then
+    if [ "$flag" = "flag" ]; then
+      echo "Done"
+      exit 0
+    fi
+  else
+    size=$(echo $proc | cut -d\  -f$PSIZE)
+    what=$(basename $(echo $proc | cut -d\  -f$PNAME))
   fi
 
   if [ -e $runfile ]; then
@@ -46,13 +53,6 @@ while true ; do
     line=""
   fi
 
-  if [ "$proc" != "" ]; then
-    size=$(echo $proc | cut -d\  -f$PSIZE)
-    what=$(basename $(echo $proc | cut -d\  -f$PNAME))
-  else
-    size=""
-    what=""
-  fi
   this="$size $what $line"
   if [ "$this" != "$prev" ]; then
     echo "$this" >> zzzz.txt

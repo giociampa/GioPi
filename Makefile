@@ -16,7 +16,6 @@ FLAGSTST = -DTESTING
 LOCALGCC = gcc
 LOCSTRIP = strip
 ATARIGCC = m68k-atari-mint-gcc
-M68STACK = m68k-atari-mint-stack
 M68STRIP = m68k-atari-mint-strip
 CROSSGCC = x86_64-w64-mingw32-gcc
 CROSTRIP = x86_64-w64-mingw32-strip
