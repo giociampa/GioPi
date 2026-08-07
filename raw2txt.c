@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
   FILE          *inphand, *tmphand;
   mpz_t         scaled;
   clock_t       start_time;
+  bool          uppercase;
   
   if (argc < 2) {
     printf("ERROR: Invalid parameter list\n");
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
   strcpy(outfile, argv[1]);
   strcpy(golfile, argv[1]);
 
+  uppercase = false;
   txtpos = strstr(inpfile, ".raw");
   if (txtpos != NULL) {
     count = txtpos - inpfile;
@@ -45,6 +47,7 @@ int main(int argc, char *argv[]) {
       golfile[count] = 0;
       strcat(outfile, ".TXT");
       strcat(golfile, ".GOL");
+      uppercase = true;
     } else {
       strcat(outfile, ".txt");
       strcat(golfile, ".gol");
@@ -54,6 +57,15 @@ int main(int argc, char *argv[]) {
   digits = 0;
   if (argc > 2) {
     getdigits(argv[2], &digits);
+    if (digits > 0) {
+      if (uppercase) {
+        sprintf(outfile, "%lu.TXT", digits);
+        sprintf(golfile, "%lu.GOL", digits);
+      } else {
+        sprintf(outfile, "%lu.txt", digits);
+        sprintf(golfile, "%lu.gol", digits);
+      }
+    }
   }
   if (digits == 0) {
     getdigits(inpfile, &digits);
@@ -61,7 +73,15 @@ int main(int argc, char *argv[]) {
   if (digits == 0) {
     printf("Digits? ");
     scanf("%lu", &digits);
-    if (digits == 0) {
+    if (digits > 0) {
+      if (uppercase) {
+        sprintf(outfile, "%lu.TXT", digits);
+        sprintf(golfile, "%lu.GOL", digits);
+      } else {
+        sprintf(outfile, "%lu.txt", digits);
+        sprintf(golfile, "%lu.gol", digits);
+      }
+    } else {
       printf("ERROR: Invalid digit count\n");
       return EXIT_FAILURE;
     }
