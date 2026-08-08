@@ -36,7 +36,6 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
 done
 
 find -maxdepth 1 -iname "running.txt" | while read f ; do
-  tail -1 $f
-  echo
+  echo $(tail -1 $f)
+  echo "Temp files: $(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
 done
-

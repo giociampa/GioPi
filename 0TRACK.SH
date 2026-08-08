@@ -44,6 +44,7 @@ while true ; do
     size=$(echo $proc | cut -d\  -f$PSIZE)
     what=$(basename $(echo $proc | cut -d\  -f$PNAME))
   fi
+  pass=$(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')
 
   if [ -e $runfile ]; then
     line=$(tail -1 $runfile 2>/dev/null | tr -s " " | tr -d "[:cntrl:]" )
@@ -53,7 +54,7 @@ while true ; do
     line=""
   fi
 
-  this="$size $what $line"
+  this="$size $what $pass $line"
   if [ "$this" != "$prev" ]; then
     echo "$this" >> zzzz.txt
     prev="$this"
