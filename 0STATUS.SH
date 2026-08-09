@@ -37,5 +37,5 @@ done
 
 find -maxdepth 1 -iname "running.txt" | while read f ; do
   echo $(tail -1 $f)
-  echo "Temp files: $(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
+  echo "Storage: $(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
 done
