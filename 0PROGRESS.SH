@@ -1,10 +1,15 @@
 #!/bin/bash
 
 ONEPASS=""
-NUMLINE=1
+NUMLINE=5
+SLEEP=5
+
 for PARAM in $* ; do
   TEST=$(echo "$PARAM" | grep -i -E "ONCE|ONEPASS")
   if [ "$TEST" != "" ]; then ONEPASS="ONEPASS"; fi
+
+  TEST=$(echo "$PARAM" | grep -i "SLEEP=")
+  if [ "$TEST" != "" ]; then SLEEP=$(echo "$PARAM" | cut -d\= -f2- | tr -d " "); fi
 
   TEST=$(echo ":$PARAM:" | tr -d "[0-9]")
   if [ "$TEST" = "::" ]; then NUMLINE=$PARAM; fi
@@ -50,5 +55,5 @@ while true ; do
     line=1
 	done
 	if [ "$ONEPASS" != "" -o "$last" != "" ]; then exit 0; fi
-	sleep 5
+	sleep $SLEEP
 done

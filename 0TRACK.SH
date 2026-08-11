@@ -4,8 +4,8 @@ digits=$1
 runfile=${digits}.run
 logfile=${digits}.log
 
-rm -f yyyy.txt zzzz.txt YYYY.TXT ZZZZ.TXT
-touch yyyy.txt zzzz.txt YYYY.TXT ZZZZ.TXT
+rm -f zzzz.txt ZZZZ.TXT
+touch zzzz.txt ZZZZ.TXT
 
 aranym=$(uname -a | grep -i aranym)
 
