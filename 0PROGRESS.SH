@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ONEPASS=""
-NUMLINE=5
+NUMLINE=3
 SLEEP=5
 
 for PARAM in $* ; do
@@ -38,22 +38,22 @@ if [ "$ZEDFILE" = "NONE" ]; then
 fi
 
 while true ; do
-	if [ "$ONEPASS" = "" ]; then clear; fi
-	line=0
-	last=$(tail -1 $ZEDFILE | grep "Finished")
-	for f in $FILELIST ; do
+  if [ "$ONEPASS" = "" ]; then clear; fi
+  line=0
+  last=$(tail -1 $ZEDFILE | grep "Finished")
+  for f in $FILELIST ; do
     if [ $line -eq 1 ]; then echo; fi
-		n=$(echo $f | cut -d. -f1)
-		for l in Split Combine Write ; do
-			sort $ZEDFILE -n | grep $n | grep $l | tail -$NUMLINE | while read SORTED; do
+    n=$(echo $f | cut -d. -f1)
+    for l in Split Combine Write ; do
+      sort $ZEDFILE -n | grep $n | grep $l | tail -$NUMLINE | while read SORTED; do
         echo "$(echo $SORTED | cut -d\  -f-2) $(echo $SORTED | cut -d\  -f4-)"
-			done
+      done
       if [ $NUMLINE -gt 1 ]; then echo; fi
-		done
-		echo
+    done
+    echo
     sort $ZEDFILE -n -k 3 | grep $n | tail -1 | cut -d\  -f2-
     line=1
-	done
-	if [ "$ONEPASS" != "" -o "$last" != "" ]; then exit 0; fi
-	sleep $SLEEP
+  done
+  if [ "$ONEPASS" != "" -o "$last" != "" ]; then exit 0; fi
+  sleep $SLEEP
 done

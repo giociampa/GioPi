@@ -133,90 +133,91 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
   }
 }
 
-void partial(unsigned long lower, unsigned long upper, unsigned long terms, unsigned long chunk) {
+void partial(unsigned long lower, unsigned long terms, unsigned long chunk) {
   mpz_t pval, qval, tval;
 
   mpz_inits(pval, qval, tval, NULL);
-  recursion((lower*terms)/chunk, (upper*terms)/chunk, pval, qval, tval);
+  recursion((lower*terms)/chunk, ((lower + 1)*terms)/chunk, pval, qval, tval);
   raw_export(lower, pval, qval, tval);
   mpz_clears(pval, qval, tval, NULL);
 }
 
-void combine(unsigned long one, unsigned long two, unsigned long out, unsigned long digits) {
-  mpz_t pval, qval, tval;
-  mpz_t ptmp, qtmp, ttmp;
+void combine(unsigned long lower, unsigned long upper, unsigned long digits) {
+  mpz_t         pval, qval, tval;
+  mpz_t         ptmp, qtmp, ttmp;
+  unsigned long write = (digits > 0) ? 9 : lower;
 
-  logthis(NULL, "Combine: (%lu/%lu/0/1)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/0/1)\r", lower, upper);
   mpz_inits(pval, qval, tval, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/0/2)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/0/2)\r", lower, upper);
   mpz_inits(ptmp, qtmp, ttmp, NULL);
 
   // ttmp = ttmp * pval
-  logthis(NULL, "Combine: (%lu/%lu/1/1)\r", one, two);
-  raw_import(one, pval, NULL, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/1/2)\r", one, two);
-  raw_import(two, NULL, NULL, ttmp);
-  logthis(NULL, "Combine: (%lu/%lu/1/3)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/1/1)\r", lower, upper);
+  raw_import(lower, pval, NULL, NULL);
+  logthis(NULL, "Combine: (%lu/%lu/1/2)\r", lower, upper);
+  raw_import(upper, NULL, NULL, ttmp);
+  logthis(NULL, "Combine: (%lu/%lu/1/3)\r", lower, upper);
   mpz_mul(ttmp, ttmp, pval);
-  logthis(NULL, "Combine: (%lu/%lu/1/4)\r", one, two);
-  raw_export(two, NULL, NULL, ttmp);
-  logthis(NULL, "Combine: (%lu/%lu/1/5)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/1/4)\r", lower, upper);
+  raw_export(upper, NULL, NULL, ttmp);
+  logthis(NULL, "Combine: (%lu/%lu/1/5)\r", lower, upper);
   mpz_realloc2(ttmp, 0);
 
   // pval = pval * ptmp (not needed for very final combine)
-  if (out == 9) {
-    logthis(NULL, "Combine: (%lu/%lu/2/1)\r", one, two);
+  if (digits > 0) {
+    logthis(NULL, "Combine: (%lu/%lu/2/1)\r", lower, upper);
     mpz_realloc2(pval, 0);
-    logthis(NULL, "Combine: (%lu/%lu/2/2)\r", one, two);
+    logthis(NULL, "Combine: (%lu/%lu/2/2)\r", lower, upper);
     mpz_set_ui(pval, digits);
   } else {
-    logthis(NULL, "Combine: (%lu/%lu/2/1)\r", one, two);
-    raw_import(two, ptmp, NULL, NULL);
-    logthis(NULL, "Combine: (%lu/%lu/2/2)\r", one, two);
+    logthis(NULL, "Combine: (%lu/%lu/2/1)\r", lower, upper);
+    raw_import(upper, ptmp, NULL, NULL);
+    logthis(NULL, "Combine: (%lu/%lu/2/2)\r", lower, upper);
     mpz_mul(pval, pval, ptmp);
-    logthis(NULL, "Combine: (%lu/%lu/2/3)\r", one, two);
+    logthis(NULL, "Combine: (%lu/%lu/2/3)\r", lower, upper);
     mpz_realloc2(ptmp, 0);
   }
-  logthis(NULL, "Combine: (%lu/%lu/2/4)\r", one, two);
-  raw_export(out, pval, NULL, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/2/5)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/2/4)\r", lower, upper);
+  raw_export(write, pval, NULL, NULL);
+  logthis(NULL, "Combine: (%lu/%lu/2/5)\r", lower, upper);
   mpz_realloc2(pval, 0);
 
   // qval = qval * qtmp
-  logthis(NULL, "Combine: (%lu/%lu/3/1)\r", one, two);
-  raw_import(one, NULL, qval, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/3/2)\r", one, two);
-  raw_import(two, NULL, qtmp, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/3/3)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/3/1)\r", lower, upper);
+  raw_import(lower, NULL, qval, NULL);
+  logthis(NULL, "Combine: (%lu/%lu/3/2)\r", lower, upper);
+  raw_import(upper, NULL, qtmp, NULL);
+  logthis(NULL, "Combine: (%lu/%lu/3/3)\r", lower, upper);
   mpz_mul(qval, qval, qtmp);
-  logthis(NULL, "Combine: (%lu/%lu/3/4)\r", one, two);
-  raw_export(out, NULL, qval, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/3/5)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/3/4)\r", lower, upper);
+  raw_export(write, NULL, qval, NULL);
+  logthis(NULL, "Combine: (%lu/%lu/3/5)\r", lower, upper);
   mpz_realloc2(qval, 0);
 
   // tval = tval * qtmp
-  logthis(NULL, "Combine: (%lu/%lu/4/1)\r", one, two);
-  raw_import(one, NULL, NULL, tval);
-  logthis(NULL, "Combine: (%lu/%lu/4/2)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/4/1)\r", lower, upper);
+  raw_import(lower, NULL, NULL, tval);
+  logthis(NULL, "Combine: (%lu/%lu/4/2)\r", lower, upper);
   mpz_mul(tval, tval, qtmp);
-  logthis(NULL, "Combine: (%lu/%lu/4/3)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/4/3)\r", lower, upper);
   mpz_realloc2(qtmp, 0);
 
   // tval = tval + ttmp
-  logthis(NULL, "Combine: (%lu/%lu/5/1)\r", one, two);
-  raw_import(two, NULL, NULL, ttmp);
-  logthis(NULL, "Combine: (%lu/%lu/5/2)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/5/1)\r", lower, upper);
+  raw_import(upper, NULL, NULL, ttmp);
+  logthis(NULL, "Combine: (%lu/%lu/5/2)\r", lower, upper);
   mpz_add(tval, tval, ttmp);
-  logthis(NULL, "Combine: (%lu/%lu/5/3)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/5/3)\r", lower, upper);
   mpz_realloc2(ttmp, 0);
-  logthis(NULL, "Combine: (%lu/%lu/5/4)\r", one, two);
-  raw_export(out, NULL, NULL, tval);
-  logthis(NULL, "Combine: (%lu/%lu/5/5)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/5/4)\r", lower, upper);
+  raw_export(write, NULL, NULL, tval);
+  logthis(NULL, "Combine: (%lu/%lu/5/5)\r", lower, upper);
   mpz_realloc2(tval, 0);
 
-  logthis(NULL, "Combine: (%lu/%lu/6/1)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/6/1)\r", lower, upper);
   mpz_clears(pval, qval, tval, NULL);
-  logthis(NULL, "Combine: (%lu/%lu/6/2)\r", one, two);
+  logthis(NULL, "Combine: (%lu/%lu/6/2)\r", lower, upper);
   mpz_clears(ptmp, qtmp, ttmp, NULL);
 }
 
@@ -229,17 +230,42 @@ void split(unsigned long terms, unsigned long digits) {
   splitreached = 0;
   splitpercent = 0;
   splitmaxterm = 2 * terms;
-
+  
+#if defined(TESTING)
   // recursive passes
-  partial(0, 1 ,terms, 4);
-  partial(1, 2 ,terms, 4);
-  partial(2, 3 ,terms, 4);
-  partial(3, 4 ,terms, 4);
-
+  partial(0, terms, 8);
+  partial(1, terms, 8);
+  partial(2, terms, 8);
+  partial(3, terms, 8);
+  partial(4, terms, 8);
+  partial(5, terms, 8);
+  partial(6, terms, 8);
+  partial(7, terms, 8);
   // combine passes
-  combine(0, 1, 0, 0);
-  combine(2, 3, 2, 0);
-  combine(0, 2, 9, digits);
+  combine(0, 1, 0);
+  combine(2, 3, 0);
+  combine(4, 5, 0);
+  combine(6, 7, 0);
+  combine(0, 2, 0);
+  combine(4, 6, 0);
+  combine(0, 4, digits);
+#elif defined(IGNOREME)
+  // recursive passes
+  partial(0, terms, 2);
+  partial(1, terms, 2);
+  // combine passes
+  combine(0, 1, digits);
+#else
+  // recursive passes
+  partial(0, terms, 4);
+  partial(1, terms, 4);
+  partial(2, terms, 4);
+  partial(3, terms, 4);
+  // combine passes
+  combine(0, 1, 0);
+  combine(2, 3, 0);
+  combine(0, 2, digits);
+#endif
 
   // tidy up
   for (pass = 0 ; pass < 9 ; pass++) {
