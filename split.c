@@ -221,8 +221,23 @@ void combine(unsigned long lower, unsigned long upper, unsigned long digits) {
   mpz_clears(ptmp, qtmp, ttmp, NULL);
 }
 
-void split(unsigned long terms, unsigned long digits) {
+void tidy_pass_files(unsigned long limit) {
   unsigned long pass;
+
+  // tidy up
+  for (pass = 0 ; pass < limit ; pass++) {
+    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
+    remove(tmpfile);
+
+    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
+    remove(tmpfile);
+
+    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
+    remove(tmpfile);
+  }
+}
+
+void split(unsigned long terms, unsigned long digits) {
   char          tmpfile[NAMESIZE];
 
   // initialise counters
@@ -231,7 +246,16 @@ void split(unsigned long terms, unsigned long digits) {
   splitpercent = 0;
   splitmaxterm = 2 * terms;
   
+  // tidy up in advance
+  tidy_pass_files(10);
+  
 #if defined(TESTING)
+  // recursive passes
+  partial(0, terms, 2);
+  partial(1, terms, 2);
+  // combine passes
+  combine(0, 1, digits);
+#elif defined(IGNOREME)
   // recursive passes
   partial(0, terms, 8);
   partial(1, terms, 8);
@@ -249,12 +273,6 @@ void split(unsigned long terms, unsigned long digits) {
   combine(0, 2, 0);
   combine(4, 6, 0);
   combine(0, 4, digits);
-#elif defined(IGNOREME)
-  // recursive passes
-  partial(0, terms, 2);
-  partial(1, terms, 2);
-  // combine passes
-  combine(0, 1, digits);
 #else
   // recursive passes
   partial(0, terms, 4);
@@ -268,14 +286,5 @@ void split(unsigned long terms, unsigned long digits) {
 #endif
 
   // tidy up
-  for (pass = 0 ; pass < 9 ; pass++) {
-    sprintf(tmpfile, "pass-%lu-p.tmp", pass);
-    remove(tmpfile);
-
-    sprintf(tmpfile, "pass-%lu-q.tmp", pass);
-    remove(tmpfile);
-
-    sprintf(tmpfile, "pass-%lu-t.tmp", pass);
-    remove(tmpfile);
-  }
+  tidy_pass_files(9);
 }

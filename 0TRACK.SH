@@ -5,7 +5,6 @@ runfile=${digits}.run
 logfile=${digits}.log
 
 rm -f zzzz.txt ZZZZ.TXT
-touch zzzz.txt ZZZZ.TXT
 
 aranym=$(uname -a | grep -i aranym)
 
@@ -23,40 +22,42 @@ else
   PNAME=8
 fi
 
+
+echo > RUNNING.TXT
 (./0RUNME.SH $* &)
 
 flag=""
 prev=""
 while true ; do
-  proc=$($PSCMD | grep -E "giopi|giotst" | tr -s " " | tail -1)
-  if [ "$(echo $proc | grep giotst)" != "" -a "$flag" = "" ]; then
-    flag="flag"
-  fi
-
   size=""
   what=""
-  if [ "$proc" = "" ]; then
+
+  if [ "$(ls -1 RUNNING.TXT 2>/dev/null | wc -l)" = "0" ]; then
     if [ "$flag" = "flag" ]; then
       echo "Done"
-      exit 0
+      exit 0;
     fi
-  else
+  fi
+
+  proc=$($PSCMD | grep -E "giopi|giotst" | tr -s " " | tail -1)
+  if [ "$proc" != "" ]; then
+    if [ "$(echo $proc | grep giotst)" = "" ]; then flag="flag"; fi
     size=$(echo $proc | cut -d\  -f$PSIZE)
     what=$(basename $(echo $proc | cut -d\  -f$PNAME))
-  fi
-  pass=$(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')
+    pass=$(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')
 
-  if [ -e $runfile ]; then
-    line=$(tail -1 $runfile 2>/dev/null | tr -s " " | tr -d "[:cntrl:]" )
-  elif [ -e $logfile ]; then
-    line=$(tail -1 $logfile 2>/dev/null | tr -s " " | tr -d "[:cntrl:]" )
-  else
-    line=""
-  fi
+    if [ -e $runfile ]; then
+      line=$(tail -1 $runfile 2>/dev/null | tr -s " " | tr -d "[:cntrl:]" )
+    elif [ -e $logfile ]; then
+      line=$(tail -1 $logfile 2>/dev/null | tr -s " " | tr -d "[:cntrl:]" )
+    else
+      line=""
+    fi
 
-  this="$size $what $pass $line"
-  if [ "$this" != "$prev" ]; then
-    echo "$this" >> zzzz.txt
-    prev="$this"
+    this="$size $what $pass $line"
+    if [ "$this" != "$prev" ]; then
+      echo "$this" >> zzzz.txt
+      prev="$this"
+    fi
   fi
 done

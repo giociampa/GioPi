@@ -25,7 +25,7 @@ function process () {
 
     echo "Running: ${stripped} ${params}" 2>&1 | tee RUNNING.TXT
     ./${runthis} ${params}
-    rm -f RUNNING.TXT
+    echo "Finished: ${stripped} ${params}" 2>&1 | tee RUNNING.TXT
 
     for ext in log raw run txt ; do
       if [ -e "${digits}.${ext}" ]; then mv "${digits}.${ext}" "${running}.${ext}"; fi
@@ -40,5 +40,6 @@ function process () {
   fi
 }
 
-rm -f *running* *RUNNING* 2>/dev/null
+echo > RUNNING.TXT 2>/dev/null
 for source in $FILELIST ; do process "${source}" ; done
+rm -f RUNNING.TXT 2>/dev/null
