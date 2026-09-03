@@ -223,6 +223,7 @@ void combine(unsigned long lower, unsigned long upper, unsigned long digits) {
 
 void tidy_pass_files(unsigned long limit) {
   unsigned long pass;
+  char          tmpfile[NAMESIZE];
 
   // tidy up
   for (pass = 0 ; pass < limit ; pass++) {
@@ -238,8 +239,6 @@ void tidy_pass_files(unsigned long limit) {
 }
 
 void split(unsigned long terms, unsigned long digits) {
-  char          tmpfile[NAMESIZE];
-
   // initialise counters
   splitcurrent = 0;
   splitreached = 0;
