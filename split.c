@@ -238,51 +238,52 @@ void tidy_pass_files(unsigned long limit) {
   }
 }
 
-void split(unsigned long terms, unsigned long digits) {
+void split(unsigned long terms, unsigned long digits, unsigned long splits) {
   // initialise counters
   splitcurrent = 0;
   splitreached = 0;
   splitpercent = 0;
   splitmaxterm = 2 * terms;
   
-  // tidy up in advance
+  // tidy up
   tidy_pass_files(10);
   
-#if defined(TESTING)
   // recursive passes
-  partial(0, terms, 2);
-  partial(1, terms, 2);
+  if (splits == 2) {
+    partial(0, terms, 2);
+    partial(1, terms, 2);
+  } else if (splits == 4) {
+    partial(0, terms, 4);
+    partial(1, terms, 4);
+    partial(2, terms, 4);
+    partial(3, terms, 4);
+  } else if (splits == 8) {
+    partial(0, terms, 8);
+    partial(1, terms, 8);
+    partial(2, terms, 8);
+    partial(3, terms, 8);
+    partial(4, terms, 8);
+    partial(5, terms, 8);
+    partial(6, terms, 8);
+    partial(7, terms, 8);
+  }
+
   // combine passes
-  combine(0, 1, digits);
-#elif defined(IGNOREME)
-  // recursive passes
-  partial(0, terms, 8);
-  partial(1, terms, 8);
-  partial(2, terms, 8);
-  partial(3, terms, 8);
-  partial(4, terms, 8);
-  partial(5, terms, 8);
-  partial(6, terms, 8);
-  partial(7, terms, 8);
-  // combine passes
-  combine(0, 1, 0);
-  combine(2, 3, 0);
-  combine(4, 5, 0);
-  combine(6, 7, 0);
-  combine(0, 2, 0);
-  combine(4, 6, 0);
-  combine(0, 4, digits);
-#else
-  // recursive passes
-  partial(0, terms, 4);
-  partial(1, terms, 4);
-  partial(2, terms, 4);
-  partial(3, terms, 4);
-  // combine passes
-  combine(0, 1, 0);
-  combine(2, 3, 0);
-  combine(0, 2, digits);
-#endif
+  if (splits == 2) {
+    combine(0, 1, digits);
+  } else if (splits == 4) {
+    combine(0, 1, 0);
+    combine(2, 3, 0);
+    combine(0, 2, digits);
+  } else if (splits == 8) {
+    combine(0, 1, 0);
+    combine(2, 3, 0);
+    combine(4, 5, 0);
+    combine(6, 7, 0);
+    combine(0, 2, 0);
+    combine(4, 6, 0);
+    combine(0, 4, digits);
+  }
 
   // tidy up
   tidy_pass_files(9);
