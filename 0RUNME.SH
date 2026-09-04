@@ -1,9 +1,20 @@
 #!/bin/bash
 
 params=$*
-digits=$1
+digits=""
+splits="2"
 
-if [ "$digits" = "" ]; then echo "Missing digits parameter"; exit; fi
+for param in ${params} ; do
+  if [ "${param}" != "" ]; then
+    check=$(echo "${param}" | tr -d "[0-9]")
+    if [ "$check" = "" ]; then digits=${param}; fi
+    
+    check=$(echo "${param}" | grep -i -E "split2|split4|split8")
+    if [ "$check" != "" ]; then splits=$(echo "${param}" | tr "[:lower:]" "[:upper:]" | sed "s/SPLIT//"); fi
+  fi
+done
+
+if [ "${digits}" = "" ]; then echo "Missing digits parameter"; exit 0; fi
 
 aranym=$(uname -a | grep -i aranym)
 
@@ -20,8 +31,8 @@ fi
 function process () {
   local runthis=$1
   if [ -e "${runthis}" ]; then
-    stripped=${runthis%.ttp}
-    running=${digits}-${stripped}
+    stripped="${runthis%.ttp}"
+    running="${digits}-${stripped}-${splits}"
 
     echo "Running: ${stripped} ${params}" 2>&1 | tee RUNNING.TXT
     ./${runthis} ${params}
