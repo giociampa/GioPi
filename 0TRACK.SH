@@ -26,22 +26,14 @@ fi
 echo > RUNNING.TXT
 (./0RUNME.SH $* &)
 
-flag=""
 prev=""
 while true ; do
+  if [ ! -e RUNNING.TXT ]; then echo Done; exit; fi
+
   size=""
   what=""
-
-  if [ "$(ls -1 RUNNING.TXT 2>/dev/null | wc -l)" = "0" ]; then
-    if [ "$flag" = "flag" ]; then
-      echo "Done"
-      exit 0;
-    fi
-  fi
-
   proc=$($PSCMD | grep -E "giopi|giotst" | tr -s " " | tail -1)
   if [ "$proc" != "" ]; then
-    if [ "$(echo $proc | grep giotst)" = "" ]; then flag="flag"; fi
     size=$(echo $proc | cut -d\  -f$PSIZE)
     what=$(basename $(echo $proc | cut -d\  -f$PNAME))
     pass=$(du -b pass* 2>&1 | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')
