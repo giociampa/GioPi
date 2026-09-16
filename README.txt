@@ -11,17 +11,19 @@ Notes:
 *.exe = Windows executable
 *.ttp = Atari executable (0/2/4 suffix for m68000/20/40 code)
 
-(Approximate) Storage requirements:
-RAM:  8x digits
-Disk: 6x digits (temporary files)
+Storage requirements (approx):
+RAM:  8*digits
+Disk: 6*digits (temporary files)
 
 --------------------------------------------------------------------------------
 
-giopi/tst [digits] [noout] [raw]
+giopi [-d digits] [-s splits] [-n] [-r] [places]
 
-digits  (opt) Desired digits (prompted if missing)
-noout   (opt) Skip output file (useful for timing runs)
-raw     (opt) Generate raw output rather than text
+-d digits (opt) Desired digits (prompted if missing)
+places    (opt) Alternative to using -d parameter (-d has priority if both used)
+-s splits (opt) Use 2/4/8 way version of the binary split (default = 2)
+-n        (opt) Skip output file (useful for timing runs)
+-r        (opt) Generate raw output rather than text
 
 --------------------------------------------------------------------------------
 

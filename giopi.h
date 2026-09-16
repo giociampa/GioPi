@@ -22,7 +22,7 @@
 #define BITS_PER_DIGIT  3.32192809488736234787
 #define DIGITS_PER_ITER 14.1816474627254776555
 #define DOUBLE_PREC     53
-#define LEEWAY          32
+#define LEEWAY          16
 
 #define CHUNKCOUNT  5
 #define CHUNKCHARS  10
@@ -30,7 +30,7 @@
 #define WHOLELINE   (DIGITSLINE + 6)
 #define NAMESIZE    256
 #define WRITECHUNK  1000000
-#define DEBUG_FILE  "zzzdebug.txt"
+#define DEBUG_FILE  "ZZZDEBUG.TXT"
 #define STACKSIZE   131072L
 
 #define CHAR_THREE  '3'
