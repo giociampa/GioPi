@@ -12,7 +12,7 @@ while [ $done -eq 0 ]; do
   clear
   ls -l
   echo
-  echo $(cat running.txt RUNNING.TXT 2>/dev/null)
+  if [ -e running.txt -o -e RUNNING.TXT ]; then echo $(cat running.txt RUNNING.TXT 2>/dev/null); exit; fi
   echo "Current: $(ls -1 *.run *.RUN 2>/dev/null|tail -1|while read f;do cat $f;done)"
   if [ -e running.txt ]; then
     digits=$(cat running.txt | cut -d\  -f3 | tr -d -c '[0-9]')

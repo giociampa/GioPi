@@ -10,7 +10,7 @@ void logdone();
 
 // split.c
 void split(unsigned long b, unsigned long digits, unsigned long splits);
- 
+
 // root10005.c
 void root10005(mpf_t r, unsigned long digits);
 
@@ -31,12 +31,17 @@ int main(int argc, char *argv[]) {
   bool          showoutput, rawoutput;
   int           option;
 
+  sprintf(logfile, "%lu.log", digits);
+  sprintf(rawfile, "%lu.raw", digits);
+  sprintf(txtfile, "%lu.txt", digits);
+  loginit(logfile, false);
+
   digits = 0;
   splits = 2;
   showoutput = true;
   rawoutput = false;
 
-  while((option = getopt(argc, argv, ":d:s:nr?")) != -1) {
+  while((option = getopt(argc, argv, ":d:s:nrh?")) != -1) {
     switch(option) {
       case 'd':
         getdigits(optarg, &places);
@@ -52,9 +57,19 @@ int main(int argc, char *argv[]) {
       case 'r':
         rawoutput = true;
         break;
+      case 'h':
       case '?':
-        usage;
-        
+        logthis(NULL, "giopi [-d digits] [-s splits] [-n] [-r] [-h] [places]\n");
+        logthis(NULL, "\n");
+        logthis(NULL, "-d digits  Desired digits (prompted if missing)\n");
+        logthis(NULL, "places     Alternative to -d parameter (-d has priority if both used)\n");
+        logthis(NULL, "-s splits  Use 2/4/8 way version of the binary split (default = 2)\n");
+        logthis(NULL, "-n         Skip output file (useful for timing runs)\n");
+        logthis(NULL, "-r         Generate raw output rather than text\n");
+        logthis(NULL, "-h         Print this help text\n");
+        logdone();
+        return EXIT_SUCCESS;
+        break;
     }
   }
 
@@ -78,11 +93,6 @@ int main(int argc, char *argv[]) {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
-  sprintf(logfile, "%lu.log", digits);
-  sprintf(rawfile, "%lu.raw", digits);
-  sprintf(txtfile, "%lu.txt", digits);
-
-  loginit(logfile, false);
   logthis(logfile, "Build:  GioPi (%s)\n", BUILDDATE);
   logthis(logfile, "Digits: %lu\n", digits);
   logthis(logfile, "Terms:  %lu\n\n", terms);

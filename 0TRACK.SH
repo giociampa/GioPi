@@ -23,12 +23,12 @@ else
 fi
 
 
-echo > RUNNING.TXT
+echo > running.txt
 (./0RUNME.SH $* &)
 
 prev=""
 while true ; do
-  if [ ! -e RUNNING.TXT ]; then echo Done; exit; fi
+  if [ ! -e running.txt -a ! -e RUNNING.TXT ]; then echo Done; exit; fi
 
   size=""
   what=""
