@@ -30,10 +30,10 @@ while [ $done -eq 0 ]; do
     elif [ -e "$runfile" ]; then
       seefile="${runfile}"
     fi
-    if [ "${seefile}" != "" ]; then printf "%-20s  %-20d  %s\n" "${seefile}" "$(du -b ${seefile} | cut -f1)"  "$(stat ${seefile} | grep Change | cut -d\  -f2- | cut -d\. -f1)" ; fi
+    if [ "${seefile}" != "" ]; then printf "%-25s  %'15d  %s\n" "${seefile}" "$(du -b ${seefile} | cut -f1)"  "$(stat ${seefile} | grep Change | cut -d\  -f2- | cut -d\. -f1)" ; fi
   done
 
-  printf "%-20s  %-20d\n" "(Temp. Storage)" "$(du -b pass* PASS* 2>/dev/null | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
+  printf "%-25s  %'15d\n" "(Temp. Storage)" "$(du -b pass* PASS* 2>/dev/null | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
 
   if [ "$ONCE" = "ONCE" ]; then done=1; fi
   if [ $done -eq 0 ]; then sleep $TIME; fi
