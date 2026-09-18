@@ -4,28 +4,37 @@ ONCE=""
 TIME=5
 for param in $* ; do
   if [ "$(echo $param | grep -i once)" != "" ]; then ONCE="ONCE"; fi
-  if [ $(echo $param | tr -c -d "[0-9]") -eq $param ]; then TIME=$param; fi
+  if [ "$(echo $param | tr -c -d '[0-9]')" = "${param}" ]; then TIME=${param}; fi
 done
 
 done=0
 while [ $done -eq 0 ]; do
   clear
-  ls -l
+
+  runfile=""
+  for testing in "running.txt" "RUNNING.TXT"; do
+    if [ -e "${testing}" ]; then
+      runfile=$(for d in $(cat "${testing}"); do if [ -e "${d}.run" ]; then echo "${d}.run"; fi; done)
+      if [ "${runfile}" != "" ]; then echo $(cat "${testing}"); echo $(stat ${runfile} | grep Change | cut -c-30 | sed "s/e/ed/"); echo $(cat ${runfile}); fi
+    fi
+  done
+  if [ "${runfile}" = "" ]; then echo "Running: None"; done=1; fi
+
   echo
-  if [ -e running.txt -o -e RUNNING.TXT ]; then echo $(cat running.txt RUNNING.TXT 2>/dev/null); exit; fi
-  echo "Current: $(ls -1 *.run *.RUN 2>/dev/null|tail -1|while read f;do cat $f;done)"
-  if [ -e running.txt ]; then
-    digits=$(cat running.txt | cut -d\  -f3 | tr -d -c '[0-9]')
-    echo $(stat $digits.run | grep Change | cut -c-30 | sed "s/e/ed/")
-  elif [ -e RUNNING.TXT ]; then
-    digits=$(cat RUNNING.TXT | cut -d\  -f3 | tr -d -c '[0-9]' | cut -c-8)
-    echo $(stat $digits.RUN | grep Birth | cut -c-30 | sed "s/Birth/Created/")
-    echo $(stat $digits.RUN | grep Change | cut -c-30 | sed "s/e/ed/")
-  else
-    echo "Running: None"
-    done=1
-  fi
-  echo "Storage: $(du -b pass* PASS* 2>/dev/null | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
+  for logfile in *.log ; do
+    runfile="${logfile%log}run"
+    txtfile="${logfile%log}txt"
+    seefile=""
+    if [ -e "$txtfile" ]; then
+      seefile="${txtfile}"
+    elif [ -e "$runfile" ]; then
+      seefile="${runfile}"
+    fi
+    if [ "${seefile}" != "" ]; then printf "%-20s  %-20d  %s\n" "${seefile}" "$(du -b ${seefile} | cut -f1)"  "$(stat ${seefile} | grep Change | cut -d\  -f2- | cut -d\. -f1)" ; fi
+  done
+
+  printf "%-20s  %-20d\n" "(Temp. Storage)" "$(du -b pass* PASS* 2>/dev/null | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
+
   if [ "$ONCE" = "ONCE" ]; then done=1; fi
   if [ $done -eq 0 ]; then sleep $TIME; fi
 done

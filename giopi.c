@@ -24,6 +24,17 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits);
 // tmptxt.c
 void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
 
+void usage() {
+  printf("Usage: giopi [-d digits] [-s splits] [-n] [-r] [-h] [places]\n");
+  printf("\n");
+  printf("-d digits  Desired digits (prompted if digits not specified)\n");
+  printf("places     Alternative to -d parameter (-d has priority if both used)\n");
+  printf("-s splits  Use 2/4/8 way version of the binary split (default = 2)\n");
+  printf("-n         Skip output file (useful for timing runs)\n");
+  printf("-r         Generate raw output rather than text\n");
+  printf("-h         Print this help text\n");
+}
+
 int main(int argc, char *argv[]) {
   unsigned long digits, places, count, terms, bits, splits;
   char          logfile[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE];
@@ -31,17 +42,12 @@ int main(int argc, char *argv[]) {
   bool          showoutput, rawoutput;
   int           option;
 
-  sprintf(logfile, "%lu.log", digits);
-  sprintf(rawfile, "%lu.raw", digits);
-  sprintf(txtfile, "%lu.txt", digits);
-  loginit(logfile, false);
-
   digits = 0;
   splits = 2;
   showoutput = true;
   rawoutput = false;
 
-  while((option = getopt(argc, argv, ":d:s:nrh?")) != -1) {
+  while((option = getopt(argc, argv, "d:s:nrh")) != -1) {
     switch(option) {
       case 'd':
         getdigits(optarg, &places);
@@ -58,16 +64,11 @@ int main(int argc, char *argv[]) {
         rawoutput = true;
         break;
       case 'h':
-      case '?':
-        logthis(NULL, "giopi [-d digits] [-s splits] [-n] [-r] [-h] [places]\n");
-        logthis(NULL, "\n");
-        logthis(NULL, "-d digits  Desired digits (prompted if missing)\n");
-        logthis(NULL, "places     Alternative to -d parameter (-d has priority if both used)\n");
-        logthis(NULL, "-s splits  Use 2/4/8 way version of the binary split (default = 2)\n");
-        logthis(NULL, "-n         Skip output file (useful for timing runs)\n");
-        logthis(NULL, "-r         Generate raw output rather than text\n");
-        logthis(NULL, "-h         Print this help text\n");
-        logdone();
+        usage();
+        return EXIT_SUCCESS;
+        break;
+      default:
+        usage();
         return EXIT_SUCCESS;
         break;
     }
@@ -88,6 +89,11 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
   }
+
+  sprintf(logfile, "%lu.log", digits);
+  sprintf(rawfile, "%lu.raw", digits);
+  sprintf(txtfile, "%lu.txt", digits);
+  loginit(logfile, false);
 
   terms = (digits / DIGITS_PER_ITER) + 1;
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;

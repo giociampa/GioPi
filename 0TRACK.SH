@@ -1,6 +1,30 @@
 #!/bin/bash
 
-digits=$1
+params=$*
+digits=""
+splits="2"
+
+while getopts ":d:s:" opt
+do
+	case ${opt} in
+		d) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then digits="${OPTARG}"; fi ;;
+		s) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then splits="${OPTARG}"; fi ;;
+	esac
+done
+
+prevparam=""
+if [ "${digits}" = "" ]; then
+  for param in ${params} ; do
+    if [ "${param}" != "" ]; then
+      check=$(echo "${param}" | tr -d "[0-9]")
+      if [ "${check}" = "" -a "${prevparam}" != "-d"  -a "${prevparam}" != "-s" ]; then digits=${param}; fi
+      prevparam=${param}
+    fi
+  done
+fi
+
+if [ "${digits}" = "" ]; then echo "Missing digits parameter"; exit 0; fi
+
 runfile=${digits}.run
 logfile=${digits}.log
 
