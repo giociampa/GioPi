@@ -5,31 +5,31 @@ digits=""
 splits="2"
 dozing="10"
 
-while getopts ":d:s:" opt
+while getopts "d:248" opt
 do
 	case ${opt} in
 		d) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then digits="${OPTARG}"; fi ;;
-		s) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then splits="${OPTARG}"; fi ;;
+		2) splits="2" ;;
+		4) splits="4" ;;
+		8) splits="8" ;;
 	esac
 done
 
 prevparam=""
-if [ "${digits}" = "" ]; then
-  for param in ${params} ; do
-    if [ "${param}" != "" ]; then
+for param in ${params} ; do
+  if [ "${param}" != "" ]; then
+    if [ "${digits}" = "" ]; then
       check=$(echo "${param}" | tr -d "[0-9]")
       if [ "${check}" = "" -a "${prevparam}" != "-d"  -a "${prevparam}" != "-s" ]; then digits=${param}; fi
-      check=$(echo "${param}" | grep -i "^sleep=")
-      if [ "${check}" = "" ]; then
-        check=$(echo "${param}" | cut -d= -f2 | tr -d "[0-9]")
-        if [ "${check}" = "" ]; then
-          dozing=$(echo "${param}" | cut -d= -f2)
-        fi
-      fi
-      prevparam=${param}
     fi
-  done
-fi
+    check=$(echo "${param}" | grep -i "^sleep=")
+    if [ "${check}" != "" ]; then
+      check=$(echo "${param}" | cut -d= -f2 | tr -d "[0-9]")
+      if [ "${check}" = "" ]; then dozing=$(echo "${param}" | cut -d= -f2); fi
+    fi
+    prevparam=${param}
+  fi
+done
 
 if [ "${digits}" = "" ]; then echo "Missing digits parameter"; exit 0; fi
 
@@ -51,7 +51,7 @@ function process () {
     stripped="${runthis%.ttp}"
     running="${digits}-${stripped}-${splits}"
 
-    echo "Running: ${stripped} ${params}" 2>&1 | tee running.txt
+    echo "Running: ${stripped} ${params}" | tee running.txt
     ./${runthis} ${params}
 
     for ext in log raw run txt ; do
@@ -63,7 +63,7 @@ function process () {
       if [ -e "pass-9-${part}.tmp" ]; then mv "pass-9-${part}.tmp" "${running}-9-${part}.tmp"; fi
     done
 
-    echo "Finished: ${stripped} ${params}" 2>&1 | tee running.txt
+    echo "Finished: ${stripped} ${params}" | tee running.txt
     echo
   fi
 }
@@ -74,8 +74,9 @@ for source in $FILELIST ; do
   if [ $firstone -eq 1 ]; then
     firstone=0
   else
-    echo "Sleeping: ${dozing} sec" | tee running.txt
+    echo "Sleeping:" | tee running.txt
     sleep "${dozing}"
+    echo
   fi
   process "${source}"
 done

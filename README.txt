@@ -17,11 +17,11 @@ Disk: 6*digits (temporary files)
 
 --------------------------------------------------------------------------------
 
-giopi [-d digits] [-s splits] [-n] [-r] [-h] [places]
+giopi [-d digits] [-2] [-4] [-8] [-n] [-r] [-h] [places]
 
 -d digits  Desired digits (prompted if missing)
 places     Alternative to -d parameter (-d has priority if both used)
--s splits  Use 2/4/8 way version of the binary split (default = 2)
+-2/-4/-8   Use 2/4/8 way version of the binary split (default = 2)
 -n         Skip output file (useful for timing runs)
 -r         Generate raw output rather than text
 -h         Print this help text
