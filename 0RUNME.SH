@@ -5,10 +5,11 @@ digits=""
 splits="2"
 dozing="10"
 
-while getopts "d:248" opt
+while getopts "d:1248" opt
 do
 	case ${opt} in
 		d) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then digits="${OPTARG}"; fi ;;
+		1) splits="1" ;;
 		2) splits="2" ;;
 		4) splits="4" ;;
 		8) splits="8" ;;

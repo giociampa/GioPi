@@ -25,11 +25,11 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits);
 void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
 
 void usage() {
-  printf("Usage: giopi [-d digits] [-2] [-4] [-8] [-n] [-r] [-h] [places]\n");
+  printf("Usage:     giopi [-d digits] [-1] [-2] [-4] [-8] [-n] [-r] [-h] [places]\n");
   printf("\n");
   printf("-d digits  Desired digits (prompted if digits not specified)\n");
   printf("places     Alternative to -d parameter (-d has priority if both used)\n");
-  printf("-2/-4/-8   Use 2/4/8 way version of the binary split (default = 2)\n");
+  printf("-1/2/4/8   Use 1/2/4/8 way version of the binary split (default = 2)\n");
   printf("-n         Skip output file (useful for timing runs)\n");
   printf("-r         Generate raw output rather than text\n");
   printf("-h         Print this help text\n");
@@ -47,11 +47,14 @@ int main(int argc, char *argv[]) {
   showoutput = true;
   rawoutput = false;
 
-  while((option = getopt(argc, argv, "d:248nrh")) != -1) {
+  while((option = getopt(argc, argv, "d:1248nrh")) != -1) {
     switch(option) {
       case 'd':
         getdigits(optarg, &places);
         if (places > 0) { digits = places; }
+        break;
+      case '1':
+        splits = 1;
         break;
       case '2':
         splits = 2;

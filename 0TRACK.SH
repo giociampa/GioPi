@@ -2,26 +2,24 @@
 
 params=$*
 digits=""
-splits="2"
 
-while getopts ":d:s:" opt
+while getopts "d:" opt
 do
 	case ${opt} in
 		d) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then digits="${OPTARG}"; fi ;;
-		s) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then splits="${OPTARG}"; fi ;;
 	esac
 done
 
 prevparam=""
-if [ "${digits}" = "" ]; then
-  for param in ${params} ; do
-    if [ "${param}" != "" ]; then
+for param in ${params} ; do
+  if [ "${param}" != "" ]; then
+    if [ "${digits}" = "" ]; then
       check=$(echo "${param}" | tr -d "[0-9]")
       if [ "${check}" = "" -a "${prevparam}" != "-d"  -a "${prevparam}" != "-s" ]; then digits=${param}; fi
-      prevparam=${param}
     fi
-  done
-fi
+    prevparam=${param}
+  fi
+done
 
 if [ "${digits}" = "" ]; then echo "Missing digits parameter"; exit 0; fi
 
@@ -45,7 +43,6 @@ else
   PSIZE=6
   PNAME=8
 fi
-
 
 echo > running.txt
 (./0RUNME.SH $* &)

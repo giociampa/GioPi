@@ -133,12 +133,17 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
   }
 }
 
-void partial(unsigned long lower, unsigned long terms, unsigned long chunk) {
+void partial(unsigned long lower, unsigned long terms, unsigned long chunks, unsigned long digits) {
   mpz_t pval, qval, tval;
+  unsigned long write = (digits > 0) ? 9 : lower;
 
   mpz_inits(pval, qval, tval, NULL);
-  recursion((lower*terms)/chunk, ((lower + 1)*terms)/chunk, pval, qval, tval);
-  raw_export(lower, pval, qval, tval);
+  recursion((lower*terms)/chunks, ((lower + 1)*terms)/chunks, pval, qval, tval);
+  if (digits > 0) {
+    mpz_realloc2(pval, 0);
+    mpz_set_ui(pval, digits);
+  }
+  raw_export(write, pval, qval, tval);
   mpz_clears(pval, qval, tval, NULL);
 }
 
@@ -249,26 +254,28 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
   tidy_pass_files(10);
   
   // recursive passes
-  if (splits == 2) {
-    partial(0, terms, 2);
-    partial(1, terms, 2);
+  if (splits == 1) {
+    partial(0, terms, 1, digits);
+  } else if (splits == 2) {
+    partial(0, terms, 2, 0);
+    partial(1, terms, 2, 0);
   } else if (splits == 4) {
-    partial(0, terms, 4);
-    partial(1, terms, 4);
-    partial(2, terms, 4);
-    partial(3, terms, 4);
+    partial(0, terms, 4, 0);
+    partial(1, terms, 4, 0);
+    partial(2, terms, 4, 0);
+    partial(3, terms, 4, 0);
   } else if (splits == 8) {
-    partial(0, terms, 8);
-    partial(1, terms, 8);
-    partial(2, terms, 8);
-    partial(3, terms, 8);
-    partial(4, terms, 8);
-    partial(5, terms, 8);
-    partial(6, terms, 8);
-    partial(7, terms, 8);
+    partial(0, terms, 8, 0);
+    partial(1, terms, 8, 0);
+    partial(2, terms, 8, 0);
+    partial(3, terms, 8, 0);
+    partial(4, terms, 8, 0);
+    partial(5, terms, 8, 0);
+    partial(6, terms, 8, 0);
+    partial(7, terms, 8, 0);
   }
 
-  // combine passes
+  // combine passes (not needed for splits = 1)
   if (splits == 2) {
     combine(0, 1, digits);
   } else if (splits == 4) {

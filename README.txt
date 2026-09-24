@@ -17,11 +17,11 @@ Disk: 6*digits (temporary files)
 
 --------------------------------------------------------------------------------
 
-giopi [-d digits] [-2] [-4] [-8] [-n] [-r] [-h] [places]
+giopi [-d digits] [-1] [-2] [-4] [-8] [-n] [-r] [-h] [places]
 
--d digits  Desired digits (prompted if missing)
+-d digits  Desired digits (prompted if digits not specified)
 places     Alternative to -d parameter (-d has priority if both used)
--2/-4/-8   Use 2/4/8 way version of the binary split (default = 2)
+-1/2/4/8   Use 1/2/4/8 way version of the binary split (default = 2)
 -n         Skip output file (useful for timing runs)
 -r         Generate raw output rather than text
 -h         Print this help text
@@ -30,15 +30,15 @@ places     Alternative to -d parameter (-d has priority if both used)
 
 compare file1 file2 [good]
 
-file1, file2  Formatted text files
-good          (opt) Display only the correct number of digits
+file1/2    Formatted text files
+good       Display only the correct number of digits
 
 --------------------------------------------------------------------------------
 
 raw2txt file [digits]
 
-file          Input file (output filename usually based on input)
-digits (opt)  Desired digits (defaults to digits in filename, prompts if needed)
+file       Input file (output filename usually based on input)
+digits     Desired digits (defaults to digits in filename, prompts if needed)
 
 --------------------------------------------------------------------------------
 
