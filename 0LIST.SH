@@ -27,10 +27,13 @@ while [ $done -eq 0 ]; do
     seefile=""
     if [ -e "$txtfile" ]; then
       seefile="${txtfile}"
+      runtime="($(grep Total ${logfile} | tr -s " " | cut -d\  -f2-3))"
     elif [ -e "$runfile" ]; then
       seefile="${runfile}"
+      runtime=""
     fi
-    if [ "${seefile}" != "" ]; then printf "%-25s  %'15d  %s\n" "${seefile}" "$(du -b ${seefile} | cut -f1)"  "$(stat ${seefile} | grep Change | cut -d\  -f2- | cut -d\. -f1)" ; fi
+    timestamp="$(stat ${seefile} | grep Change | cut -d\  -f2- | cut -d\. -f1)"
+    if [ "${seefile}" != "" ]; then printf "%-25s  %'15d  %s %s\n" "${seefile}" "$(du -b ${seefile} | cut -f1)" "${timestamp}" "${runtime}"; fi
   done
 
   printf "%-25s  %'15d\n" "(Temp. Storage)" "$(du -b pass* PASS* 2>/dev/null | awk 'BEGIN{sum=0}{sum+=$1}END{print sum}')"
