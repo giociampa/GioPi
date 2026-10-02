@@ -2,6 +2,7 @@
 #define _GIOPI_H 1
 
 #include <ctype.h>
+#include <getopt.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>

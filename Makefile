@@ -172,10 +172,8 @@ tmptxt.exe: ${TMPFILES}
 	${CROSTRIP} $@
 	@echo ||:
 
-# --------------------------------------------------------------------------------------------------
-
 copydlls:
-	@echo 'Copying DLL files' ||:
+	@echo "Copying DLL files" ||:
 	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
@@ -184,22 +182,29 @@ copydlls:
 # --------------------------------------------------------------------------------------------------
 
 list:
-	@echo 'File list' ||:
+	@echo "File list" ||:
 	@du -b giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll 2>/dev/null ||:
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
 
 clean:
-	rm -f giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
+	@echo "Cleaning files" ||:
+	@rm -f giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip ||:
 	@echo ||:
 
 veryclean: clean
-	@echo 'Cleaning files' ||:
 	@mv README.txt README.txt.000 2>/dev/null ||:
-	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt
-	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT
+	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt ||:
+	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT ||:
 	@mv README.txt.000 README.txt 2>/dev/null ||:
+
+# --------------------------------------------------------------------------------------------------
+
+release: veryclean all
+	7z a -tzip giopi-$(shell date +%Y%m%d-%H%M) README.txt giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
+	@du -b *.zip ||:
+	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
 

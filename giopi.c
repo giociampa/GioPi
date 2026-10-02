@@ -24,34 +24,82 @@ void writeraw(mpf_t result, char *rawfile, unsigned long digits);
 // tmptxt.c
 void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
 
+// getopt_long structures
+int           option_flag;
+char          *short_option = "d:1248nrh?";
+struct option long_options[] = {
+  {"digits",  required_argument,  &option_flag,  0},
+  {"DIGITS",  required_argument,  &option_flag,  0},
+  {"splits",  required_argument,  &option_flag,  1},
+  {"SPLITS",  required_argument,  &option_flag,  1},
+  {"noout",   no_argument,        &option_flag,  2},
+  {"NOOUT",   no_argument,        &option_flag,  2},
+  {"rawout",  no_argument,        &option_flag,  3},
+  {"RAWOUT",  no_argument,        &option_flag,  3},
+  {"help",    no_argument,        &option_flag,  4},
+  {"HELP",    no_argument,        &option_flag,  4},
+  {0,         0,                  0,  0}
+};
+
 void usage() {
-  printf("Usage:     giopi [-d digits] [-1] [-2] [-4] [-8] [-n] [-r] [-h] [places]\n");
+  printf("giopi [-d/--digits] digits [-1/-2/-4/-8] [--splits splits] [-n] [--noout] [-r] [--raw] [-h] [--help]\n");
   printf("\n");
-  printf("-d digits  Desired digits (prompted if digits not specified)\n");
-  printf("places     Alternative to -d parameter (-d has priority if both used)\n");
-  printf("-1/2/4/8   Use 1/2/4/8 way version of the binary split (default = 2)\n");
-  printf("-n         Skip output file (useful for timing runs)\n");
-  printf("-r         Generate raw output rather than text\n");
-  printf("-h         Print this help text\n");
+  printf("-d digits / --digits digits / digits\n");
+  printf("  Desired digits (prompted if digits not specified)\n");
+  printf("  (digit-only used in preference to others, otherwise last value specified used)\n");
+  printf("\n");
+  printf("-1 / -2 / -4 / -8 / --splits splits\n");
+  printf("  Use 1/2/4/8 way version of the binary split (default = 2, any other value ignored)\n");
+  printf("\n");
+  printf("-n / --noout\n");
+  printf("  Skip output file (useful for timing runs)\n");
+  printf("\n");
+  printf("-r / --raw\n");
+  printf("  Generate raw output rather than text\n");
+  printf("\n");
+  printf("-h / --help\n");
+  printf("  Print this help text\n");
 }
 
 int main(int argc, char *argv[]) {
-  unsigned long digits, places, count, terms, bits, splits;
+  unsigned long digits, value, count, terms, bits, splits;
   char          logfile[NAMESIZE], rawfile[NAMESIZE], txtfile[NAMESIZE];
   clock_t       start_time, inter_time;
   bool          showoutput, rawoutput;
-  int           option;
+  int           option, option_index;
 
   digits = 0;
   splits = 2;
   showoutput = true;
   rawoutput = false;
 
-  while((option = getopt(argc, argv, "d:1248nrh")) != -1) {
+  while((option = getopt_long(argc, argv, short_option, long_options, &option_index)) != -1) {
     switch(option) {
+      case 0:
+        switch(option_flag) {
+          case 0: // digits
+            getdigits(optarg, &value);
+            if (value > 0) { digits = value; }
+            break;
+          case 1: // splits
+            getdigits(optarg, &value);
+            if (value > 0) { splits = value; }
+            break;
+          case 2: // noout
+            showoutput = false;
+            break;
+          case 3: // raw
+            rawoutput = true;
+            break;
+          case 4: // help
+            usage();
+            return EXIT_SUCCESS;
+            break;
+        }
+        break;
       case 'd':
-        getdigits(optarg, &places);
-        if (places > 0) { digits = places; }
+        getdigits(optarg, &value);
+        if (value > 0) { digits = value; }
         break;
       case '1':
         splits = 1;
@@ -72,6 +120,7 @@ int main(int argc, char *argv[]) {
         rawoutput = true;
         break;
       case 'h':
+      case '?':
         usage();
         return EXIT_SUCCESS;
         break;
@@ -81,19 +130,18 @@ int main(int argc, char *argv[]) {
         break;
     }
   }
-
-  if (digits == 0) {
-    for ( ; optind < argc ; optind++) {
-      getdigits(argv[optind], &places);
-      if (places > 0) { digits = places; }
-    }
+  
+  for ( ; optind < argc ; optind++) {
+    getdigits(argv[optind], &value);
+    if (value > 0) { digits = value; }
   }
 
   if (digits == 0) {
     printf("Digits? ");
     scanf("%lu", &digits);
     if (digits == 0) {
-      printf("ERROR: Invalid digit count\n");
+      printf("ERROR: Invalid digit count specified\n\n");
+      usage();
       return EXIT_FAILURE;
     }
   }
