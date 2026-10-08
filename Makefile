@@ -6,11 +6,11 @@ RAWFILES = raw2txt.c getdigits.c logging.c convert.c
 TMPFILES = tmp2txt.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 
 FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
-FLAGSLOC = ${FLAGSALL} -lgmp
-FLAGS000 = -m68000 -msoft-float ${FLAGSALL} -lgmp
-FLAGS020 = -m68020 -msoft-float ${FLAGSALL} -lgmp20
-FLAGS040 = -m68040 -mhard-float ${FLAGSALL} -lgmp40
-FLAGSEXE = ${FLAGSALL} -lgmp
+FLAGSLOC = -DBUILDTYPE=\"Linux\" ${FLAGSALL} -lgmp
+FLAGS000 = -DBUILDTYPE=\"m68000\" -m68000 -msoft-float ${FLAGSALL} -lgmp
+FLAGS020 = -DBUILDTYPE=\"m68020\" -m68020 -msoft-float ${FLAGSALL} -lgmp20
+FLAGS040 = -DBUILDTYPE=\"m68040\" -m68040 -mhard-float ${FLAGSALL} -lgmp40
+FLAGSEXE = -DBUILDTYPE=\"Windows\" ${FLAGSALL} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc

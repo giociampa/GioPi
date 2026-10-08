@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
   bits = (digits * BITS_PER_DIGIT) + LEEWAY;
   mpf_set_default_prec(bits);
 
-  logthis(logfile, "Build:  GioPi (%s)\n", BUILDDATE);
+  logthis(logfile, "Build:  %s (%s - %s)\n", BUILDNAME, BUILDDATE, BUILDTYPE);
   logthis(logfile, "Digits: %lu\n", digits);
   logthis(logfile, "Terms:  %lu\n\n", terms);
 

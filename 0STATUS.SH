@@ -21,11 +21,11 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
   fi
 
   if [ -e $run ]; then
-    stat $run | grep -E 'Change|Birth' | sort | cut -c-30
+    stat $run | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
     cat $run
     echo
   else
-    stat $log | grep -E 'Change|Birth' | sort | cut -c-30
+    stat $log | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
   fi
 
   if [ -e $txt -a "$NOCHECK" != "NOCHECK" ]; then

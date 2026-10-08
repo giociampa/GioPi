@@ -41,4 +41,22 @@
 #define BUILDDATE   __TIMESTAMP__
 #endif
 
+#ifndef BUILDTYPE
+#if defined __linux__
+#define BUILDTYPE   "Linux"
+#elif defined __atarist__
+#define BUILDTYPE   "Atari"
+#elif defined __WIN64__
+#define BUILDTYPE   "Windows"
+#else
+#define BUILDTYPE   "Unknown"
+#endif
+#endif
+
+#ifdef TESTING
+#define BUILDNAME   "GioTst"
+#else
+#define BUILDNAME   "GioPi"
+#endif
+
 #endif
