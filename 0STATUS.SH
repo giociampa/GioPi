@@ -29,7 +29,7 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
   fi
 
   if [ -e $txt -a "$NOCHECK" != "NOCHECK" ]; then
-    0compare ~/1billion.pi $txt good
+    0compare ~/cruncher.pi $txt good
   fi
 
   echo
