@@ -205,7 +205,7 @@ veryclean: clean
 release: veryclean all
 	7z a -tzip giopi-${TIMESTAMP} README.txt giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
 	@du -b *.zip ||:
-	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release"  "${TIMESTAMP}.zip"
+	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release"  "giopi-${TIMESTAMP}.zip"
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
