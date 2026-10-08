@@ -1,4 +1,5 @@
-BUILDDATE = -DBUILDDATE=\"$(shell date +%Y%m%d-%H%M)\"
+TIMESTAMP = $(shell date +%Y%m%d-%H%M)
+BUILDDATE = -DBUILDDATE=\"${TIMESTAMP}\"
 
 SRCFILES = giopi.c getdigits.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
@@ -202,8 +203,9 @@ veryclean: clean
 # --------------------------------------------------------------------------------------------------
 
 release: veryclean all
-	7z a -tzip giopi-$(shell date +%Y%m%d-%H%M) README.txt giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
+	7z a -tzip giopi-${TIMESTAMP} README.txt giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
 	@du -b *.zip ||:
+	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release"  "${TIMESTAMP}.zip"
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
