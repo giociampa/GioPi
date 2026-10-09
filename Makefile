@@ -1,6 +1,7 @@
 TIMESTAMP = $(shell date +%Y%m%d-%H%M)
 BUILDDATE = -DBUILDDATE=\"${TIMESTAMP}\"
 
+ALLFILES = giopi giotst giopid giopidt compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip
 SRCFILES = giopi.c getdigits.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
 RAWFILES = raw2txt.c getdigits.c logging.c convert.c
@@ -182,40 +183,30 @@ copydlls:
 
 # --------------------------------------------------------------------------------------------------
 
-list:
-	@echo "File list" ||:
-	@du -b giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll 2>/dev/null ||:
-	@echo ||:
-
-# --------------------------------------------------------------------------------------------------
-
-clean:
-	@echo "Cleaning files" ||:
-	@rm -f giopi giopid giotst compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip ||:
-	@echo ||:
-
-veryclean: clean
-	@mv README.txt README.txt.000 2>/dev/null ||:
-	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt ||:
-	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT ||:
-	@mv README.txt.000 README.txt 2>/dev/null ||:
-
-# --------------------------------------------------------------------------------------------------
-
-debug: veryclean giopid giopid.ttp giopid.exe copydlls
+debug: giopid giopid.ttp giopid.exe giopidt giopidt.ttp giopidt.exe copydlls
 
 giopid: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -g -o $@
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -g3 -o $@
 	@echo ||:
 
 giopid.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -g -o $@
-	${M68STRIP} $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -g3 -o $@
 	@echo ||:
 
 giopid.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -g3 -o $@
+	@echo ||:
+
+giopidt: ${SRCFILES}
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
+	@echo ||:
+
+giopidt.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
+	@echo ||:
+
+giopidt.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -230,5 +221,28 @@ release: veryclean all
 
 all: atari cross list
 	@touch * ||:
+
+alldebug: atari cross debug list
+	@touch * ||:
+
+# --------------------------------------------------------------------------------------------------
+
+clean:
+	@echo "Cleaning files" ||:
+	@rm -f ${ALLFILES} 2>/dev/null ||:
+	@echo ||:
+
+veryclean: clean
+	@mv README.txt README.txt.000 2>/dev/null ||:
+	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt ||:
+	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT ||:
+	@mv README.txt.000 README.txt 2>/dev/null ||:
+
+# --------------------------------------------------------------------------------------------------
+
+list:
+	@echo "File list" ||:
+	@du -b ${ALLFILES} 2>/dev/null ||:
+	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
