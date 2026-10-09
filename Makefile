@@ -191,7 +191,7 @@ list:
 
 clean:
 	@echo "Cleaning files" ||:
-	@rm -f giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip ||:
+	@rm -f giopi giopid giotst compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip ||:
 	@echo ||:
 
 veryclean: clean
@@ -199,6 +199,24 @@ veryclean: clean
 	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt ||:
 	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT ||:
 	@mv README.txt.000 README.txt 2>/dev/null ||:
+
+# --------------------------------------------------------------------------------------------------
+
+debug: veryclean giopid giopid.ttp giopid.exe copydlls
+
+giopid: ${SRCFILES}
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -g -o $@
+	@echo ||:
+
+giopid.ttp: ${SRCFILES}
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -g -o $@
+	${M68STRIP} $@
+	@echo ||:
+
+giopid.exe: ${SRCFILES}
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${CROSTRIP} $@
+	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
 
