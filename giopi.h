@@ -32,7 +32,6 @@
 #define NAMESIZE    256
 #define WRITECHUNK  1000000
 #define DEBUG_FILE  "ZZZDEBUG.TXT"
-#define STACKSIZE   131072L
 
 #define CHAR_THREE  '3'
 #define CHAR_POINT  '.'
@@ -47,9 +46,9 @@
 #elif defined __atarist__
 #define BUILDTYPE   "Atari"
 #elif defined __WIN64__
-#define BUILDTYPE   "Windows"
+#define BUILDTYPE   "Win64"
 #else
-#define BUILDTYPE   "Unknown"
+#define BUILDTYPE   "?????"
 #endif
 #endif
 

@@ -7,12 +7,15 @@ CMPFILES = compare.c
 RAWFILES = raw2txt.c getdigits.c logging.c convert.c
 TMPFILES = tmp2txt.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 
+STACKTOS = -Wl,--stack,131072
+STACKEXE = -Wl,--stack,16777216
+
 FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
 FLAGSLOC = -DBUILDTYPE=\"Linux\" ${FLAGSALL} -lgmp
-FLAGS000 = -DBUILDTYPE=\"m68000\" -m68000 -msoft-float ${FLAGSALL} -lgmp
-FLAGS020 = -DBUILDTYPE=\"m68020\" -m68020 -msoft-float ${FLAGSALL} -lgmp20
-FLAGS040 = -DBUILDTYPE=\"m68040\" -m68040 -mhard-float ${FLAGSALL} -lgmp40
-FLAGSEXE = -DBUILDTYPE=\"Windows\" ${FLAGSALL} -lgmp
+FLAGS000 = -DBUILDTYPE=\"68000\" -m68000 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp
+FLAGS020 = -DBUILDTYPE=\"68020\" -m68020 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp20
+FLAGS040 = -DBUILDTYPE=\"68040\" -m68040 -mhard-float ${FLAGSALL} ${STACKTOS} -lgmp40
+FLAGSEXE = -DBUILDTYPE=\"Win64\" ${FLAGSALL} ${STACKEXE} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
@@ -186,27 +189,27 @@ copydlls:
 debug: giopid giopid.ttp giopid.exe giopidt giopidt.ttp giopidt.exe copydlls
 
 giopid: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -g3 -o $@
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -g -o $@
 	@echo ||:
 
 giopid.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -g3 -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -g -o $@
 	@echo ||:
 
 giopid.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -g3 -o $@
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -g -o $@
 	@echo ||:
 
 giopidt: ${SRCFILES}
-	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
+	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -g -o $@
 	@echo ||:
 
 giopidt.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
+	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} ${FLAGSTST} -g -o $@
 	@echo ||:
 
 giopidt.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -g3 -o $@
+	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -g -o $@
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -219,10 +222,10 @@ release: veryclean all
 
 # --------------------------------------------------------------------------------------------------
 
-all: atari cross list
+all: atari cross
 	@touch * ||:
 
-alldebug: atari cross debug list
+alldebug: atari cross debug
 	@touch * ||:
 
 # --------------------------------------------------------------------------------------------------

@@ -6,9 +6,6 @@ void logthis(char *filename, char *fmt, ...);
 // convert.c
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point);
 
-// override default stack size
-long _stksize = STACKSIZE;
-
 void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
   unsigned long partsize, count;
   mpf_t         factor;

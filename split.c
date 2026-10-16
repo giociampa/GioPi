@@ -252,7 +252,7 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
   
   // tidy up
   tidy_pass_files(10);
-  
+
   // recursive passes
   if (splits == 1) {
     partial(0, terms, 1, digits);

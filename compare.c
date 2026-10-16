@@ -1,8 +1,5 @@
 #include "giopi.h"
 
-// override default stack size
-long _stksize = STACKSIZE;
-
 bool readline(FILE *file, char *line, unsigned long *where) {
   unsigned long item, this;
   bool          done;
