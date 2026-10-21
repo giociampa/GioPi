@@ -4,6 +4,16 @@
 void logthis(char  * filename, char  * fmt, ...);
 
 unsigned long splitcurrent, splitreached, splitpercent, splitmaxterm;
+#if defined(TESTING)
+unsigned long depth, stackdepth;
+mpz_t         *pstack, *qstack, *tstack;
+#define       P0 pstack[stackdepth]
+#define       Q0 qstack[stackdepth]
+#define       T0 tstack[stackdepth]
+#define       P1 pstack[stackdepth + 1]
+#define       Q1 qstack[stackdepth + 1]
+#define       T1 tstack[stackdepth + 1]
+#endif
 
 void raw_export(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   char  tmpfile[NAMESIZE];
@@ -72,6 +82,74 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   }
 }
 
+#if defined(TESTING)
+void recursion(unsigned long a, unsigned long b) {
+  unsigned long m = (a + b) >> 1;
+
+  mpz_realloc2(P0, 0);
+  mpz_realloc2(Q0, 0);
+  mpz_realloc2(T0, 0);
+
+  if ((b - a) == 1) {
+    if (a == 0) {
+      mpz_set_ui(P0, 1);
+      mpz_set_ui(Q0, 1);
+      mpz_set_ui(T0, B);
+    } else {
+      // p = (6 * a - 5) * (2 * a - 1) * (6 * a - 1)
+      mpz_set_ui(P0, 6 * a - 5);
+      mpz_mul_ui(P0, P0, 2 * a - 1);
+      mpz_mul_ui(P0, P0, 6 * a - 1);
+      // q = a * a * a * (C^3 / 24)
+      mpz_set_ui(Q0, a);
+      mpz_mul_ui(Q0, Q0, a);
+      mpz_mul_ui(Q0, Q0, a);
+      mpz_mul_ui(Q0, Q0, C24); // (C / 24)^2
+      mpz_mul_ui(Q0, Q0, D24); // (C * 24)
+      // t = p * (B + (A * a))
+      mpz_set_ui(T0, A);
+      mpz_mul_ui(T0, T0, a);
+      mpz_add_ui(T0, T0, B);
+      mpz_mul(T0, T0, P0);
+      if (a & 1) {
+        mpz_neg(T0, T0);
+      }
+    }
+  } else {
+    // temporary values
+    mpz_realloc2(P1, 0);
+    mpz_realloc2(Q1, 0);
+    mpz_realloc2(T1, 0);
+    // lower split
+    recursion(a, m);
+    stackdepth++;
+    // upper split
+    recursion(m, b);
+    stackdepth--;
+    // T1 = P0 * T1
+    mpz_mul(T1, P0, T1);
+    // P0 = P0 * P1
+    mpz_mul(P0, P0, P1);
+    mpz_realloc2(P1, 0);
+    // Q0 = Q0 * Q1
+    mpz_mul(Q0, Q0, Q1);
+    // T0 = Q1 * T0
+    mpz_mul(T0, Q1, T0);
+    mpz_realloc2(Q1, 0);
+    // T0 = T0 + T1
+    mpz_add(T0, T0, T1);
+    mpz_realloc2(T1, 0);
+  }
+
+  // progress marker
+  splitcurrent += 1;
+  splitpercent = (splitcurrent * 100) / splitmaxterm;
+  if (splitpercent > splitreached) {
+    splitreached = splitpercent;
+    logthis(NULL, "Split: (%ld%%)\r", splitreached);
+  }
+}
+#else
 void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
   mpz_t         pam, qam, tam, pmb, qmb, tmb;
   unsigned long m = (a + b) >> 1;
@@ -132,7 +210,22 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
     logthis(NULL, "Split: (%ld%%)\r", splitreached);
   }
 }
+#endif
 
+#if defined(TESTING)
+void partial(unsigned long lower, unsigned long terms, unsigned long chunks, unsigned long digits) {
+  mpz_t pval, qval, tval;
+  unsigned long write = (digits > 0) ? 9 : lower;
+
+  stackdepth = 0;
+  recursion((lower*terms)/chunks, ((lower + 1)*terms)/chunks);
+  if (digits > 0) {
+    mpz_realloc2(pstack[0], 0);
+    mpz_set_ui(pstack[0], digits);
+  }
+  raw_export(write, pstack[0], qstack[0], tstack[0]);
+}
+#else
 void partial(unsigned long lower, unsigned long terms, unsigned long chunks, unsigned long digits) {
   mpz_t pval, qval, tval;
   unsigned long write = (digits > 0) ? 9 : lower;
@@ -146,6 +239,7 @@ void partial(unsigned long lower, unsigned long terms, unsigned long chunks, uns
   raw_export(write, pval, qval, tval);
   mpz_clears(pval, qval, tval, NULL);
 }
+#endif
 
 void combine(unsigned long lower, unsigned long upper, unsigned long digits) {
   mpz_t         pval, qval, tval;
@@ -249,7 +343,21 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
   splitreached = 0;
   splitpercent = 0;
   splitmaxterm = 2 * terms;
-  
+
+#if defined(TESTING)
+  depth = 0;
+  while ((1L << depth) < terms) { depth++; }
+  depth++;
+
+  pstack = malloc(sizeof(mpz_t) * depth);
+  qstack = malloc(sizeof(mpz_t) * depth);
+  tstack = malloc(sizeof(mpz_t) * depth);
+
+  for (stackdepth = 0 ; stackdepth < depth ; stackdepth++) {
+    mpz_inits(pstack[stackdepth], qstack[stackdepth], tstack[stackdepth], NULL);
+  }
+#endif
+
   // tidy up
   tidy_pass_files(10);
 
@@ -291,6 +399,12 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
     combine(4, 6, 0);
     combine(0, 4, digits);
   }
+
+#if defined(TESTING)
+  for (stackdepth = 0 ; stackdepth < depth ; stackdepth++) {
+    mpz_clears(pstack[stackdepth], qstack[stackdepth], tstack[stackdepth], NULL);
+  }
+#endif
 
   // tidy up
   tidy_pass_files(9);

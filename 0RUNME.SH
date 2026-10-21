@@ -3,7 +3,7 @@
 params=$*
 digits=""
 splits="2"
-dozing="10"
+dozing="5"
 
 while getopts "d:1248" opt
 do

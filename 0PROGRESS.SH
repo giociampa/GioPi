@@ -44,14 +44,17 @@ while true ; do
   for f in $FILELIST ; do
     if [ $line -eq 1 ]; then echo; fi
     n=$(echo $f | cut -d. -f1)
+    printf "%s %s\n" "$n" "$(grep Split *${f}*.log | cut -d\  -f2)"
     for l in Split Combine Write ; do
       sort $ZEDFILE -n | grep $n | grep $l | tail -$NUMLINE | while read SORTED; do
-        echo "$(echo $SORTED | cut -d\  -f-2) $(echo $SORTED | cut -d\  -f4-)"
+        echo "$(echo $SORTED | cut -d\  -f1) $(echo $SORTED | cut -d\  -f4-)"
       done
       if [ $NUMLINE -gt 1 ]; then echo; fi
     done
-    echo
-    sort $ZEDFILE -n -k 3 | grep $n | tail -1 | cut -d\  -f2-
+    ramuse=$(sort $ZEDFILE -n | grep $n | tail -1)
+    printf "%s %s\n" "$(echo ${ramuse} | cut -d\  -f1)" "$(echo ${ramuse} | cut -d\  -f4-)"
+    tmpuse=$(sort $ZEDFILE -n -k 3 | grep $n | tail -1)
+    printf "%s\n" "$(echo ${tmpuse} | cut -d\  -f3-)"
     line=1
   done
   if [ "$ONEPASS" != "" -o "$last" != "" ]; then exit 0; fi
