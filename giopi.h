@@ -14,6 +14,11 @@
 #include <unistd.h>
 #include <gmp.h>
 
+
+// --------------------------------
+#define SHOW_LINES 100000
+// --------------------------------
+
 #define A   545140134
 #define B   13591409
 #define C   640320
@@ -40,13 +45,14 @@
 #define BUILDDATE   __TIMESTAMP__
 #endif
 
+// distinguish between build types
 #ifndef BUILDTYPE
-#if defined __linux__
-#define BUILDTYPE   "Linux"
+#if defined __MINGW64__
+#define BUILDTYPE   "MinGW"
 #elif defined __atarist__
 #define BUILDTYPE   "Atari"
-#elif defined __WIN64__
-#define BUILDTYPE   "Win64"
+#elif defined __linux__
+#define BUILDTYPE   "Linux"
 #else
 #define BUILDTYPE   "?????"
 #endif

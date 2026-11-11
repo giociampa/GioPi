@@ -4,6 +4,7 @@ BUILDDATE = -DBUILDDATE=\"${TIMESTAMP}\"
 ALLFILES = giopi giotst giopid giopidt compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip
 SRCFILES = giopi.c getdigits.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 CMPFILES = compare.c
+DATFILES = dat2txt.c
 RAWFILES = raw2txt.c getdigits.c logging.c convert.c
 TMPFILES = tmp2txt.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
 
@@ -15,7 +16,7 @@ FLAGSLOC = -DBUILDTYPE=\"Linux\" ${FLAGSALL} -lgmp
 FLAGS000 = -DBUILDTYPE=\"68000\" -m68000 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp
 FLAGS020 = -DBUILDTYPE=\"68020\" -m68020 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp20
 FLAGS040 = -DBUILDTYPE=\"68040\" -m68040 -mhard-float ${FLAGSALL} ${STACKTOS} -lgmp40
-FLAGSEXE = -DBUILDTYPE=\"Win64\" ${FLAGSALL} ${STACKEXE} -lgmp
+FLAGSEXE = -DBUILDTYPE=\"MinGW\" ${FLAGSALL} ${STACKEXE} -lgmp
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
@@ -27,7 +28,7 @@ CROSTRIP = x86_64-w64-mingw32-strip
 
 # --------------------------------------------------------------------------------------------------
 
-local: giopi giotst compare raw2txt tmp2txt
+local: giopi giotst compare dat2txt raw2txt tmp2txt
 
 giopi: ${SRCFILES}
 	${LOCALGCC} ${SRCFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
@@ -41,6 +42,12 @@ giotst: ${SRCFILES}
 
 compare: ${CMPFILES}
 	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
+	@echo ||:
+
+dat2txt: ${DATFILES}
+	${LOCALGCC} ${DATFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
 	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
@@ -76,8 +83,14 @@ giotst0.ttp: ${SRCFILES}
 	@echo ||:
 
 compare0.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS000} -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS000} ${BUILDDATE} -o $@
 	${M68STRIP} $@
+	@echo ||:
+
+dat2txt.ttp: ${DATFILES}
+	${ATARIGCC} ${DATFILES} ${FLAGS000} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 raw2txt0.ttp: ${RAWFILES}
@@ -92,7 +105,7 @@ tmp2txt0.ttp: ${TMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68020: giopi20.ttp giotst2.ttp compare2.ttp raw2txt2.ttp tmp2txt2.ttp
+m68020: giopi20.ttp giotst2.ttp compare2.ttp dat2txt2.ttp raw2txt2.ttp tmp2txt2.ttp
 
 giopi20.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
@@ -105,12 +118,18 @@ giotst2.ttp: ${SRCFILES}
 	@echo ||:
 
 compare2.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS020} -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS020} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
+dat2txt2.ttp: ${DATFILES}
+	${ATARIGCC} ${DATFILES} ${FLAGS020} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
+	@echo ||:
+
 raw2txt2.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS020} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
@@ -121,7 +140,7 @@ tmp2txt2.ttp: ${TMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-m68040: giopi40.ttp giotst4.ttp compare4.ttp raw2txt4.ttp tmp2txt4.ttp
+m68040: giopi40.ttp giotst4.ttp compare4.ttp dat2txt4.ttp raw2txt4.ttp tmp2txt4.ttp
 
 giopi40.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS040} ${BUILDDATE} -o $@
@@ -134,12 +153,18 @@ giotst4.ttp: ${SRCFILES}
 	@echo ||:
 
 compare4.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS040} -o $@
+	${ATARIGCC} ${CMPFILES} ${FLAGS040} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
+dat2txt4.ttp: ${DATFILES}
+	${ATARIGCC} ${DATFILES} ${FLAGS040} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
+	@echo ||:
+
 raw2txt4.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS040} -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS040} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
@@ -150,7 +175,7 @@ tmp2txt4.ttp: ${TMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: local giopi.exe giotst.exe compare.exe raw2txt.exe tmptxt.exe copydlls
+cross: giopi.exe giotst.exe compare.exe dat2txt.exe raw2txt.exe tmptxt.exe copydlls
 
 giopi.exe: ${SRCFILES}
 	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
@@ -163,17 +188,23 @@ giotst.exe: ${SRCFILES}
 	@echo ||:
 
 compare.exe: ${CMPFILES}
-	${CROSSGCC} ${CMPFILES} ${FLAGSEXE} -o $@
+	${CROSSGCC} ${CMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
 	${CROSTRIP} $@
 	@echo ||:
 
+dat2txt.exe: ${DATFILES}
+	${CROSSGCC} ${DATFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@cp $@ ~/bin/0$@ ||:
+	@echo ||:
+
 raw2txt.exe: ${RAWFILES}
-	${CROSSGCC} ${RAWFILES} ${FLAGSEXE} -o $@
+	${CROSSGCC} ${RAWFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
 	${CROSTRIP} $@
 	@echo ||:
 
 tmptxt.exe: ${TMPFILES}
-	${CROSSGCC} ${TMPFILES} ${FLAGSEXE} -o $@
+	${CROSSGCC} ${TMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
 	${CROSTRIP} $@
 	@echo ||:
 
@@ -215,7 +246,7 @@ giopidt.exe: ${SRCFILES}
 # --------------------------------------------------------------------------------------------------
 
 release: veryclean all
-	7z a -tzip giopi-${TIMESTAMP} README.txt giopi giotst compare raw2txt tmp2txt *.ttp *.exe *.dll
+	7z a -tzip giopi-${TIMESTAMP} README.txt giopi giotst compare dat2txt raw2txt tmp2txt *.ttp *.exe *.dll
 	@du -b *.zip ||:
 	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release"  "giopi-${TIMESTAMP}.zip"
 	@echo ||:
@@ -237,8 +268,8 @@ clean:
 
 veryclean: clean
 	@mv README.txt README.txt.000 2>/dev/null ||:
-	@rm -f *.log *.gol *.run *.running *.tmp *.raw *.txt ||:
-	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.RAW *.TXT ||:
+	@rm -f *.log *.gol *.run *.running *.tmp *.dat *.raw *.txt ||:
+	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.DAT *.RAW *.TXT ||:
 	@mv README.txt.000 README.txt 2>/dev/null ||:
 
 # --------------------------------------------------------------------------------------------------

@@ -1,9 +1,10 @@
 GioPi - Chudnovsky binary split algorithm Pi calculation
 ----------------------------------------------------------------------------------------------------
 
-giopi  Generate arbitrary length sequences of Pi digits
-giotst (Test version of the above)
+giopi   Generate arbitrary length sequences of Pi digits
+giotst  (Test version of the above)
 compare Compare two formatted text files.
+dat2txt Convert unformatted file (e.g. y-cruncher) to formatted text file.
 raw2txt Convert raw output to formatted text file.
 tmp2txt Reprocess pass-9-*.tmp file (if remaining after a run crashes)
 
@@ -41,6 +42,13 @@ compare file1 file2 [good]
 
 file1/2    Formatted text files
 good       Display only the correct number of digits
+
+----------------------------------------------------------------------------------------------------
+
+dat2txt [file1] [file2]
+
+file1      Unformatted text file (defaults to pi.dat)
+file2      Formatted text file (defaults to pi.txt)
 
 ----------------------------------------------------------------------------------------------------
 
