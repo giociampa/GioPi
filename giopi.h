@@ -48,13 +48,17 @@
 // distinguish between build types
 #ifndef BUILDTYPE
 #if defined __MINGW64__
-#define BUILDTYPE   "MinGW"
+#define BUILDTYPE   "Win64"
+#elif defined __CYGWIN__
+#define BUILDTYPE   "Win64"
+#elif defined __MINGW32__
+#define BUILDTYPE   "Win32"
 #elif defined __atarist__
 #define BUILDTYPE   "Atari"
 #elif defined __linux__
 #define BUILDTYPE   "Linux"
 #else
-#define BUILDTYPE   "?????"
+#define BUILDTYPE   "Unknown"
 #endif
 #endif
 

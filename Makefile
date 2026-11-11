@@ -12,11 +12,11 @@ STACKTOS = -Wl,--stack,131072
 STACKEXE = -Wl,--stack,16777216
 
 FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
-FLAGSLOC = -DBUILDTYPE=\"Linux\" ${FLAGSALL} -lgmp
-FLAGS000 = -DBUILDTYPE=\"68000\" -m68000 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp
-FLAGS020 = -DBUILDTYPE=\"68020\" -m68020 -msoft-float ${FLAGSALL} ${STACKTOS} -lgmp20
-FLAGS040 = -DBUILDTYPE=\"68040\" -m68040 -mhard-float ${FLAGSALL} ${STACKTOS} -lgmp40
-FLAGSEXE = -DBUILDTYPE=\"MinGW\" ${FLAGSALL} ${STACKEXE} -lgmp
+FLAGSLOC = ${FLAGSALL} -lgmp
+FLAGS000 = ${FLAGSALL} -lgmp -DBUILDTYPE=\"68000\" -m68000 -msoft-float ${STACKTOS}
+FLAGS020 = ${FLAGSALL} -lgmp20 -DBUILDTYPE=\"68020\" -m68020 -msoft-float ${STACKTOS}
+FLAGS040 = ${FLAGSALL} -lgmp40 -DBUILDTYPE=\"68040\" -m68040 -mhard-float ${STACKTOS}
+FLAGSEXE = ${FLAGSALL} -lgmp ${STACKEXE}
 FLAGSTST = -DTESTING
 
 LOCALGCC = gcc
@@ -43,25 +43,33 @@ giotst: ${SRCFILES}
 compare: ${CMPFILES}
 	${LOCALGCC} ${CMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 dat2txt: ${DATFILES}
 	${LOCALGCC} ${DATFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 raw2txt: ${RAWFILES}
 	${LOCALGCC} ${RAWFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
 	@echo ||:
 
 tmp2txt: ${TMPFILES}
 	${LOCALGCC} ${TMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
 	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
+	@echo ||:
+
+copy2bin: local
+	@echo "Copying files to ~/bin" ||:
+	@cp compare ~/bin/0compare ||:
+	@cp dat2txt ~/bin/0dat2txt ||:
+	@cp raw2txt ~/bin/0raw2txt ||:
+	@cp tmp2txt ~/bin/0tmp2txt ||:
+	@chmod +x ~/bin/0compare ||:
+	@chmod +x ~/bin/0dat2txt ||:
+	@chmod +x ~/bin/0raw2txt ||:
+	@chmod +x ~/bin/0tmp2txt ||:
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -70,7 +78,7 @@ atari: local m68000 m68020 m68040
 
 # --------------------------------------------------------------------------------------------------
 
-m68000: giopi00.ttp giotst0.ttp compare0.ttp raw2txt0.ttp tmp2txt0.ttp
+m68000: giopi00.ttp giotst0.ttp compare0.ttp dat2txt0.ttp raw2txt0.ttp tmp2txt0.ttp
 
 giopi00.ttp: ${SRCFILES}
 	${ATARIGCC} ${SRCFILES} ${FLAGS000} ${BUILDDATE} -o $@
@@ -89,8 +97,7 @@ compare0.ttp: ${CMPFILES}
 
 dat2txt.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS000} ${BUILDDATE} -o $@
-	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
+	${M68STRIP} $@
 	@echo ||:
 
 raw2txt0.ttp: ${RAWFILES}
@@ -124,8 +131,7 @@ compare2.ttp: ${CMPFILES}
 
 dat2txt2.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS020} ${BUILDDATE} -o $@
-	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
+	${M68STRIP} $@
 	@echo ||:
 
 raw2txt2.ttp: ${RAWFILES}
@@ -159,8 +165,7 @@ compare4.ttp: ${CMPFILES}
 
 dat2txt4.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS040} ${BUILDDATE} -o $@
-	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
+	${M68STRIP} $@
 	@echo ||:
 
 raw2txt4.ttp: ${RAWFILES}
@@ -194,8 +199,7 @@ compare.exe: ${CMPFILES}
 
 dat2txt.exe: ${DATFILES}
 	${CROSSGCC} ${DATFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${LOCSTRIP} $@
-	@cp $@ ~/bin/0$@ ||:
+	${CROSTRIP} $@
 	@echo ||:
 
 raw2txt.exe: ${RAWFILES}
