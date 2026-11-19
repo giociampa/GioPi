@@ -29,19 +29,35 @@ void mpf2mpz(mpz_t result, mpf_t source, unsigned long places) {
   mpf_clear(source);
 }
 
-void writeraw(mpf_t result, char *rawfile, unsigned long digits) {
-  mpz_t   scaled;
+void writeraw(mpf_t result, char *outfile, unsigned long digits) {
+  mpz_t scaled;
   FILE  *rawhand;
   
   mpz_init(scaled);
   mpf2mpz(scaled, result, digits);
   
   logthis(NULL, "Write: Raw File\r");
-  rawhand = fopen(rawfile, "wb");
+  rawhand = fopen(outfile, "wb");
   mpz_out_raw(rawhand, scaled);
   fclose(rawhand);
 
   mpz_clear(scaled);
+}
+
+void writegmp(mpf_t result, char *outfile, unsigned long digits) {
+  char tmpfile[NAMESIZE];
+  FILE *tmphand;
+
+  sprintf(tmpfile, "%lu.tmp", digits);
+
+  logthis(NULL, "Write: Temp\r");
+  tmphand = fopen(tmpfile, "wb");
+  gmp_fprintf(tmphand, "%.*Ff\n", digits + LEEWAY, result);
+  fclose(tmphand);
+
+  logthis(NULL, "Write: Convert\r");
+  convert(tmpfile, outfile, digits, true, true);
+  remove(tmpfile);
 }
 
 void writetxt(mpf_t result, char *outfile, unsigned long digits) {

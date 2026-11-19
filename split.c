@@ -4,7 +4,7 @@
 void logthis(char  * filename, char  * fmt, ...);
 
 unsigned long splitcurrent, splitreached, splitpercent, splitmaxterm;
-#if defined(TESTING)
+#if defined(NOTTESTING)
 unsigned long depth, stackdepth;
 mpz_t         *pstack, *qstack, *tstack;
 #define       P0 pstack[stackdepth]
@@ -82,7 +82,7 @@ void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t) {
   }
 }
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
 void recursion(unsigned long a, unsigned long b) {
   unsigned long m = (a + b) >> 1;
 
@@ -212,7 +212,7 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
 }
 #endif
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
 void partial(unsigned long lower, unsigned long terms, unsigned long chunks, unsigned long digits) {
   mpz_t pval, qval, tval;
   unsigned long write = (digits > 0) ? 9 : lower;
@@ -344,7 +344,7 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
   splitpercent = 0;
   splitmaxterm = 2 * terms;
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
   depth = 0;
   while ((1L << depth) < terms) { depth++; }
   depth++;
@@ -400,7 +400,7 @@ void split(unsigned long terms, unsigned long digits, unsigned long splits) {
     combine(0, 4, digits);
   }
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
   for (stackdepth = 0 ; stackdepth < depth ; stackdepth++) {
     mpz_clears(pstack[stackdepth], qstack[stackdepth], tstack[stackdepth], NULL);
   }

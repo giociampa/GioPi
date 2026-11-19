@@ -9,7 +9,7 @@ void logdone();
 void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t);
  
 // tmptxt.c
-void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
+void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, bool gmpoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile);
 
 int main() {
   unsigned long digits, bits;
@@ -34,7 +34,7 @@ int main() {
   logthis(logfile, "Digits: %lu\n\n", digits);
   
   start_time = clock();
-  tmptxt(digits, true, false, start_time, logfile, rawfile, txtfile);
+  tmptxt(digits, true, false, false, start_time, logfile, rawfile, txtfile);
   logdone();
 
   return EXIT_SUCCESS;

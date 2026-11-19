@@ -1,6 +1,14 @@
 #include "giopi.h"
 
-void root10005(mpf_t r, unsigned long digits) {
+// logging.c
+void logthis(char *filename, char *fmt, ...);
+
+#if defined(TESTING)
+void root10005(mpf_t r) {
+  mpf_sqrt_ui(r, 10005);
+}
+#else
+void root10005(mpf_t r) {
   unsigned long prec0, bits, prec, bit;
   unsigned long t1prec, t2prec;
   mpf_t         t1, t2;
@@ -40,7 +48,7 @@ void root10005(mpf_t r, unsigned long digits) {
         mpf_set_prec_raw(t1, prec);
         mpf_add(t1, t1, t2);
       } else {
-        // t2=x * t1, t1 = t2 + t1*(x - t2*t2)/2;
+        // t2 = x * t1, t1 = t2 + t1*(x - t2*t2)/2;
         mpf_set_prec_raw(t2, prec0 >> 1);
         mpf_mul_ui(t2, t1, 10005);
         mpf_mul(r, t2, t2);              // half x half -> full
@@ -58,3 +66,4 @@ void root10005(mpf_t r, unsigned long digits) {
     mpf_set_prec_raw(t2, t2prec);
   }
 }
+#endif

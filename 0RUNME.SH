@@ -3,12 +3,13 @@
 params=$*
 digits=""
 splits="2"
-dozing="5"
+dozing=""
 
-while getopts "d:1248" opt
+while getopts "d:s:1248" opt
 do
 	case ${opt} in
-		d) check=$(echo "${OPTARG}" | tr -d "[0-9]"); if [ "${check}" = "" ]; then digits="${OPTARG}"; fi ;;
+		d) if [ -z "$(echo ${OPTARG} | tr -d '[0-9]')" ]; then digits=${OPTARG}; fi ;;
+		s) if [ -z "$(echo ${OPTARG} | tr -d '[0-9]')" ]; then dozing=${OPTARG}; fi ;;
 		1) splits="1" ;;
 		2) splits="2" ;;
 		4) splits="4" ;;
@@ -32,7 +33,7 @@ for param in ${params} ; do
   fi
 done
 
-if [ "${digits}" = "" ]; then echo "Missing digits parameter"; exit 0; fi
+if [ -z "${digits}" ]; then echo "Missing digits parameter"; exit 0; fi
 
 aranym=$(uname -a | grep -i aranym)
 
@@ -55,7 +56,7 @@ function process () {
     echo "Running: ${stripped} ${params}" | tee running.txt
     ./${runthis} ${params}
 
-    for ext in log raw run txt ; do
+    for ext in log raw run tmp txt ; do
       if [ -e "${digits}.${ext}" ]; then mv "${digits}.${ext}" "${running}.${ext}"; fi
       if [ -e "pi.${ext}" ]; then mv "pi.${ext}" "${running}.${ext}"; fi
     done
@@ -63,6 +64,8 @@ function process () {
     for part in p q t ; do
       if [ -e "pass-9-${part}.tmp" ]; then mv "pass-9-${part}.tmp" "${running}-9-${part}.tmp"; fi
     done
+
+    if [ -e "ZZZDEBUG.TXT" ]; then mv "ZZZDEBUG.TXT" "${running}-ZZZDEBUG.TXT"; fi
 
     echo "Finished: ${stripped} ${params}" | tee running.txt
     echo
@@ -74,7 +77,7 @@ firstone=1
 for source in $FILELIST ; do
   if [ $firstone -eq 1 ]; then
     firstone=0
-  else
+  elif [ ! -z "${dozing}" ]; then
     echo "Sleeping:" | tee running.txt
     sleep "${dozing}"
     echo

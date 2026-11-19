@@ -9,16 +9,17 @@ void logdone();
 void raw_import(unsigned long pass, mpz_t p, mpz_t q, mpz_t t);
  
 // root10005.c
-void root10005(mpf_t r, unsigned long digits);
+void root10005(mpf_t r);
 
 // divide.c
 void divide(mpf_t r, mpf_t y, mpf_t x);
 
 // output.c
-void writetxt(mpf_t result, char *txtfile, unsigned long digits);
-void writeraw(mpf_t result, char *rawfile, unsigned long digits);
+void writeraw(mpf_t result, char *outfile, unsigned long digits);
+void writegmp(mpf_t result, char *outfile, unsigned long digits);
+void writetxt(mpf_t result, char *outfile, unsigned long digits);
 
-void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile) {
+void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, bool gmpoutput, clock_t start_time, char *logfile, char *rawfile, char *txtfile) {
   clock_t inter_time;
   mpf_t   pi, tmp_mpf_t;
   mpz_t   tmp_mpz_t;
@@ -27,14 +28,12 @@ void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start
   inter_time = clock();
   logthis(NULL, "Root:\r");
   mpf_init(pi);
-  root10005(pi, digits);
+  root10005(pi);
   logthis(logfile, "Root:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  // [ sqrt(10005) ] * 426880 * q
+  // [ sqrt(10005) ] * q
   inter_time = clock();
   logthis(NULL, "Mult:\r");
-  mpf_mul_ui(pi, pi, 426880);
-  // convert qqq to floating point
   mpz_init(tmp_mpz_t);
   raw_import(9, NULL, tmp_mpz_t, NULL);
   mpf_init(tmp_mpf_t);
@@ -42,12 +41,14 @@ void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start
   mpz_clear(tmp_mpz_t);
   mpf_mul(pi, pi, tmp_mpf_t);
   mpf_clear(tmp_mpf_t);
+
+  // [ sqrt(10005) * q ] * 426880
+  mpf_mul_ui(pi, pi, 426880);
   logthis(logfile, "Mult:   %12.2f seconds\n", (double) (clock() - inter_time) / CLOCKS_PER_SEC);
 
-  // [ sqrt(10005) * 426880 * q ] / t
+  // [ sqrt(10005) * q * 426880 ] / t
   logthis(NULL, "Divide:\r");
   inter_time = clock();
-  // convert ttt to floating point
   mpz_init(tmp_mpz_t);
   raw_import(9, NULL, NULL, tmp_mpz_t);
   mpf_init(tmp_mpf_t);
@@ -65,6 +66,8 @@ void tmptxt(unsigned long digits, bool showoutput, bool rawoutput, clock_t start
     logthis(NULL, "Write:\r");
     if (rawoutput) {
       writeraw(pi, rawfile, digits);
+    } else if (gmpoutput) {
+      writegmp(pi, txtfile, digits);
     } else {
       writetxt(pi, txtfile, digits);
     }

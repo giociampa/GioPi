@@ -14,7 +14,6 @@ STACKEXE = -Wl,--stack,16777216
 FLAGSALL = -fomit-frame-pointer -ffast-math -O3 -lm
 FLAGSLOC = ${FLAGSALL} -lgmp
 FLAGS000 = ${FLAGSALL} -lgmp -DBUILDTYPE=\"68000\" -m68000 -msoft-float ${STACKTOS}
-FLAGS020 = ${FLAGSALL} -lgmp20 -DBUILDTYPE=\"68020\" -m68020 -msoft-float ${STACKTOS}
 FLAGS040 = ${FLAGSALL} -lgmp40 -DBUILDTYPE=\"68040\" -m68040 -mhard-float ${STACKTOS}
 FLAGSEXE = ${FLAGSALL} -lgmp ${STACKEXE}
 FLAGSTST = -DTESTING
@@ -60,7 +59,9 @@ tmp2txt: ${TMPFILES}
 	${LOCSTRIP} $@
 	@echo ||:
 
-copy2bin: local
+# --------------------------------------------------------------------------------------------------
+
+copybin: local
 	@echo "Copying files to ~/bin" ||:
 	@cp compare ~/bin/0compare ||:
 	@cp dat2txt ~/bin/0dat2txt ||:
@@ -72,9 +73,16 @@ copy2bin: local
 	@chmod +x ~/bin/0tmp2txt ||:
 	@echo ||:
 
+copydlls:
+	@echo "Copying DLL files" ||:
+	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
+	@echo ||:
+
 # --------------------------------------------------------------------------------------------------
 
-atari: local m68000 m68020 m68040
+atari: m68000 m68040
 
 # --------------------------------------------------------------------------------------------------
 
@@ -95,52 +103,18 @@ compare0.ttp: ${CMPFILES}
 	${M68STRIP} $@
 	@echo ||:
 
-dat2txt.ttp: ${DATFILES}
+dat2txt0.ttp: ${DATFILES}
 	${ATARIGCC} ${DATFILES} ${FLAGS000} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
 raw2txt0.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS000} -o $@
+	${ATARIGCC} ${RAWFILES} ${FLAGS000} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
 tmp2txt0.ttp: ${TMPFILES}
 	${ATARIGCC} ${TMPFILES} ${FLAGS000} ${BUILDDATE} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-# --------------------------------------------------------------------------------------------------
-
-m68020: giopi20.ttp giotst2.ttp compare2.ttp dat2txt2.ttp raw2txt2.ttp tmp2txt2.ttp
-
-giopi20.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-giotst2.ttp: ${SRCFILES}
-	${ATARIGCC} ${SRCFILES} ${FLAGS020} ${BUILDDATE} ${FLAGSTST} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-compare2.ttp: ${CMPFILES}
-	${ATARIGCC} ${CMPFILES} ${FLAGS020} ${BUILDDATE} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-dat2txt2.ttp: ${DATFILES}
-	${ATARIGCC} ${DATFILES} ${FLAGS020} ${BUILDDATE} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-raw2txt2.ttp: ${RAWFILES}
-	${ATARIGCC} ${RAWFILES} ${FLAGS020} ${BUILDDATE} -o $@
-	${M68STRIP} $@
-	@echo ||:
-
-tmp2txt2.ttp: ${TMPFILES}
-	${ATARIGCC} ${TMPFILES} ${FLAGS020} ${BUILDDATE} -o $@
 	${M68STRIP} $@
 	@echo ||:
 
@@ -212,13 +186,6 @@ tmptxt.exe: ${TMPFILES}
 	${CROSTRIP} $@
 	@echo ||:
 
-copydlls:
-	@echo "Copying DLL files" ||:
-	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
-	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
-	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
-	@echo ||:
-
 # --------------------------------------------------------------------------------------------------
 
 debug: giopid giopid.ttp giopid.exe giopidt giopidt.ttp giopidt.exe copydlls
@@ -275,12 +242,5 @@ veryclean: clean
 	@rm -f *.log *.gol *.run *.running *.tmp *.dat *.raw *.txt ||:
 	@rm -f *.LOG *.GOL *.RUN *.RUNNING *.TMP *.DAT *.RAW *.TXT ||:
 	@mv README.txt.000 README.txt 2>/dev/null ||:
-
-# --------------------------------------------------------------------------------------------------
-
-list:
-	@echo "File list" ||:
-	@du -b ${ALLFILES} 2>/dev/null ||:
-	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
