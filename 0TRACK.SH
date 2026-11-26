@@ -29,11 +29,9 @@ logfile=${digits}.log
 rm -f zzzz.txt ZZZZ.TXT
 
 aranym=$(uname -a | grep -i aranym)
-
 if [ "$aranym" = "" ]; then
   aranym=$(echo $PWD | grep -i aranym)
 fi
-
 if [ "$aranym" = "" ]; then
   PSCMD="ps -eo size,comm"
   PSIZE=1
@@ -53,7 +51,7 @@ while true ; do
 
   size=""
   what=""
-  proc=$($PSCMD | grep -E "giopi|giotst" | tr -s " " | tail -1)
+  proc=$($PSCMD | grep -E "giopi|giotst|chudpi|testpi" | tr -s " " | tail -1)
   if [ "$proc" != "" ]; then
     size=$(echo $proc | cut -d\  -f$PSIZE)
     what=$(basename $(echo $proc | cut -d\  -f$PNAME))

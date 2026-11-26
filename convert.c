@@ -4,9 +4,9 @@
 void logthis(char *filename, char *fmt, ...);
 
 void convert(char *inpfile, char *outfile, unsigned long digits, bool giopi, bool point) {
-  FILE      *inphand, *outhand;
-  bool      show, done;
-  unsigned long  count, this, written, progress, percent;
+  FILE          *inphand, *outhand;
+  bool          show, done;
+  unsigned long count, this, written, progress, percent;
 
   if (!giopi) {
     printf("Converting: %s to %s\n", inpfile, outfile);

@@ -26,10 +26,10 @@ ARANYM=$(uname -a | grep -i ARANYM)
 if [ "${ARANYM}" = "" ]; then
   ARANYM=$(echo $PWD | grep -i ARANYM)
 fi
-if [ "${ARANYM}" = "" ]; then
-  FILELIST="giopi giotst"
+if [ "$aranym" = "" ]; then
+  FILELIST="giopi giotst chudpi testpi"
 else
-  FILELIST="gio*.ttp"
+  FILELIST="gio*.ttp chudpi*.ttp testpi*.ttp"
 fi
 
 ZEDFILE="NONE"
@@ -45,13 +45,14 @@ if [ "${ZEDFILE}" = "NONE" ]; then
 fi
 
 while true ; do
-  if [ "${ONEPASS}" = "" ]; then clear; fi
+  clear
   line=0
   last=$(tail -n 1 ${ZEDFILE} | grep "Finished")
   for f in $FILELIST ; do
+    if [ ! -e "$f" ]; then continue; fi
     if [ $line -eq 1 ]; then echo; fi
     n=$(echo $f | cut -d. -f1)
-    printf "%s %s\n" "$n" "$(grep Split *${f}*.log | cut -d\  -f2)"
+    echo "$n"
     for l in ${USEFILT} ; do
       sort ${ZEDFILE} -n | uniq -u | grep $n | grep -i $l | tail -n ${NUMLINE} | while read SORTED; do
         echo "$(echo ${SORTED} | cut -d\  -f1) $(echo ${SORTED} | cut -d\  -f4-)"

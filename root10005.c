@@ -3,7 +3,7 @@
 // logging.c
 void logthis(char *filename, char *fmt, ...);
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
 void root10005(mpf_t r) {
   mpf_sqrt_ui(r, 10005);
 }

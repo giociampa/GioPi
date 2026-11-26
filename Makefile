@@ -1,12 +1,13 @@
 TIMESTAMP = $(shell date +%Y%m%d-%H%M)
 BUILDDATE = -DBUILDDATE=\"${TIMESTAMP}\"
 
-ALLFILES = giopi giotst giopid giopidt compare raw2txt tmp2txt *.ttp *.exe *.dll *.zip
-SRCFILES = giopi.c getdigits.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
+ALLFILES = giopi giotst giopid giopidt chudpi testpi compare dat2txt raw2txt tmp2txt *.ttp *.exe *.dll *.zip
+SRCFILES = giopi.c getdigits.c logging.c split.c root10005.c divide.c convert.c tmptxt.c output.c
 CMPFILES = compare.c
-DATFILES = dat2txt.c
+DATFILES = dat2txt.c convert.c logging.c 
 RAWFILES = raw2txt.c getdigits.c logging.c convert.c
 TMPFILES = tmp2txt.c tmptxt.c logging.c split.c root10005.c divide.c convert.c output.c
+GMPFILES = chudpi.c getdigits.c logging.c output.c convert.c
 
 STACKTOS = -Wl,--stack,131072
 STACKEXE = -Wl,--stack,16777216
@@ -22,8 +23,8 @@ LOCALGCC = gcc
 LOCSTRIP = strip
 ATARIGCC = m68k-atari-mint-gcc
 M68STRIP = m68k-atari-mint-strip
-CROSSGCC = x86_64-w64-mingw32-gcc
-CROSTRIP = x86_64-w64-mingw32-strip
+WIN64GCC = x86_64-w64-mingw32-gcc
+W64STRIP = x86_64-w64-mingw32-strip
 
 # --------------------------------------------------------------------------------------------------
 
@@ -61,6 +62,34 @@ tmp2txt: ${TMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
+gmp-all: gmp-local gmp-m68040
+
+gmp-local: chudpi testpi
+
+gmp-m68040: chudpi.ttp testpi.ttp
+
+chudpi: ${GMPFILES}
+	${LOCALGCC} ${GMPFILES} ${FLAGSLOC} ${BUILDDATE} -o $@
+	${LOCSTRIP} $@
+	@echo ||:
+
+testpi: ${GMPFILES}
+	${LOCALGCC} ${GMPFILES} ${FLAGSLOC} ${BUILDDATE} ${FLAGSTST} -o $@
+	${LOCSTRIP} $@
+	@echo ||:
+
+chudpi.ttp: ${GMPFILES}
+	${ATARIGCC} ${GMPFILES} ${FLAGS040} ${BUILDDATE} -o $@
+	${M68STRIP} $@
+	@echo ||:
+
+testpi.ttp: ${GMPFILES}
+	${ATARIGCC} ${GMPFILES} ${FLAGS040} ${BUILDDATE} ${FLAGSTST} -o $@
+	${M68STRIP} $@
+	@echo ||:
+
+# --------------------------------------------------------------------------------------------------
+
 copybin: local
 	@echo "Copying files to ~/bin" ||:
 	@cp compare ~/bin/0compare ||:
@@ -75,7 +104,6 @@ copybin: local
 
 copydlls:
 	@echo "Copying DLL files" ||:
-	@find /usr -iname "cygwin1.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*msys-2*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@find /usr -iname "*gmp*.dll" -exec cp "{}" . \; 2>/dev/null ||:
 	@echo ||:
@@ -154,36 +182,63 @@ tmp2txt4.ttp: ${TMPFILES}
 
 # --------------------------------------------------------------------------------------------------
 
-cross: giopi.exe giotst.exe compare.exe dat2txt.exe raw2txt.exe tmptxt.exe copydlls
+win64: giopi.exe giotst.exe compare.exe dat2txt.exe raw2txt.exe tmptxt.exe copydlls
 
 giopi.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${W64STRIP} $@
 	@echo ||:
 
 giotst.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -o $@
+	${W64STRIP} $@
 	@echo ||:
 
 compare.exe: ${CMPFILES}
-	${CROSSGCC} ${CMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${CMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${W64STRIP} $@
 	@echo ||:
 
 dat2txt.exe: ${DATFILES}
-	${CROSSGCC} ${DATFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${DATFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${W64STRIP} $@
 	@echo ||:
 
 raw2txt.exe: ${RAWFILES}
-	${CROSSGCC} ${RAWFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${RAWFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${W64STRIP} $@
 	@echo ||:
 
 tmptxt.exe: ${TMPFILES}
-	${CROSSGCC} ${TMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
-	${CROSTRIP} $@
+	${WIN64GCC} ${TMPFILES} ${FLAGSEXE} ${BUILDDATE} -o $@
+	${W64STRIP} $@
+	@echo ||:
+
+# --------------------------------------------------------------------------------------------------
+
+all: local atari win64
+	@touch * ||:
+
+# --------------------------------------------------------------------------------------------------
+
+release: veryclean all zip-linux zip-atari zip-win64
+	@du -b *.zip ||:
+	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release" giopi-${TIMESTAMP}-linux.zip giopi-${TIMESTAMP}-atari.zip giopi-${TIMESTAMP}-win64.zip
+	@echo ||:
+
+zip-linux:
+	@echo Creating giopi-${TIMESTAMP}-linux.zip ||:
+	@7z a -tzip giopi-${TIMESTAMP}-linux README.txt giopi giotst compare dat2txt raw2txt tmp2txt 1>/dev/null 2>/dev/null ||:
+	@echo ||:
+
+zip-atari:
+	@echo Creating giopi-${TIMESTAMP}-atari.zip ||:
+	@7z a -tzip giopi-${TIMESTAMP}-atari README.txt *.ttp 1>/dev/null 2>/dev/null ||:
+	@echo ||:
+
+zip-win64:
+	@echo Creating giopi-${TIMESTAMP}-win64.zip ||:
+	@7z a -tzip giopi-${TIMESTAMP}-win64 README.txt *.exe *.dll 1>/dev/null 2>/dev/null ||:
 	@echo ||:
 
 # --------------------------------------------------------------------------------------------------
@@ -199,7 +254,7 @@ giopid.ttp: ${SRCFILES}
 	@echo ||:
 
 giopid.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -g -o $@
+	${WIN64GCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} -g -o $@
 	@echo ||:
 
 giopidt: ${SRCFILES}
@@ -211,24 +266,8 @@ giopidt.ttp: ${SRCFILES}
 	@echo ||:
 
 giopidt.exe: ${SRCFILES}
-	${CROSSGCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -g -o $@
+	${WIN64GCC} ${SRCFILES} ${FLAGSEXE} ${BUILDDATE} ${FLAGSTST} -g -o $@
 	@echo ||:
-
-# --------------------------------------------------------------------------------------------------
-
-release: veryclean all
-	7z a -tzip giopi-${TIMESTAMP} README.txt giopi giotst compare dat2txt raw2txt tmp2txt *.ttp *.exe *.dll
-	@du -b *.zip ||:
-	gh release create "${TIMESTAMP}" --notes "${TIMESTAMP} release"  "giopi-${TIMESTAMP}.zip"
-	@echo ||:
-
-# --------------------------------------------------------------------------------------------------
-
-all: atari cross
-	@touch * ||:
-
-alldebug: atari cross debug
-	@touch * ||:
 
 # --------------------------------------------------------------------------------------------------
 

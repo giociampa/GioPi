@@ -3,7 +3,7 @@
 // logging.c
 void logthis(char *filename, char *fmt, ...);
 
-#if defined(TESTING)
+#if defined(NOTTESTING)
 void divide(mpf_t r, mpf_t y, mpf_t x) {
   unsigned long prec0, bits, prec, bit;
   unsigned long t1prec, t2prec;

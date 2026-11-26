@@ -1,6 +1,7 @@
 #ifndef _GIOPI_H
 #define _GIOPI_H 1
 
+#include <assert.h>
 #include <ctype.h>
 #include <getopt.h>
 #include <math.h>
@@ -14,14 +15,10 @@
 #include <unistd.h>
 #include <gmp.h>
 
-
-// --------------------------------
-#define SHOW_LINES 100000
-// --------------------------------
-
 #define A   545140134
 #define B   13591409
 #define C   640320
+#define D   12
 #define C24 711822400
 #define D24 15367680
 

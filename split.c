@@ -100,12 +100,12 @@ void recursion(unsigned long a, unsigned long b) {
       mpz_set_ui(P0, 6 * a - 5);
       mpz_mul_ui(P0, P0, 2 * a - 1);
       mpz_mul_ui(P0, P0, 6 * a - 1);
-      // q = a * a * a * (C^3 / 24)
-      mpz_set_ui(Q0, a);
-      mpz_mul_ui(Q0, Q0, a);
-      mpz_mul_ui(Q0, Q0, a);
-      mpz_mul_ui(Q0, Q0, C24); // (C / 24)^2
+      // q = (C^3 / 24) * a * a * a
+      mpz_set_ui(Q0, C24);     // (C / 24)^2
       mpz_mul_ui(Q0, Q0, D24); // (C * 24)
+      mpz_mul_ui(Q0, Q0, a);
+      mpz_mul_ui(Q0, Q0, a);
+      mpz_mul_ui(Q0, Q0, a);
       // t = p * (B + (A * a))
       mpz_set_ui(T0, A);
       mpz_mul_ui(T0, T0, a);
@@ -164,12 +164,12 @@ void recursion(unsigned long a, unsigned long b, mpz_t p0, mpz_t q0, mpz_t t0) {
       mpz_set_ui(p0, 6 * a - 5);
       mpz_mul_ui(p0, p0, 2 * a - 1);
       mpz_mul_ui(p0, p0, 6 * a - 1);
-      // q = a * a * a * (C^3 / 24)
-      mpz_set_ui(q0, a);
-      mpz_mul_ui(q0, q0, a);
-      mpz_mul_ui(q0, q0, a);
-      mpz_mul_ui(q0, q0, C24); // (C / 24)^2
+      // q = (C^3 / 24) * a * a * a
+      mpz_set_ui(q0, C24);     // (C / 24)^2
       mpz_mul_ui(q0, q0, D24); // (C * 24)
+      mpz_mul_ui(q0, q0, a);
+      mpz_mul_ui(q0, q0, a);
+      mpz_mul_ui(q0, q0, a);
       // t = p * (B + (A * a))
       mpz_set_ui(t0, A);
       mpz_mul_ui(t0, t0, a);

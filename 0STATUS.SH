@@ -1,9 +1,10 @@
 #!/bin/bash
 
+NOTIMES=""
 NOCHECK=""
 for param in $* ; do
-  TEST=$(echo "$param" | grep -i NOCHECK)
-  if [ "$TEST" != "" ]; then NOCHECK="NOCHECK"; fi
+  if [ ! -z "$(echo $param | grep -i NOTIMES)" ]; then NOTIMES="NOTIMES"; NOCHECK=""; fi
+  if [ ! -z "$(echo $param | grep -i NOCHECK)" ]; then NOCHECK="NOCHECK"; NOTIMES=""; fi
 done
 
 ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
@@ -13,19 +14,21 @@ ls -1 *.log *.LOG 2>/dev/null | sort -n | while read log ; do
 
   echo $log
 
-  if [ "${bad}" = "" ]; then
-    grep -E 'Result|Write|Total' $log
-  else
-    grep -E 'Result|Write' $log
-    grep -E 'Total' $log | tail -n 1 | sed "s/Total: /TmpTxt:/"
-  fi
+  if [ -z $NOTIMES ]; then
+    if [ "${bad}" = "" ]; then
+      grep -E 'Result|Write|Total' $log
+    else
+      grep -E 'Result|Write' $log
+      grep -E 'Total' $log | tail -n 1 | sed "s/Total: /TmpTxt:/"
+    fi
 
-  if [ -e $run ]; then
-    stat $run | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
-    cat $run
-    echo
-  else
-    stat $log | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
+    if [ -e $run ]; then
+      stat $run | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
+      cat $run
+      echo
+    else
+      stat $log | grep -E 'Change|Birth' | sort | cut -c-30 | sed -e "s|Change|Finish|" -e "s|Birth|Start|"
+    fi
   fi
 
   if [ -e $txt -a "$NOCHECK" != "NOCHECK" ]; then

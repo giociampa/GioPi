@@ -40,11 +40,10 @@ aranym=$(uname -a | grep -i aranym)
 if [ "$aranym" = "" ]; then
   aranym=$(echo $PWD | grep -i aranym)
 fi
-
 if [ "$aranym" = "" ]; then
-  FILELIST="giopi giotst"
+  FILELIST="giopi giotst chudpi testpi"
 else
-  FILELIST="gio*.ttp"
+  FILELIST="gio*.ttp chudpi.ttp testpi.ttp"
 fi
 
 function process () {
